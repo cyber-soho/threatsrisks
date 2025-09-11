@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="referrer" content="no-referrer" />
+  <!--
+    Security hardening (best-effort in a single file):
+    - Strict CSP with nonces for script & style (no inline event handlers)
+    - No external scripts, fonts, or iframes; no user-generated HTML is ever injected
+    - No eval/Function constructor; no dangerous DOM APIs
+    - No form submissions; no cross-origin requests; no third-party content
+    - Uses <details> for accessible, JS-optional interactivity
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'none'; media-src 'self'; object-src 'none'; script-src 'nonce-EDU-SECURE-2025'; style-src 'nonce-EDU-SECURE-2025'; font-src 'self'; connect-src 'self'; upgrade-insecure-requests; block-all-mixed-content" />
+  <title>Course Content — Threats & Risks (Secure Single‑File)</title>
+  <style nonce="EDU-SECURE-2025">
+    :root{
+      --bg: #0b1115;
+      --bg-soft: #111820;
+      --panel: #10161d;
+      --text: #e7eef7;
+      --muted:#a6b3c2;
+      --accent:#4aa3ff;
+      --accent-2:#6be0b9;
+      --ring: #2a8bf2;
+      --ok:#22c55e; --warn:#eab308; --bad:#ef4444;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    @media (prefers-color-scheme: light){
+      :root{ --bg:#f7fafc; --bg-soft:#f1f5f9; --panel:#ffffff; --text:#0b1115; --muted:#445160; --accent:#0b5cd6; --accent-2:#0b9c75; --ring:#2563eb; --shadow: 0 10px 30px rgba(0,0,0,.08) }
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg-soft));color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header{position:sticky;top:0;z-index:3;background:linear-gradient(180deg,var(--bg),transparent 90%);backdrop-filter:saturate(1.1) blur(4px);}
+    .hero{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:20px 0}
+    .title{font-weight:800;letter-spacing:.2px;margin:0}
+    .subtitle{margin:6px 0 0;color:var(--muted);font-size:0.98rem}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:linear-gradient(135deg,var(--panel),#0d2236);box-shadow:var(--shadow);border:1px solid #1a2836}
+    .chip svg{width:18px;height:18px}
+
+    /* Top nav */
+    .tabs{display:flex;flex-wrap:wrap;gap:8px}
+    .tab{appearance:none;border:1px solid #1a2836;background:linear-gradient(180deg,var(--panel),#0b1218);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;transition:transform .06s ease;outline: none;}
+    .tab[aria-selected="true"]{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent);}
+    .tab:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+    .tab:hover{transform:translateY(-1px)}
+
+    /* Toolbar */
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 0}
+    .search{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;background:var(--panel);border:1px solid #1a2836;box-shadow:var(--shadow)}
+    .search input{background:transparent;border:none;outline:none;color:inherit;min-width:200px}
+    .btn{appearance:none;border:1px solid #1a2836;background:linear-gradient(180deg,var(--panel),#0b1218);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}
+    .btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+
+    main{margin-top:14px}
+    section{display:block}
+    [hidden]{display:none !important}
+
+    /* Cards & details */
+    .card{background:linear-gradient(180deg,var(--panel),#0b1218);border:1px solid #132231;border-radius:18px;padding:16px;margin:14px 0;box-shadow:var(--shadow)}
+    .card h3{margin:.2rem 0 .6rem}
+    .muted{color:var(--muted)}
+    details{border:1px solid #1a2836;border-radius:14px;overflow:hidden;margin:10px 0;background:linear-gradient(180deg,var(--panel),#0b1218)}
+    summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:700}
+    summary::-webkit-details-marker{display:none}
+    details[open]>summary{border-bottom:1px solid #1a2836}
+    .content{padding:14px 16px}
+    .grid{display:grid;gap:12px}
+    @media(min-width:760px){.grid.two{grid-template-columns:1fr 1fr}}
+
+    table{width:100%;border-collapse:collapse;border:1px solid #1a2836;border-radius:12px;overflow:hidden}
+    th,td{padding:10px 12px;border-bottom:1px solid #1a2836;text-align:left;vertical-align:top}
+    th{background:#0d1a26}
+
+    .kpi{display:inline-flex;gap:8px;align-items:center;border-radius:12px;padding:6px 10px}
+    .ok{background:color-mix(in oklab, var(--ok) 18%, transparent)}
+    .warn{background:color-mix(in oklab, var(--warn) 18%, transparent)}
+    .bad{background:color-mix(in oklab, var(--bad) 18%, transparent)}
+
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container hero" role="banner">
+      <div>
+        <h1 class="title">Course Content — Threats & Risks</h1>
+        <p class="subtitle">Secure, single‑file, dynamic overview for classroom use. (No external assets. CSP‑hardened.)</p>
+      </div>
+      <div class="chip" aria-hidden="true" title="Security Hardened">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l7 4v6c0 5-3.5 9.5-7 10-3.5-.5-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span>Strict CSP</span>
+      </div>
+    </div>
+    <div class="container">
+      <nav class="tabs" aria-label="Primary">
+        <button class="tab" role="tab" aria-selected="true" data-target="#overview">Overview</button>
+        <button class="tab" role="tab" aria-selected="false" data-target="#hour1">Hour 1</button>
+        <button class="tab" role="tab" aria-selected="false" data-target="#hour2">Hour 2</button>
+        <button class="tab" role="tab" aria-selected="false" data-target="#hour3">Hour 3</button>
+        <button class="tab" role="tab" aria-selected="false" data-target="#definitions">Key Definitions</button>
+        <button class="tab" role="tab" aria-selected="false" data-target="#malware">Malware Case Studies</button>
+        <button class="tab" role="tab" aria-selected="false" data-target="#glossary">Comparative Glossary</button>
+      </nav>
+      <div class="toolbar" role="region" aria-label="Tools">
+        <div class="search" role="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" stroke="currentColor" stroke-width="1.5"/></svg>
+          <label for="filter" class="sr-only">Filter topics</label>
+          <input id="filter" type="text" inputmode="search" autocomplete="off" placeholder="Filter topics… (client-side, safe)" aria-describedby="filter-help" />
+        </div>
+        <div id="filter-help" class="sr-only">Type to filter visible sections by their text content. No data leaves this page.</div>
+        <button class="btn" id="copySection" type="button">Copy current section</button>
+        <button class="btn" id="printPage" type="button">Print</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container" tabindex="-1">
+    <section id="overview" aria-labelledby="h-overview">
+      <div class="card">
+        <h2 id="h-overview">How to use this page</h2>
+        <ul>
+          <li>Select a tab above to jump between sections.</li>
+          <li>Each topic expands via <code>&lt;details&gt;</code>—works even if JavaScript is blocked.</li>
+          <li>Use the Filter to quickly narrow what you see (local only, no networking).</li>
+          <li>“Copy current section” copies plain text only (no HTML), safe for LMS or docs.</li>
+        </ul>
+        <p class="muted">This file avoids inline event handlers, third‑party resources, and dangerous DOM APIs. A strict Content Security Policy is applied via <code>&lt;meta http-equiv&gt;</code> to reduce XSS risks in single‑file usage.</p>
+      </div>
+      <div class="grid two">
+        <div class="card">
+          <h3>What you'll learn</h3>
+          <ul>
+            <li>Threats vs Risks; Vulnerabilities & Exploits; Threat Actors</li>
+            <li>Information Assets and why they matter; Asset classification</li>
+            <li>Identifying assets & permissions; Access control models and misconfig risks</li>
+            <li>Key definitions, comparative glossary, and real‑world scenarios</li>
+            <li>Malware case studies (viruses, worms, ransomware, APTs, zero‑days, DoS, phishing)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Security Posture (at a glance)</h3>
+          <div class="grid">
+            <div class="kpi bad">High risk when threats + vulnerabilities + high impact coexist</div>
+            <div class="kpi warn">Reduce risk with patching, least privilege, MFA</div>
+            <div class="kpi ok">Strengthen with asset inventory, classification, monitoring</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hour 1 -->
+    <section id="hour1" aria-labelledby="h-hour1" hidden>
+      <h2 id="h-hour1">Hour 1 — Introduction to Threats and Risks</h2>
+
+      <details open>
+        <summary>Definitions: Threat vs Risk</summary>
+        <div class="content">
+          <p><strong>Threat</strong>: A potential cause of an unwanted incident that may harm systems or data. <em>Example:</em> a hacker trying to access a hospital’s patient database.</p>
+          <p><strong>Risk</strong>: The likelihood that a threat will exploit a vulnerability and cause harm. <em>Example:</em> if a hospital doesn’t patch outdated software, the risk of a hacker succeeding is high.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Categories of Threats</summary>
+        <div class="content grid two">
+          <div>
+            <h3>Internal threats</h3>
+            <p>Originating from inside the organization. <em>Example:</em> a disgruntled employee copying sensitive files to a USB stick.</p>
+          </div>
+          <div>
+            <h3>External threats</h3>
+            <p>Coming from outside the organization. <em>Example:</em> phishing emails targeting employee logins.</p>
+          </div>
+          <div>
+            <h3>Natural threats</h3>
+            <p>Environmental hazards. <em>Example:</em> a flood damaging a data‑center server room.</p>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Types of Cyber Threats</summary>
+        <div class="content grid two">
+          <div>
+            <h3>Malware</h3>
+            <p>Viruses, worms, ransomware. <em>Example:</em> ransomware encrypting company data and demanding payment.</p>
+          </div>
+          <div>
+            <h3>Phishing & Social Engineering</h3>
+            <p><em>Example:</em> a fake email pretending to be from the CEO asking for a bank transfer.</p>
+          </div>
+          <div>
+            <h3>Denial‑of‑Service (DoS)</h3>
+            <p><em>Example:</em> overloading a small business website until it crashes.</p>
+          </div>
+          <div>
+            <h3>Advanced Persistent Threats (APT)</h3>
+            <p><em>Example:</em> a state‑sponsored group infiltrating a government agency for months.</p>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Vulnerabilities & Exploits</summary>
+        <div class="content grid two">
+          <div>
+            <h3>Vulnerability</h3>
+            <p>A weakness in a system. <em>Example:</em> default passwords on routers.</p>
+          </div>
+          <div>
+            <h3>Exploit</h3>
+            <p>A method used to take advantage of a vulnerability. <em>Example:</em> logging in with default credentials.</p>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Threat Actors</summary>
+        <div class="content grid two">
+          <div><h3>Script Kiddies</h3><p>Use existing tools with little skill. <em>Example:</em> a teen runs free tools against school computers.</p></div>
+          <div><h3>Hacktivists</h3><p>Politically or socially motivated attackers.</p></div>
+          <div><h3>Organized Crime</h3><p>Financially motivated, structured groups.</p></div>
+          <div><h3>Nation States</h3><p>State‑sponsored, persistent capabilities.</p></div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Hour 2 -->
+    <section id="hour2" aria-labelledby="h-hour2" hidden>
+      <h2 id="h-hour2">Hour 2 — Overview of Information Assets</h2>
+      <details open>
+        <summary>What are Information Assets?</summary>
+        <div class="content">
+          <p>Any data, device, or component supporting information‑related activities. <em>Example:</em> an employee’s laptop with HR access is an information asset.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Types of Information Assets</summary>
+        <div class="content grid two">
+          <div><h3>Hardware</h3><p>Servers, laptops, routers. <em>Example:</em> a firewall appliance in a data center.</p></div>
+          <div><h3>Software</h3><p>Applications & operating systems. <em>Example:</em> Microsoft Office for daily operations.</p></div>
+          <div><h3>Data</h3><p>Structured/unstructured (e.g., customer records). <em>Example:</em> a spreadsheet with salaries.</p></div>
+          <div><h3>Personnel</h3><p>People who use/manage assets. <em>Example:</em> an IT admin managing accounts.</p></div>
+          <div><h3>Procedures & Policies</h3><p><em>Example:</em> a disaster recovery plan ensuring continuity.</p></div>
+        </div>
+      </details>
+      <details>
+        <summary>Why are Assets Valuable?</summary>
+        <div class="content grid two">
+          <div><h3>Support business processes</h3><p><em>Example:</em> a CRM managing customer relations/sales.</p></div>
+          <div><h3>Ensure compliance</h3><p><em>Example:</em> financial data stored for audits under regulations.</p></div>
+          <div><h3>Protect reputation</h3><p><em>Example:</em> a university safeguarding student grades.</p></div>
+        </div>
+      </details>
+      <details>
+        <summary>Asset Classification Levels</summary>
+        <div class="content">
+          <ul>
+            <li>Public</li>
+            <li>Internal Use</li>
+            <li>Confidential</li>
+            <li>Highly Confidential</li>
+          </ul>
+          <p class="muted"><em>Examples:</em> marketing brochures are public; payroll data is highly confidential.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Threats by Asset Type</summary>
+        <div class="content grid two">
+          <div><h3>Data leak in cloud storage</h3><p><em>Example:</em> a misconfigured cloud bucket exposing private data.</p></div>
+          <div><h3>Physical theft</h3><p><em>Example:</em> a lost smartphone with corporate email access.</p></div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Hour 3 -->
+    <section id="hour3" aria-labelledby="h-hour3" hidden>
+      <h2 id="h-hour3">Hour 3 — Identifying Assets & Permissions</h2>
+      <details open>
+        <summary>Identify Information Assets</summary>
+        <div class="content">
+          <ul>
+            <li>Inventory hardware & software (e.g., log all laptops and installed software)</li>
+            <li>Document data repositories (e.g., list all company databases)</li>
+            <li>Map where sensitive data is stored/transmitted (e.g., email attachments on unsecured networks)</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>Role of Access Controls</summary>
+        <div class="content grid two">
+          <div>
+            <h3>Permissions</h3>
+            <p>Determine who may view, edit, or delete data. <em>Example:</em> HR can see salaries; regular staff cannot.</p>
+          </div>
+          <div>
+            <h3>Least Privilege</h3>
+            <p><em>Example:</em> a receptionist should not have payroll access.</p>
+          </div>
+        </div>
+      </details>
+      <details>
+        <summary>Access Control Models</summary>
+        <div class="content grid two">
+          <div><h3>DAC</h3><p>User decides file permissions (e.g., Windows file sharing).</p></div>
+          <div><h3>MAC</h3><p>System‑enforced labels (e.g., classified government systems).</p></div>
+          <div><h3>RBAC</h3><p>Roles map to permissions (e.g., doctors vs admin staff in a hospital).</p></div>
+        </div>
+      </details>
+      <details>
+        <summary>Managing Permissions — Tools</summary>
+        <div class="content grid two">
+          <div><h3>Active Directory</h3><p>Centralized identity & access.</p></div>
+          <div><h3>LDAP</h3><p>Directory protocol integration.</p></div>
+          <div><h3>File System ACLs</h3><p>Fine‑grained filesystem permissions.</p></div>
+        </div>
+      </details>
+      <details>
+        <summary>Risks from Misconfiguration</summary>
+        <div class="content grid two">
+          <div><h3>Over‑permissioning</h3><p><em>Example:</em> an intern accidentally deletes a critical DB table.</p></div>
+          <div><h3>Privilege escalation</h3><p><em>Example:</em> a user exploits a flaw to gain admin rights.</p></div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Key Definitions (Threat, Vulnerability, Risk, Impact) -->
+    <section id="definitions" aria-labelledby="h-defs" hidden>
+      <h2 id="h-defs">Key Definitions & Relationships</h2>
+      <div class="card">
+        <table aria-label="Definitions Table">
+          <thead><tr><th>Term</th><th>Definition</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Threat</strong></td><td>A potential cause of harm to an asset or system.</td><td>A hacker attempting to break into a server.</td></tr>
+            <tr><td><strong>Vulnerability</strong></td><td>A weakness or flaw that can be exploited by a threat.</td><td>Outdated software with an unpatched hole.</td></tr>
+            <tr><td><strong>Risk</strong></td><td>Likelihood a threat exploits a vulnerability, causing loss.</td><td>High risk if critical systems are outdated and exposed.</td></tr>
+            <tr><td><strong>Impact</strong></td><td>The extent of damage or consequences if risk materializes.</td><td>Financial loss, downtime, reputational damage.</td></tr>
+          </tbody>
+        </table>
+        <p class="muted"><strong>Formula (conceptual):</strong> Risk ≈ Threat × Vulnerability × Impact. If any is effectively zero (e.g., no vulnerability), overall risk is minimized.</p>
+      </div>
+      <div class="card">
+        <table aria-label="Comparison Table">
+          <thead><tr><th>Aspect</th><th>Threat</th><th>Vulnerability</th><th>Risk</th><th>Impact</th></tr></thead>
+          <tbody>
+            <tr><td>What is it?</td><td>Potential attacker or danger</td><td>Weakness in a system</td><td>Probability of exploitation</td><td>Consequence if realized</td></tr>
+            <tr><td>Active or passive?</td><td>Often external & active</td><td>Passive flaw/weakness</td><td>Calculated scenario</td><td>Measured result</td></tr>
+            <tr><td>Can it be removed?</td><td>Mitigate/monitor</td><td>Patch/fix</td><td>Reduce, rarely zero</td><td>Minimize via planning</td></tr>
+          </tbody>
+        </table>
+        <p class="muted"><em>Analogy:</em> burglar nearby (threat), broken lock (vulnerability), chance of break‑in (risk), value of stolen items (impact).</p>
+      </div>
+    </section>
+
+    <!-- Malware Case Studies -->
+    <section id="malware" aria-labelledby="h-malware" hidden>
+      <h2 id="h-malware">Malware & Notable Incidents — Case Studies</h2>
+
+      <details open>
+        <summary>Viruses — Mydoom (2004)</summary>
+        <div class="content">
+          <p>One of the fastest‑spreading email worms; caused massive damages via DoS and backdoors.</p>
+          <p><a href="https://en.wikipedia.org/wiki/Mydoom" target="_blank" rel="noopener noreferrer">Learn more: Mydoom — Wikipedia</a></p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Worms — ILOVEYOU (2000)</summary>
+        <div class="content">
+          <p>Spread via email “I LOVE YOU,” infected millions, overwrote files and mailed itself to contacts.</p>
+          <p><a href="https://en.wikipedia.org/wiki/ILOVEYOU" target="_blank" rel="noopener noreferrer">Learn more: ILOVEYOU — Wikipedia</a></p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Ransomware — WannaCry (2017)</summary>
+        <div class="content">
+          <p>Exploited a Windows flaw, encrypted data, demanded Bitcoin; impacted 200k+ computers in 150 countries, including the UK NHS.</p>
+          <p><a href="https://en.wikipedia.org/wiki/WannaCry_ransomware_attack" target="_blank" rel="noopener noreferrer">Learn more: WannaCry — Wikipedia</a></p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Phishing/Social Engineering — DNC Hack (2016)</summary>
+        <div class="content">
+          <p>Spear‑phishing led to network compromise and major email leaks with political repercussions.</p>
+          <p><a href="https://en.wikipedia.org/wiki/Democratic_National_Committee_cyber_attacks" target="_blank" rel="noopener noreferrer">Learn more: DNC attacks — Wikipedia</a></p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Denial‑of‑Service — “Mafiaboy” (2000)</summary>
+        <div class="content">
+          <p>Canadian teen launched DoS waves crippling major sites (Yahoo!, eBay, CNN), exposing internet fragility.</p>
+          <p><a href="https://www.wired.com/2012/02/feb-7-2000-mafiaboys-moment/" target="_blank" rel="noopener noreferrer">Learn more: WIRED (2012)</a></p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Advanced Persistent Threat — Gamaredon</summary>
+        <div class="content">
+          <p>Russian state‑linked group persistently targeting Ukrainian entities since 2013 with evolving campaigns.</p>
+          <p><a href="https://attack.mitre.org/groups/G0047/" target="_blank" rel="noopener noreferrer">Learn more: MITRE ATT&CK — G0047</a></p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Zero‑Day Exploits — Stuxnet (2010)</summary>
+        <div class="content">
+          <p>Highly sophisticated worm exploiting multiple zero‑days to physically damage nuclear centrifuges.</p>
+          <p><a href="https://en.wikipedia.org/wiki/Stuxnet" target="_blank" rel="noopener noreferrer">Learn more: Stuxnet — Wikipedia</a></p>
+        </div>
+      </details>
+    </section>
+
+    <!-- Comparative Glossary & Scenario -->
+    <section id="glossary" aria-labelledby="h-gloss" hidden>
+      <h2 id="h-gloss">Comparative Glossary & Practical Scenario</h2>
+
+      <div class="card">
+        <h3>Quick Definitions Recap</h3>
+        <table>
+          <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Threat</td><td>Potential danger (natural or human‑made)</td></tr>
+            <tr><td>Vulnerability</td><td>Weakness or flaw in the system</td></tr>
+            <tr><td>Exploit</td><td>Tool/method used to abuse a vulnerability</td></tr>
+            <tr><td>Attack</td><td>The actual act of taking advantage of a system</td></tr>
+            <tr><td>Risk</td><td>The chance of damage if a threat exploits a vulnerability</td></tr>
+            <tr><td>Impact</td><td>The resulting damage/consequence</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Practical Workplace Scenario</h3>
+        <p class="muted">Setup: customer data in an internal DB; web app for employees; admin uses default password; no MFA enabled.</p>
+        <table>
+          <thead><tr><th>Term</th><th>Example in this scenario</th><th>Clarification</th></tr></thead>
+          <tbody>
+            <tr><td>Threat</td><td>Hacker seeking customer data</td><td>Potential danger to your data</td></tr>
+            <tr><td>Vulnerability</td><td>Default admin password, no MFA</td><td>Security flaw/weakness</td></tr>
+            <tr><td>Exploit</td><td>Guessing default credentials</td><td>Method to break in</td></tr>
+            <tr><td>Attack</td><td>Logging in & stealing the DB</td><td>The actual compromise</td></tr>
+            <tr><td>Risk</td><td>Chance attacker succeeds</td><td>Combination of threat, vuln, impact</td></tr>
+            <tr><td>Impact</td><td>Data leak → fines & brand damage</td><td>Real‑world consequence</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Side‑by‑Side Analogy</h3>
+        <table>
+          <thead><tr><th>Concept</th><th>In General</th><th>Analogy</th></tr></thead>
+          <tbody>
+            <tr><td>Threat</td><td>Possible danger</td><td>Burglar in the neighborhood</td></tr>
+            <tr><td>Vulnerability</td><td>Weakness exploitable</td><td>Front door left unlocked</td></tr>
+            <tr><td>Exploit</td><td>Method to abuse</td><td>Burglar uses unlocked door</td></tr>
+            <tr><td>Attack</td><td>Act of intrusion</td><td>Entering & stealing items</td></tr>
+            <tr><td>Risk</td><td>Likelihood of event</td><td>Chance of being robbed</td></tr>
+            <tr><td>Impact</td><td>Resulting damage</td><td>Losses & insurance claims</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Bonus: Internal Threat Example</h3>
+        <table>
+          <thead><tr><th>Term</th><th>Internal Example</th></tr></thead>
+          <tbody>
+            <tr><td>Threat</td><td>Disgruntled employee</td></tr>
+            <tr><td>Vulnerability</td><td>Over‑broad file access</td></tr>
+            <tr><td>Exploit</td><td>Employee downloads client data</td></tr>
+            <tr><td>Attack</td><td>Shares data with competitor</td></tr>
+            <tr><td>Risk</td><td>Insider leak potential</td></tr>
+            <tr><td>Impact</td><td>Legal action & brand damage</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script nonce="EDU-SECURE-2025">"use strict";
+  (function(){
+    // Minimal, safe, self-contained JS (no eval, no innerHTML assignment from untrusted sources)
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    // Tab navigation
+    const tabs = $$(".tab");
+    const sections = $$("main > section");
+    function show(targetSel){
+      sections.forEach(s => s.hidden = s.id !== targetSel.slice(1));
+      tabs.forEach(t => t.setAttribute("aria-selected", String(t.dataset.target === targetSel)));
+      // move focus to main for accessibility
+      $("#main").focus({preventScroll:true});
+    }
+    tabs.forEach(btn => btn.addEventListener("click", () => show(btn.dataset.target)));
+
+    // Filter: hide details/cards that do not match
+    const filterBox = $("#filter");
+    let filterTerm = "";
+    const filterables = $$("main details, main .card, main table, main ul, main .grid");
+    function applyFilter(){
+      const t = filterTerm.trim().toLowerCase();
+      filterables.forEach(el => {
+        if(!t){ el.hidden = false; return; }
+        const text = el.textContent || "";
+        el.hidden = !text.toLowerCase().includes(t);
+      });
+    }
+    filterBox.addEventListener("input", () => { filterTerm = filterBox.value; applyFilter(); });
+
+    // Copy current section's plain text to clipboard
+    const copyBtn = $("#copySection");
+    copyBtn.addEventListener("click", async () => {
+      const current = sections.find(s => !s.hidden) || sections[0];
+      const text = current.innerText || "";
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(text);
+          copyBtn.textContent = "Copied ✓";
+          setTimeout(() => { copyBtn.textContent = "Copy current section"; }, 1200);
+        }
+      }catch(_e){ /* silently ignore */ }
+    });
+
+    // Print
+    $("#printPage").addEventListener("click", () => { window.print(); });
+
+    // Default view
+    show("#overview");
+  })();
+  </script>
+</body>
+</html>
