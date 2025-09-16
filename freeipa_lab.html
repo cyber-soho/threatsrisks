@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!--
+    FreeIPA Lab — Debian 13 + Rocky 10 (DHCP mandatory, DNS with DDNS)
+    Security posture:
+      • Strict CSP with nonces, no inline event handlers, no external resources.
+      • No third-party libs, no iframes, no remote fonts, object-src none.
+      • All dynamic content uses safe textContent and template cloning.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    base-uri 'none';
+    object-src 'none';
+    frame-ancestors 'none';
+    img-src 'self' data:;
+    style-src 'self' 'nonce-42sTYd';
+    script-src 'self' 'nonce-42sTYd';
+    connect-src 'self';
+    form-action 'self';
+    upgrade-insecure-requests; block-all-mixed-content;" />
+  <title>FreeIPA Lab — Debian 13 + Rocky 10 (DHCP + DDNS)</title>
+  <style nonce="42sTYd">
+    :root {
+      --bg: #0b0f14;          --fg: #e6edf3;          --muted: #9fb0c0;
+      --card: #0f1621;        --accent: #4ba3ff;      --accent-2: #7cd992;
+      --danger: #ff6464;      --border: #223041;      --kbd: #10161f;
+      --code-bg: #0e131a;     --code-br: #2a3a4d;     --ok: #7cd992;
+      --link: #8cc4ff;        --link-visited: #b6a1ff; --shadow: rgba(0,0,0,.35);
+    }
+    [data-theme="light"]{
+      --bg: #f7f9fc;         --fg: #0f1720;          --muted: #41576b;
+      --card: #ffffff;       --accent: #005cc5;      --accent-2: #0f8a5f;
+      --danger: #c62828;     --border: #d6e0ea;      --kbd: #eef3f8;
+      --code-bg: #f1f5f9;    --code-br: #d4dee8;     --ok: #0f8a5f;
+      --link: #004a99;       --link-visited: #5a3fbf; --shadow: rgba(16,24,40,.15);
+    }
+
+    html, body { height: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+    a { color: var(--link); }
+    a:visited { color: var(--link-visited); }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    header { position: sticky; top: 0; z-index: 5; background: var(--bg); box-shadow: 0 2px 0 var(--border); }
+    .topbar { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 16px 24px; }
+    .brand { display: flex; gap: 12px; align-items: center; }
+    .brand .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 30%, transparent); }
+    .brand h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
+
+    nav { display: grid; grid-auto-flow: column; gap: 8px; padding: 0 24px 16px; overflow-x: auto; }
+    .tab { border: 1px solid var(--border); background: var(--card); color: var(--fg); padding: 10px 12px; border-radius: 12px; cursor: pointer; user-select: none; box-shadow: 0 1px 0 var(--shadow); white-space: nowrap; }
+    .tab[aria-current="page"] { outline: 2px solid var(--accent); }
+
+    .toolbar { display: flex; gap: 10px; align-items: center; }
+    .btn { border: 1px solid var(--border); background: var(--card); color: var(--fg); padding: 10px 12px; border-radius: 12px; cursor: pointer; box-shadow: 0 1px 0 var(--shadow); }
+    .btn:hover { outline: 2px solid var(--accent); }
+
+    .note { border-left: 4px solid var(--accent); background: var(--card); padding: 14px 16px; border-radius: 10px; box-shadow: 0 2px 0 var(--shadow); }
+    .warn { border-left-color: var(--danger); }
+    .ok { border-left-color: var(--ok); }
+
+    section { display: none; padding: 24px; border: 1px solid var(--border); background: var(--card); border-radius: 16px; margin: 20px 0; box-shadow: 0 4px 20px var(--shadow); }
+    section.active { display: block; }
+    h2 { margin-top: 0; }
+
+    .grid { display: grid; gap: 16px; }
+    @media (min-width: 900px){ .grid.cols-2 { grid-template-columns: 1fr 1fr; } }
+
+    .kbd { background: var(--kbd); border: 1px solid var(--border); border-bottom-width: 3px; padding: 0 6px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+
+    pre { background: var(--code-bg); border: 1px solid var(--code-br); border-radius: 12px; padding: 14px; overflow: auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 13px; }
+    .codebar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+    th { background: color-mix(in oklab, var(--card) 80%, var(--accent) 20%); }
+
+    details { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; background: var(--card); }
+    details + details { margin-top: 12px; }
+
+    .checklist li { list-style: none; margin: 8px 0; }
+    .checklist input[type="checkbox"]{ transform: scale(1.2); margin-right: 8px; }
+
+    footer { margin: 40px 0 80px; color: var(--muted); font-size: 14px; text-align: center; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="dot" aria-hidden="true"></div>
+        <h1>FreeIPA Lab — Debian 13 + Rocky 10 (DHCP + DDNS)</h1>
+      </div>
+      <div class="toolbar" role="toolbar" aria-label="Global actions">
+        <button class="btn" id="themeBtn" type="button" aria-pressed="false" title="Toggle theme">Toggle Theme</button>
+        <button class="btn" id="printBtn" type="button" title="Print/Save PDF">Print</button>
+        <button class="btn" id="exportBtn" type="button" title="Export progress as JSON">Export JSON</button>
+        <label class="btn" for="importFile" title="Import a previously exported JSON">Import JSON<input id="importFile" type="file" accept="application/json" hidden></label>
+      </div>
+    </div>
+    <nav aria-label="Section navigation">
+      <button class="tab" data-target="overview" aria-current="page" type="button">Overview</button>
+      <button class="tab" data-target="topology" type="button">Topology & OS</button>
+      <button class="tab" data-target="networking" type="button">Networking Plan</button>
+      <button class="tab" data-target="debian-dns-dhcp" type="button">Debian 13: DNS + DHCP (DDNS)</button>
+      <button class="tab" data-target="rocky-ipa" type="button">Rocky 10: FreeIPA</button>
+      <button class="tab" data-target="client" type="button">Debian Client</button>
+      <button class="tab" data-target="verification" type="button">Verification</button>
+      <button class="tab" data-target="deliverables" type="button">Deliverables & Rubric</button>
+      <button class="tab" data-target="troubleshoot" type="button">Troubleshooting</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="overview" class="active" aria-labelledby="h-overview">
+      <h2 id="h-overview">Objective & Notes</h2>
+      <p>Build a compact lab where <strong>Debian 13</strong> hosts <strong>BIND9 (DNS)</strong> and <strong>ISC DHCP</strong> with <strong>secure dynamic DNS updates (DDNS)</strong> and <strong>Rocky Linux 10</strong> hosts <strong>FreeIPA</strong>. DHCP installation is <strong>mandatory</strong>. You’ll join a Debian client to the IPA realm, then create users, groups, roles, and a basic sudo rule.</p>
+      <div class="note ok" role="note"><strong>Resource Tip:</strong> For labs with tight RAM/CPU, it’s usually easier to install <em>all three services</em> (DNS, DHCP, FreeIPA) on <strong>Rocky Linux 10</strong> in one VM. We keep them split here so you practice cross‑OS integration.</div>
+      <div class="note" style="margin-top:12px"><strong>Time:</strong> ~2–3 hours depending on download speeds & familiarity.</div>
+      <ul class="checklist" id="chk-overview">
+        <li><label><input type="checkbox" data-k="ack-objective"> I understand the objective and mandatory DHCP requirement.</label></li>
+        <li><label><input type="checkbox" data-k="ack-split"> I noted the split‑service topology (Debian: DNS/DHCP; Rocky: IPA).</label></li>
+      </ul>
+    </section>
+
+    <section id="topology" aria-labelledby="h-topology">
+      <h2 id="h-topology">Topology & OS Versions</h2>
+      <div class="grid cols-2">
+        <div>
+          <table>
+            <thead><tr><th>VM</th><th>Role</th><th>OS</th><th>Suggested Specs</th></tr></thead>
+            <tbody>
+              <tr><td>VM1</td><td>DNS + DHCP</td><td>Debian 13 “Trixie”</td><td>2 vCPU, 2 GB RAM, 20 GB disk</td></tr>
+              <tr><td>VM2</td><td>FreeIPA Server</td><td>Rocky Linux 10</td><td>2–4 vCPU, 4–6 GB RAM, 40 GB disk</td></tr>
+              <tr><td>VM3</td><td>Client</td><td>Debian 13 (XFCE)</td><td>1–2 vCPU, 2 GB RAM, 20 GB disk</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div class="note" role="note">
+            <strong>Domain/Realm:</strong> <span class="kbd">lab.local / LAB.LOCAL</span><br>
+            <strong>Hostnames:</strong> <span class="kbd">ns1.lab.local</span>, <span class="kbd">ipa.lab.local</span>
+          </div>
+          <ul class="checklist" id="chk-topology" style="margin-top:12px">
+            <li><label><input type="checkbox" data-k="vm-created"> VMs created with suggested specs.</label></li>
+            <li><label><input type="checkbox" data-k="hostnames-set"> Hostnames set correctly.</label></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="networking" aria-labelledby="h-networking">
+      <h2 id="h-networking">Networking Plan (example)</h2>
+      <table>
+        <thead><tr><th>Host</th><th>IP</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>ns1.lab.local (Debian 13)</td><td>192.168.56.10</td><td>BIND9 + ISC DHCP; authoritative for <span class="kbd">lab.local</span></td></tr>
+          <tr><td>ipa.lab.local (Rocky 10)</td><td>192.168.56.20</td><td>FreeIPA server (no IPA‑managed DNS)</td></tr>
+          <tr><td>Debian Client</td><td>DHCP (e.g., 192.168.56.100+)</td><td>Obtains address; DDNS should create A/PTR</td></tr>
+        </tbody>
+      </table>
+      <details style="margin-top:12px"><summary><strong>Interface tips</strong></summary>
+        Use a NAT Network for Internet, plus Host‑Only or Internal for the lab segment. Keep interface names consistent (e.g., <span class="kbd">enp0s3</span> for the lab).
+      </details>
+      <ul class="checklist" id="chk-networking" style="margin-top:12px">
+        <li><label><input type="checkbox" data-k="ip-set"> Static IP on Debian DNS/DHCP set to 192.168.56.10.</label></li>
+        <li><label><input type="checkbox" data-k="ipa-ip"> Rocky FreeIPA reachable at 192.168.56.20.</label></li>
+      </ul>
+    </section>
+
+    <section id="debian-dns-dhcp" aria-labelledby="h-debian">
+      <h2 id="h-debian">Debian 13 — BIND9 DNS + ISC DHCP (DDNS mandatory)</h2>
+      <div class="note warn" role="note"><strong>Mandatory:</strong> ISC DHCP must be installed and configured to perform secure DDNS updates to BIND.</div>
+
+      <h3>Install packages</h3>
+      <div class="codebar"><span>Debian</span><button class="btn copy" data-copy="#code-apt">Copy</button></div>
+      <pre><code id="code-apt">sudo apt update
+sudo apt install -y bind9 bind9-utils dnsutils isc-dhcp-server</code></pre>
+
+      <h3>BIND named options</h3>
+      <div class="codebar"><span>/etc/bind/named.conf.options</span><button class="btn copy" data-copy="#code-named-options">Copy</button></div>
+<pre><code id="code-named-options">options {
+    directory "/var/cache/bind";
+    recursion yes;
+    allow-query { any; };
+    dnssec-validation auto;
+
+    forwarders { 1.1.1.1; 9.9.9.9; };
+    listen-on { 192.168.56.10; 127.0.0.1; };
+};</code></pre>
+
+      <h3>TSIG key for DDNS</h3>
+      <div class="codebar"><span>Create key</span><button class="btn copy" data-copy="#code-tsig">Copy</button></div>
+<pre><code id="code-tsig">sudo tsig-keygen -a hmac-sha256 dhcp-ddns | sudo tee /etc/bind/keys/dhcp-ddns.key
+sudo chmod 640 /etc/bind/keys/dhcp-ddns.key
+sudo chgrp bind /etc/bind/keys/dhcp-ddns.key</code></pre>
+
+      <h3>Zones permitting updates</h3>
+      <div class="codebar"><span>/etc/bind/named.conf.local</span><button class="btn copy" data-copy="#code-named-local">Copy</button></div>
+<pre><code id="code-named-local">include "/etc/bind/keys/dhcp-ddns.key";
+
+zone "lab.local" IN {
+    type master;
+    file "/etc/bind/zones/db.lab.local";
+    allow-update { key dhcp-ddns; };
+};
+
+zone "56.168.192.in-addr.arpa" IN {
+    type master;
+    file "/etc/bind/zones/db.192.168.56";
+    allow-update { key dhcp-ddns; };
+};</code></pre>
+
+      <div class="codebar"><span>Create zone files</span><button class="btn copy" data-copy="#code-zonefiles">Copy</button></div>
+<pre><code id="code-zonefiles">sudo mkdir -p /etc/bind/zones
+sudo tee /etc/bind/zones/db.lab.local > /dev/null &lt;&lt;'EOF'
+$TTL 86400
+@   IN SOA ns1.lab.local. admin.lab.local. (
+        2025091601 ; serial
+        3600       ; refresh
+        1800       ; retry
+        604800     ; expire
+        86400 )    ; minimum
+    IN NS  ns1.lab.local.
+ns1 IN A   192.168.56.10
+ipa IN A   192.168.56.20
+_kerberos._udp   IN SRV 0 0 88 ipa.lab.local.
+_kerberos._tcp   IN SRV 0 0 88 ipa.lab.local.
+_kpasswd._udp    IN SRV 0 0 464 ipa.lab.local.
+_kpasswd._tcp    IN SRV 0 0 464 ipa.lab.local.
+_ldap._tcp       IN SRV 0 0 389 ipa.lab.local.
+_kerberos        IN TXT       LAB.LOCAL
+EOF
+
+sudo tee /etc/bind/zones/db.192.168.56 > /dev/null &lt;&lt;'EOF'
+$TTL 86400
+@   IN SOA ns1.lab.local. admin.lab.local. (
+        2025091601 ; serial
+        3600       ; refresh
+        1800       ; retry
+        604800     ; expire
+        86400 )    ; minimum
+    IN NS  ns1.lab.local.
+10  IN PTR ns1.lab.local.
+20  IN PTR ipa.lab.local.
+EOF</code></pre>
+
+      <div class="codebar"><span>Check & start BIND</span><button class="btn copy" data-copy="#code-bind-restart">Copy</button></div>
+<pre><code id="code-bind-restart">sudo named-checkconf
+sudo named-checkzone lab.local /etc/bind/zones/db.lab.local
+sudo named-checkzone 56.168.192.in-addr.arpa /etc/bind/zones/db.192.168.56
+sudo systemctl enable --now bind9</code></pre>
+
+      <h3>ISC DHCP with DDNS (mandatory)</h3>
+      <div class="codebar"><span>/etc/default/isc-dhcp-server</span><button class="btn copy" data-copy="#code-dhcp-default">Copy</button></div>
+<pre><code id="code-dhcp-default">INTERFACESv4="enp0s3"</code></pre>
+
+      <div class="codebar"><span>/etc/dhcp/dhcpd.conf</span><button class="btn copy" data-copy="#code-dhcp-conf">Copy</button></div>
+<pre><code id="code-dhcp-conf">authoritative;
+
+include "/etc/bind/keys/dhcp-ddns.key";
+
+ddns-update-style interim;
+ignore client-updates;
+update-static-leases on;
+
+default-lease-time 600;
+max-lease-time 7200;
+option domain-name "lab.local";
+option domain-name-servers 192.168.56.10;
+
+zone lab.local. {
+  primary 127.0.0.1;
+  key dhcp-ddns;
+}
+
+zone 56.168.192.in-addr.arpa. {
+  primary 127.0.0.1;
+  key dhcp-ddns;
+}
+
+subnet 192.168.56.0 netmask 255.255.255.0 {
+  range 192.168.56.100 192.168.56.200;
+  option routers 192.168.56.1; # omit if no router on this segment
+  option broadcast-address 192.168.56.255;
+}
+
+host ipa {
+  hardware ethernet 00:11:22:33:44:55; # replace with IPA VM MAC
+  fixed-address 192.168.56.20;
+}</code></pre>
+
+      <div class="codebar"><span>Enable DHCP</span><button class="btn copy" data-copy="#code-dhcp-enable">Copy</button></div>
+<pre><code id="code-dhcp-enable">sudo systemctl enable --now isc-dhcp-server
+sudo journalctl -u isc-dhcp-server -f</code></pre>
+
+      <h3>Quick DDNS test</h3>
+      <div class="codebar"><span>nsupdate (optional)</span><button class="btn copy" data-copy="#code-nsupdate">Copy</button></div>
+<pre><code id="code-nsupdate">nsupdate -k /etc/bind/keys/dhcp-ddns.key &lt;&lt;EOF
+server 192.168.56.10
+update add testhost.lab.local. 300 A 192.168.56.123
+send
+EOF</code></pre>
+
+      <ul class="checklist" id="chk-debian">
+        <li><label><input type="checkbox" data-k="bind-installed"> BIND9 installed and zones created.</label></li>
+        <li><label><input type="checkbox" data-k="tsig-created"> TSIG key generated and referenced by BIND & DHCP.</label></li>
+        <li><label><input type="checkbox" data-k="dhcp-mandatory"> ISC DHCP installed and enabled.</label></li>
+        <li><label><input type="checkbox" data-k="ddns-works"> Client lease creates A/PTR records (DDNS working).</label></li>
+      </ul>
+    </section>
+
+    <section id="rocky-ipa" aria-labelledby="h-rocky">
+      <h2 id="h-rocky">Rocky Linux 10 — FreeIPA Server (no IPA‑managed DNS)</h2>
+      <h3>Point DNS resolver to Debian</h3>
+      <div class="codebar"><span>Temporary resolv.conf</span><button class="btn copy" data-copy="#code-resolv">Copy</button></div>
+      <pre><code id="code-resolv">echo -e "nameserver 192.168.56.10\nsearch lab.local" | sudo tee /etc/resolv.conf</code></pre>
+
+      <h3>Install & configure FreeIPA</h3>
+      <div class="codebar"><span>Install</span><button class="btn copy" data-copy="#code-dnf">Copy</button></div>
+      <pre><code id="code-dnf">sudo dnf install -y ipa-server</code></pre>
+
+      <div class="codebar"><span>Server install</span><button class="btn copy" data-copy="#code-ipa-install">Copy</button></div>
+      <pre><code id="code-ipa-install">sudo ipa-server-install \
+  --domain=lab.local \
+  --realm=LAB.LOCAL \
+  --hostname=ipa.lab.local \
+  --no-ntp \
+  --no-dns</code></pre>
+
+      <div class="codebar"><span>Firewall (if needed)</span><button class="btn copy" data-copy="#code-fw">Copy</button></div>
+      <pre><code id="code-fw">sudo firewall-cmd --add-service=freeipa-ldap --permanent
+sudo firewall-cmd --add-service=freeipa-ldaps --permanent
+sudo firewall-cmd --add-service=freeipa-replication --permanent
+sudo firewall-cmd --reload</code></pre>
+
+      <h3>Validate SRV records</h3>
+      <div class="codebar"><span>Kerberos/LDAP SRV checks</span><button class="btn copy" data-copy="#code-srv-checks">Copy</button></div>
+      <pre><code id="code-srv-checks">dig +short _kerberos._udp.lab.local SRV
+dig +short _ldap._tcp.lab.local SRV</code></pre>
+
+      <ul class="checklist" id="chk-rocky">
+        <li><label><input type="checkbox" data-k="ipa-installed"> IPA installed with domain/realm/hostname as above.</label></li>
+        <li><label><input type="checkbox" data-k="srv-present"> SRV TXT records present in BIND (Kerberos/LDAP/TXT).</label></li>
+      </ul>
+
+      <div class="note ok" role="note" style="margin-top:12px">
+        <strong>Alternate (resource‑saving) layout:</strong> Run DNS, DHCP, and FreeIPA all on <strong>Rocky 10</strong> in one VM. For this assignment, keep them split unless your instructor approves the single‑VM variant.
+      </div>
+    </section>
+
+    <section id="client" aria-labelledby="h-client">
+      <h2 id="h-client">Debian 13 Client — Join to IPA</h2>
+      <div class="codebar"><span>Install client</span><button class="btn copy" data-copy="#code-client-install">Copy</button></div>
+      <pre><code id="code-client-install">sudo apt install -y freeipa-client</code></pre>
+
+      <div class="codebar"><span>Join realm</span><button class="btn copy" data-copy="#code-client-join">Copy</button></div>
+      <pre><code id="code-client-join">sudo ipa-client-install \
+  --domain=lab.local \
+  --realm=LAB.LOCAL \
+  --server=ipa.lab.local \
+  --principal=admin</code></pre>
+
+      <div class="codebar"><span>Basic checks</span><button class="btn copy" data-copy="#code-client-checks">Copy</button></div>
+      <pre><code id="code-client-checks">kinit admin
+id admin
+getent passwd admin</code></pre>
+
+      <ul class="checklist" id="chk-client">
+        <li><label><input type="checkbox" data-k="client-joined"> Client successfully joined to realm.</label></li>
+        <li><label><input type="checkbox" data-k="sso-works"> Kerberos SSO works (kinit/klist ok).</label></li>
+      </ul>
+    </section>
+
+    <section id="verification" aria-labelledby="h-verification">
+      <h2 id="h-verification">Verification & Web UI Tasks</h2>
+      <ol>
+        <li>Open <span class="kbd">https://ipa.lab.local</span> on the client; log in as <strong>admin</strong>.</li>
+        <li>Create at least <strong>two users</strong>.</li>
+        <li>Create a <strong>group</strong> and add both users.</li>
+        <li>Create a <strong>role</strong> (e.g., developers) and assign a benign <strong>sudo rule</strong>.</li>
+        <li>Assign the <strong>group</strong> to the <strong>role</strong>.</li>
+      </ol>
+      <ul class="checklist" id="chk-verification">
+        <li><label><input type="checkbox" data-k="ui-login"> Web UI login successful.</label></li>
+        <li><label><input type="checkbox" data-k="users-created"> Users created, group & role assigned.</label></li>
+      </ul>
+
+      <h3>DDNS evidence</h3>
+      <div class="codebar"><span>Confirm records</span><button class="btn copy" data-copy="#code-dig">Copy</button></div>
+      <pre><code id="code-dig">dig +short client1.lab.local A
+dig +short -x 192.168.56.100</code></pre>
+
+    </section>
+
+    <section id="deliverables" aria-labelledby="h-deliverables">
+      <h2 id="h-deliverables">Deliverables & Rubric</h2>
+      <ol>
+        <li>Screenshot: FreeIPA Web UI login page.</li>
+        <li>Screenshot: Users you created; group & role assignments.</li>
+        <li>Screenshot: Sudo rule configuration.</li>
+        <li>Evidence: DDNS working (lease + A/PTR or <span class="kbd">dig</span> output).</li>
+        <li>Short reflection (100–150 words): what you learned, challenges, real‑world mapping.</li>
+      </ol>
+      <h3>Evaluation (100%)</h3>
+      <table>
+        <thead><tr><th>Criteria</th><th>Weight</th></tr></thead>
+        <tbody>
+          <tr><td>Debian 13 DNS/DHCP with secure DDNS</td><td>25%</td></tr>
+          <tr><td>FreeIPA on Rocky 10; realm configured</td><td>25%</td></tr>
+          <tr><td>Users, groups, roles, sudo rule</td><td>20%</td></tr>
+          <tr><td>Screenshots & DDNS evidence</td><td>15%</td></tr>
+          <tr><td>Reflection quality</td><td>15%</td></tr>
+        </tbody>
+      </table>
+      <ul class="checklist" id="chk-deliverables" style="margin-top:12px">
+        <li><label><input type="checkbox" data-k="shots-collected"> All screenshots captured.</label></li>
+        <li><label><input type="checkbox" data-k="reflection-done"> Reflection written (100–150 words).</label></li>
+      </ul>
+    </section>
+
+    <section id="troubleshoot" aria-labelledby="h-troubleshoot">
+      <h2 id="h-troubleshoot">Troubleshooting</h2>
+      <details open>
+        <summary><strong>DDNS not updating</strong></summary>
+        <ul>
+          <li>Ensure the TSIG key file is identical in BIND and DHCP and permissions allow <span class="kbd">bind</span> and <span class="kbd">dhcpd</span> to read it.</li>
+          <li>Check logs: <span class="kbd">journalctl -u bind9 -u isc-dhcp-server</span> (Debian).</li>
+          <li>Verify zones have <span class="kbd">allow-update { key dhcp-ddns; };</span></li>
+        </ul>
+      </details>
+      <details>
+        <summary><strong>IPA client join fails</strong></summary>
+        <ul>
+          <li>Confirm SRV/TXT records exist for Kerberos/LDAP and <span class="kbd">LAB.LOCAL</span>.</li>
+          <li>Check time sync and DNS search domain; try <span class="kbd">kinit admin</span> then re-run the join.</li>
+        </ul>
+      </details>
+      <details>
+        <summary><strong>Name resolution flaky</strong></summary>
+        <ul>
+          <li>Ensure BIND listens on the lab interface and clients use <span class="kbd">192.168.56.10</span> as their resolver.</li>
+          <li>Re-run <span class="kbd">named-checkconf</span> and zone checks.</li>
+        </ul>
+      </details>
+    </section>
+
+    <footer>
+      Built for hands‑on learning. No external dependencies. Theme‑safe and CSP‑hardened.
+    </footer>
+  </main>
+
+  <template id="toastTpl">
+    <div role="status" aria-live="polite" style="position:fixed;bottom:20px;right:20px;background:var(--card);border:1px solid var(--border);padding:10px 12px;border-radius:10px;box-shadow:0 6px 24px var(--shadow);">Copied to clipboard</div>
+  </template>
+
+  <script nonce="42sTYd">
+  (function(){
+    "use strict";
+    const qs = (sel, el=document) => el.querySelector(sel);
+    const qsa = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+    // Accessible tab/section navigation with hash support
+    const sections = qsa('main section');
+    const tabs = qsa('nav .tab');
+
+    function activate(id){
+      sections.forEach(s => s.classList.toggle('active', s.id === id));
+      tabs.forEach(t => t.setAttribute('aria-current', t.dataset.target === id ? 'page' : 'false'));
+      if(location.hash.replace('#','') !== id){ location.hash = id; }
+      saveProgress();
+    }
+
+    tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.target)));
+    window.addEventListener('hashchange', () => {
+      const id = location.hash.slice(1);
+      if (qs('#'+CSS.escape(id))) activate(id);
+    });
+
+    // Theme toggle (persisted)
+    const themeBtn = qs('#themeBtn');
+    function setTheme(mode){
+      document.documentElement.setAttribute('data-theme', mode);
+      themeBtn.setAttribute('aria-pressed', String(mode === 'light'));
+      localStorage.setItem('freeipa.theme', mode);
+    }
+    themeBtn.addEventListener('click', () => setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+
+    // Print
+    qs('#printBtn').addEventListener('click', () => window.print());
+
+    // Copy buttons for code blocks
+    const toastTpl = qs('#toastTpl');
+    function toast(){
+      const n = toastTpl.content.firstElementChild.cloneNode(true);
+      document.body.appendChild(n);
+      setTimeout(() => n.remove(), 1200);
+    }
+    qsa('.btn.copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const sel = btn.getAttribute('data-copy');
+        const el = qs(sel);
+        if (!el) return;
+        try {
+          await navigator.clipboard.writeText(el.textContent || '');
+          toast();
+        } catch {}
+      });
+    });
+
+    // Progress export/import (safe schema)
+    function getProgress(){
+      const data = {};
+      qsa('ul.checklist input[type="checkbox"]').forEach(cb => { data[cb.dataset.k] = !!cb.checked; });
+      const state = { hash: location.hash || '#overview', checks: data };
+      return state;
+    }
+    function applyProgress(state){
+      if (!state || typeof state !== 'object') return;
+      const checks = state.checks && typeof state.checks === 'object' ? state.checks : {};
+      qsa('ul.checklist input[type="checkbox"]').forEach(cb => { cb.checked = !!checks[cb.dataset.k]; });
+      const id = (state.hash || '#overview').slice(1);
+      if (qs('#'+CSS.escape(id))) activate(id);
+    }
+    function saveProgress(){
+      try { localStorage.setItem('freeipa.progress', JSON.stringify(getProgress())); } catch {}
+    }
+    function loadProgress(){
+      try {
+        const s = localStorage.getItem('freeipa.progress');
+        if (s) applyProgress(JSON.parse(s));
+      } catch {}
+    }
+
+    qs('#exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(getProgress(), null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.download = 'freeipa_lab_progress.json';
+      a.href = URL.createObjectURL(blob);
+      a.rel = 'noopener';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+
+    qs('#importFile').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.type !== 'application/json' || file.size > 2*1024*1024) { e.target.value=''; return; }
+      const rd = new FileReader();
+      rd.onload = () => {
+        try {
+          const obj = JSON.parse(String(rd.result || '{}'));
+          // Very small schema validation: only booleans in checks, and a string hash
+          const safe = { hash: '#overview', checks: {} };
+          if (obj && typeof obj === 'object'){
+            if (typeof obj.hash === 'string' && /^#[a-z0-9\-]+$/i.test(obj.hash)) safe.hash = obj.hash;
+            if (obj.checks && typeof obj.checks === 'object'){
+              for (const [k,v] of Object.entries(obj.checks)){
+                if (typeof k === 'string' && typeof v === 'boolean') safe.checks[k] = v;
+              }
+            }
+          }
+          applyProgress(safe);
+          saveProgress();
+        } catch {}
+      };
+      rd.readAsText(file);
+      e.target.value='';
+    });
+
+    // Initial activation
+    setTheme(localStorage.getItem('freeipa.theme') || 'dark');
+    const initial = location.hash.slice(1) && qs('#'+CSS.escape(location.hash.slice(1))) ? location.hash.slice(1) : 'overview';
+    activate(initial);
+    loadProgress();
+
+    // Persist checklist changes
+    qsa('ul.checklist input[type="checkbox"]').forEach(cb => cb.addEventListener('change', saveProgress));
+  })();
+  </script>
+</body>
+</html>

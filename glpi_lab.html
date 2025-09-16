@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>06.02 — GLPI Lab (Debian 13 / Rocky 10) — Secure Dynamic HTML</title>
+  <!-- Strong, single-file CSP with nonces. No inline event handlers. No external resources. Works offline. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'nonce-a1b2c3'; style-src 'self' 'nonce-a1b2c3'; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; connect-src 'none'" />
+  
+  <style nonce="a1b2c3">
+    :root {
+      color-scheme: light dark;
+      --bg: #0b0e13;
+      --panel: #121722;
+      --text: #e6eaf2;
+      --muted: #9aa4b2;
+      --accent: #6aa6ff;
+      --accent-2: #9bdbff;
+      --ok: #2ecc71;
+      --warn: #f39c12;
+      --err: #e74c3c;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+      --border: 1px solid rgba(255,255,255,.08);
+      --code-bg: #0f1420;
+    }
+    html.light {
+      --bg: #f7f9fc;
+      --panel: #ffffff;
+      --text: #1c2430;
+      --muted: #556072;
+      --accent: #1f6feb;
+      --accent-2: #539bf5;
+      --ok: #1b8f4d;
+      --warn: #b36b00;
+      --err: #b8352b;
+      --shadow: 0 8px 24px rgba(0,0,0,.08);
+      --border: 1px solid rgba(0,0,0,.08);
+      --code-bg: #0e1116;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    header.topbar {
+      position: sticky; top: 0; z-index: 10; background: var(--panel); box-shadow: var(--shadow); border-bottom: var(--border);
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    .topgrid { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+    nav a { color: var(--text); text-decoration: none; padding: 10px 12px; border-radius: 10px; }
+    nav a:hover, nav a:focus { outline: none; background: rgba(255,255,255,.06); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; border: var(--border); background: transparent; color: var(--text); padding: 10px 14px; border-radius: 12px; cursor: pointer; box-shadow: none; transition: transform .06s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; }
+    .btn.ghost { background: rgba(255,255,255,.05); }
+    .tag { display:inline-block; padding: 2px 10px; border-radius: 999px; border: var(--border); color: var(--muted); font-size: 12px; }
+    .hero {
+      margin-top: 18px; padding: 22px; border-radius: var(--radius); background: radial-gradient(1200px 600px at 20% -10%, rgba(106,166,255,.12), transparent 50%), var(--panel); border: var(--border); box-shadow: var(--shadow);
+    }
+    .grid { display: grid; gap: 18px; }
+    @media (min-width: 900px) { .col-2 { grid-template-columns: 1fr 1fr; } }
+    h1, h2, h3 { line-height: 1.2; margin: 0 0 10px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 22px; margin-top: 24px; }
+    h3 { font-size: 18px; margin-top: 20px; color: var(--muted); }
+    p { margin: 0 0 12px; }
+    .panel { background: var(--panel); border: var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 13px; background: rgba(255,255,255,.06); padding: 2px 6px; border-radius: 6px; border: var(--border); }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 13px; }
+    pre { background: var(--code-bg); color: #e8eefc; border-radius: 12px; padding: 14px; overflow:auto; border: 1px solid rgba(255,255,255,.08); position: relative; }
+    .copy { position: absolute; top: 10px; right: 10px; }
+    details { border: var(--border); background: var(--panel); border-radius: 12px; padding: 12px 14px; }
+    details + details { margin-top: 12px; }
+    details summary { cursor: pointer; list-style: none; font-weight: 600; }
+    details summary::-webkit-details-marker { display:none; }
+    .progress { height: 10px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; }
+    .progress > div { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s ease; }
+    .checklist label { display:flex; align-items:center; gap:10px; padding: 8px 10px; border-radius: 10px; }
+    .checklist label:hover { background: rgba(255,255,255,.05); }
+    .muted { color: var(--muted); }
+    .callout { border-left: 4px solid var(--accent); padding: 10px 12px; background: rgba(106,166,255,.08); border-radius: 10px; }
+    .warn { border-left-color: var(--warn); background: rgba(243,156,18,.12); }
+    .ok { border-left-color: var(--ok); background: rgba(46,204,113,.12); }
+    .err { border-left-color: var(--err); background: rgba(231,76,60,.12); }
+    .q { border-left-color: var(--accent-2); background: rgba(155,219,255,.10); }
+    .footer { margin: 24px 0; color: var(--muted); font-size: 13px; text-align: center; }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding: 6px 10px; border-radius: 999px; border: var(--border); }
+    .notes { width: 100%; min-height: 120px; border-radius: 12px; border: var(--border); background: var(--panel); color: var(--text); padding: 10px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: var(--border); }
+    .toc a { display:inline-block; margin: 4px 8px 4px 0; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topgrid">
+      <nav aria-label="Primary">
+        <a href="#overview">Overview</a>
+        <a href="#topology">Topology</a>
+        <a href="#steps">Steps</a>
+        <a href="#tasks">Tasks</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+        <a href="#knowledge-check">Knowledge Check</a>
+        <a href="#submission">Submission</a>
+      </nav>
+      <div class="actions" role="group" aria-label="Actions">
+        <button class="btn ghost" id="themeBtn" type="button" aria-pressed="false" aria-label="Toggle theme">🌗 Theme</button>
+        <button class="btn" id="exportBtn" type="button" title="Export notes & progress">💾 Export</button>
+        <button class="btn" id="resetBtn" type="button" title="Reset saved progress">♻️ Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" id="overview" tabindex="-1">
+      <div class="grid col-2">
+        <div>
+          <span class="tag">Lab 06.02</span>
+          <h1>GLPI on Debian 13 with FreeIPA (Rocky 10) — Reusing 06.01 Infrastructure</h1>
+          <p>
+            Deploy <strong>GLPI</strong> (IT Asset Management & Help Desk) on <strong>Debian 13</strong>, integrated within the
+            same VirtualBox network you built in <span class="kbd">06.01 — FreeIPA</span> on <strong>Rocky 10</strong>. The DHCP and DNS services
+            remain on <strong>Debian 13</strong> with <em>dynamic DNS updates</em> enabled. For resource‑constrained environments, it’s often simpler to
+            consolidate on <strong>Rocky 10</strong>; however, in this lab we keep GLPI on Debian to practice a mixed‑OS setup.
+          </p>
+          <p class="muted">Estimated time: ~2 hours • Individual, hands‑on</p>
+          <div class="progress" aria-label="Overall progress" title="Overall progress">
+            <div id="progressBar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Prerequisites</h3>
+          <ul>
+            <li>Completed <strong>06.01 — FreeIPA</strong> (Rocky 10) with the same NAT Network.</li>
+            <li>Debian 13 VM providing <strong>DHCP</strong> (mandatory) and <strong>DNS with dynamic updates</strong>.</li>
+            <li>Ability to create another <strong>Debian 13</strong> VM for GLPI.</li>
+          </ul>
+          <div class="callout ok">Tip: Keep FreeIPA and DNS/DHCP running while you set up GLPI.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="topology" class="panel" tabindex="-1">
+      <h2>Lab Topology</h2>
+      <div class="grid col-2">
+        <div>
+          <ul>
+            <li><strong>Rocky 10</strong> — FreeIPA server (from 06.01), e.g., <span class="kbd">ipa.virt.lan</span></li>
+            <li><strong>Debian 13</strong> — DNS + DHCP (dynamic DNS), e.g., <span class="kbd">dnsdhcp.virt.lan</span></li>
+            <li><strong>Debian 13</strong> — <strong>GLPI</strong> server (new), e.g., <span class="kbd">glpi.virt.lan</span></li>
+            <li>(Optional) Debian 13 client for testing help desk/ITAM use</li>
+          </ul>
+          <div class="callout q">All VMs use the <strong>same VirtualBox NAT Network</strong> from 06.01. Hostnames should register automatically via DHCP → Dynamic DNS.</div>
+        </div>
+        <div class="panel">
+          <h3>Resource Sizing (Guideline)</h3>
+          <table aria-label="Resource sizing table">
+            <thead><tr><th>VM</th><th>vCPU</th><th>RAM</th><th>Disk</th></tr></thead>
+            <tbody>
+              <tr><td>FreeIPA (Rocky 10)</td><td>2</td><td>2–4 GB</td><td>20+ GB</td></tr>
+              <tr><td>DNS/DHCP (Debian 13)</td><td>1</td><td>1–2 GB</td><td>10+ GB</td></tr>
+              <tr><td>GLPI (Debian 13)</td><td>2</td><td>2 GB (min)</td><td>20+ GB</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="steps" class="panel" tabindex="-1">
+      <h2>Step‑by‑Step Instructions</h2>
+      <p class="muted">Expand each step. Use the checklist to track progress — it saves automatically.</p>
+
+      <details>
+        <summary>1) Create the GLPI Server (Debian 13)</summary>
+        <div class="grid col-2">
+          <div>
+            <ol>
+              <li>Create a new <strong>Debian 13</strong> VM: ≥2 GB RAM, ≥20 GB disk, 2 vCPU recommended.</li>
+              <li>Attach its network adapter to the <strong>same NAT Network</strong> used by 06.01.</li>
+              <li>Set hostname (example): <span class="kbd">glpi.virt.lan</span></li>
+              <li>Boot and verify it gets an <strong>IP via DHCP</strong> from your Debian DHCP server.</li>
+              <li>Confirm <strong>dynamic DNS</strong> recorded A/AAAA and PTR:
+                <pre><button class="btn copy" data-copy="#code-dig1">Copy</button><code id="code-dig1"># from any VM
+host glpi.virt.lan
+host &lt;GLPI_IP&gt;
+</code></pre>
+              </li>
+            </ol>
+            <div class="callout">If DNS hasn’t populated yet, wait a minute or renew DHCP lease on the GLPI VM.</div>
+          </div>
+          <div class="panel checklist" data-key="c1">
+            <h3>Checklist</h3>
+            <label><input type="checkbox"/> VM created (Debian 13) on same NAT Network</label>
+            <label><input type="checkbox"/> Hostname set (e.g., glpi.virt.lan)</label>
+            <label><input type="checkbox"/> DHCP lease obtained</label>
+            <label><input type="checkbox"/> DNS records appear via dynamic DNS</label>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>2) Install Web Stack (Apache, MariaDB/MySQL, PHP)</summary>
+        <div class="grid col-2">
+          <div>
+            <p>Update packages; install Apache, MariaDB, and PHP with required modules:</p>
+            <pre><button class="btn copy" data-copy="#code-webstack">Copy</button><code id="code-webstack">sudo apt update
+sudo apt -y install apache2 mariadb-server php php-mysql php-curl php-gd php-xml php-mbstring php-intl php-zip
+sudo systemctl enable --now apache2 mariadb
+
+# Secure DB (set root password, remove test DB, etc.)
+sudo mysql_secure_installation
+
+# Create DB and user for GLPI:
+sudo mysql -e "CREATE DATABASE glpidb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+sudo mysql -e "CREATE USER 'glpiuser'@'localhost' IDENTIFIED BY 'StrongP@ssw0rd!';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON glpidb.* TO 'glpiuser'@'localhost'; FLUSH PRIVILEGES;"
+</code></pre>
+            <div class="callout warn">Replace <span class="kbd">StrongP@ssw0rd!</span> with a unique, strong password. Store safely.</div>
+          </div>
+          <div class="panel checklist" data-key="c2">
+            <h3>Checklist</h3>
+            <label><input type="checkbox"/> Apache installed & running</label>
+            <label><input type="checkbox"/> MariaDB installed & secured</label>
+            <label><input type="checkbox"/> PHP + required extensions installed</label>
+            <label><input type="checkbox"/> Database and user created for GLPI</label>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>3) Install GLPI on Debian 13</summary>
+        <div class="grid col-2">
+          <div>
+            <p>Download and deploy GLPI (adjust version as needed):</p>
+            <pre><button class="btn copy" data-copy="#code-glpi">Copy</button><code id="code-glpi">cd /tmp
+# Check glpi-project.org for the latest stable version number
+# Example uses 10.0.x — replace if newer
+wget https://github.com/glpi-project/glpi/releases/download/10.0.15/glpi-10.0.15.tgz
+sudo tar xzf glpi-10.0.15.tgz -C /var/www/html/
+sudo chown -R www-data:www-data /var/www/html/glpi
+
+# Optional: Create a dedicated vhost (or use http://glpi.virt.lan/glpi)
+cat | sudo tee /etc/apache2/sites-available/glpi.conf >/dev/null <<'VHOST'
+<VirtualHost *:80>
+  ServerName glpi.virt.lan
+  DocumentRoot /var/www/html/glpi/public
+  <Directory /var/www/html/glpi/public>
+    Require all granted
+    AllowOverride All
+  </Directory>
+  ErrorLog ${APACHE_LOG_DIR}/glpi_error.log
+  CustomLog ${APACHE_LOG_DIR}/glpi_access.log combined
+</VirtualHost>
+VHOST
+
+sudo a2enmod rewrite
+sudo a2ensite glpi
+sudo systemctl reload apache2
+</code></pre>
+            <div class="callout">If not using a vhost, access via <span class="kbd">http://glpi.virt.lan/glpi</span>.</div>
+          </div>
+          <div class="panel checklist" data-key="c3">
+            <h3>Checklist</h3>
+            <label><input type="checkbox"/> GLPI archive downloaded & extracted</label>
+            <label><input type="checkbox"/> Permissions set for web server</label>
+            <label><input type="checkbox"/> Apache vhost configured (or path used)</label>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>4) Run the GLPI Web Installer</summary>
+        <div class="grid col-2">
+          <div>
+            <ol>
+              <li>Browse to <span class="kbd">http://glpi.virt.lan</span> (vhost) or <span class="kbd">/glpi</span> path.</li>
+              <li>Select language; accept license; run environment checks.</li>
+              <li>Provide DB details: <span class="kbd">glpidb</span>, user <span class="kbd">glpiuser</span>, password.</li>
+              <li>Finish install; note the suggested actions (e.g., removing <span class="kbd">install</span> dir).</li>
+              <li>Default login is often <span class="kbd">glpi / glpi</span> — change passwords immediately.</li>
+            </ol>
+            <div class="callout ok">After install, ensure <span class="kbd">/var/www/html/glpi/install</span> is removed or blocked.</div>
+          </div>
+          <div class="panel checklist" data-key="c4">
+            <h3>Checklist</h3>
+            <label><input type="checkbox"/> Installer completed without errors</label>
+            <label><input type="checkbox"/> Logged in successfully</label>
+            <label><input type="checkbox"/> Default passwords changed</label>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>5) Perform Required GLPI Tasks</summary>
+        <div class="grid col-2">
+          <div>
+            <h3>Tasks</h3>
+            <ol>
+              <li>Create <strong>3 assets</strong>: one hardware, one software, one network.</li>
+              <li>Create a <strong>user</strong> and assign to a <strong>group</strong>.</li>
+              <li>Open a <strong>support ticket</strong> and assign it appropriately.</li>
+              <li>Generate an <strong>inventory report</strong> of assets (export or screenshots).</li>
+            </ol>
+            <div class="callout q">Optional: Explore <strong>FusionInventory</strong> agent/plugin for automated discovery.</div>
+          </div>
+          <div class="panel checklist" data-key="c5">
+            <h3>Checklist</h3>
+            <label><input type="checkbox"/> 3 assets created</label>
+            <label><input type="checkbox"/> User & group created</label>
+            <label><input type="checkbox"/> Ticket opened & assigned</label>
+            <label><input type="checkbox"/> Inventory report generated</label>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>6) Capture Required Screenshots</summary>
+        <div class="grid col-2">
+          <div>
+            <ul>
+              <li>GLPI <strong>Dashboard</strong> after first login</li>
+              <li><strong>Asset creation</strong> pages</li>
+              <li><strong>User & Group</strong> configuration</li>
+              <li><strong>Ticketing</strong> screen and a <strong>Report</strong> view</li>
+            </ul>
+          </div>
+          <div class="panel checklist" data-key="c6">
+            <h3>Checklist</h3>
+            <label><input type="checkbox"/> Dashboard captured</label>
+            <label><input type="checkbox"/> Asset pages captured</label>
+            <label><input type="checkbox"/> User/Group config captured</label>
+            <label><input type="checkbox"/> Ticket & Report captured</label>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>7) Reflection (100–150 words)</summary>
+        <div class="grid col-2">
+          <div>
+            <p>Write a short reflection addressing:</p>
+            <ul>
+              <li>What you learned integrating GLPI with an environment that already provides DHCP/DNS (dynamic updates) and FreeIPA.</li>
+              <li>Challenges faced and how you solved them.</li>
+              <li>How GLPI supports real‑world ITAM/help desk practices.</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <textarea class="notes" id="reflection" placeholder="Type your reflection here (saved locally only)"></textarea>
+            <div class="muted" style="margin-top:6px">Privacy: Notes are stored only in your browser (localStorage). No network calls.</div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section id="tasks" class="panel" tabindex="-1">
+      <h2>Deliverables & Evaluation</h2>
+      <div class="grid col-2">
+        <div>
+          <h3>Deliverables</h3>
+          <ol>
+            <li>Working GLPI instance on Debian 13, reachable by hostname (dynamic DNS).</li>
+            <li>Required GLPI tasks completed (assets, user/group, ticket, report).</li>
+            <li>Screenshots of each required item.</li>
+            <li>Reflection (100–150 words).</li>
+          </ol>
+        </div>
+        <div class="panel">
+          <h3>Evaluation Criteria</h3>
+          <table aria-label="Rubric">
+            <thead><tr><th>Area</th><th>Weight</th></tr></thead>
+            <tbody>
+              <tr><td>GLPI installation & setup within 06.01 infra</td><td>25%</td></tr>
+              <tr><td>Configuration & feature use (assets, users/groups, ticket)</td><td>25%</td></tr>
+              <tr><td>Asset management tasks completeness</td><td>20%</td></tr>
+              <tr><td>Quality & completeness of screenshots</td><td>15%</td></tr>
+              <tr><td>Reflection quality</td><td>15%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="troubleshooting" class="panel" tabindex="-1">
+      <h2>Troubleshooting</h2>
+      <div class="grid col-2">
+        <div>
+          <div class="callout err"><strong>GLPI URL not resolving?</strong> Verify Debian DNS/DHCP VM is running and dynamic DNS works. Test with <span class="kbd">host glpi.virt.lan</span>. Use IP temporarily, then fix DNS.</div>
+          <div class="callout warn"><strong>No DHCP lease?</strong> Ensure GLPI VM uses the same VirtualBox NAT Network and DHCP service is active on your Debian DNS/DHCP server.</div>
+          <div class="callout"><strong>Auth integration:</strong> You may enroll the GLPI server as an IPA client (<span class="kbd">ipa-client-install</span>) to centralize auth; not required for this lab.</div>
+        </div>
+        <div class="panel">
+          <h3>Validation Commands</h3>
+          <pre><button class="btn copy" data-copy="#code-validate">Copy</button><code id="code-validate"># DNS
+host glpi.virt.lan
+host ipa.virt.lan
+
+# Web
+curl -I http://glpi.virt.lan/
+
+# Apache
+sudo systemctl status apache2 --no-pager
+
+# DB
+sudo mysql -e "SHOW DATABASES LIKE 'glpidb';"
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="knowledge-check" class="panel" tabindex="-1">
+      <h2>Knowledge Check</h2>
+      <p class="muted">Click a question to reveal the answer and explanation.</p>
+      <details>
+        <summary>1) Why is DHCP with dynamic DNS important in this lab?</summary>
+        <div class="callout q"><strong>Answer:</strong> It ensures new VMs like the GLPI server are automatically assigned IPs and have their hostnames registered in DNS, allowing services to be reachable by name without manual records.</div>
+      </details>
+      <details>
+        <summary>2) After installing GLPI, which immediate security action should you take?</summary>
+        <div class="callout q"><strong>Answer:</strong> Change all default passwords (e.g., the <span class="kbd">glpi</span> account) and remove/secure the installer directory to prevent re‑runs.</div>
+      </details>
+      <details>
+        <summary>3) What minimum components are required to run GLPI in this lab?</summary>
+        <div class="callout q"><strong>Answer:</strong> Apache (web), MariaDB/MySQL (database), PHP with required extensions, plus the GLPI application files on Debian 13.</div>
+      </details>
+      <details>
+        <summary>4) What is the advantage of keeping FreeIPA on Rocky 10 and GLPI on Debian 13?</summary>
+        <div class="callout q"><strong>Answer:</strong> It practices cross‑platform integration (auth/domain on Rocky, application on Debian), mirroring real environments; however, consolidating on Rocky can be simpler for limited lab resources.</div>
+      </details>
+      <details>
+        <summary>5) A student can’t reach <span class="kbd">http://glpi.virt.lan</span>. What quick triage steps help isolate the issue?</summary>
+        <div class="callout q"><strong>Answer:</strong> Check DNS resolution (<span class="kbd">host glpi.virt.lan</span>), verify Apache status, confirm VM is on the correct NAT Network, and try <span class="kbd">curl -I</span> against the server IP.</div>
+      </details>
+    </section>
+
+    <section id="submission" class="panel" tabindex="-1">
+      <h2>Submission</h2>
+      <ul>
+        <li><strong>Format:</strong> Word (.docx) or PDF</li>
+        <li><strong>Include:</strong> All required screenshots + reflection</li>
+        <li><strong>Filename:</strong> <span class="kbd">firstname_lastname_GLPI_Assignment.docx</span> / .pdf</li>
+        <li><strong>Where:</strong> Lea’s DropBox</li>
+        <li><strong>Deadline:</strong> <em>Insert deadline</em></li>
+      </ul>
+      <div class="callout ok">Before submitting, use the Export button to save your notes and checklist state.</div>
+    </section>
+
+    <footer class="footer">
+      06.02 — GLPI Lab • Debian 13 / Rocky 10 • Uses 06.01 FreeIPA infrastructure • Secure single‑file HTML
+    </footer>
+  </main>
+
+  <script nonce="a1b2c3" type="module">
+    // Strict, single-file JS with no user-controlled HTML injection. All inputs handled as text.
+    const DOC_KEY = 'glpi-lab-06-02-v1';
+    const qs = (s, el=document) => el.querySelector(s);
+    const qsa = (s, el=document) => Array.from(el.querySelectorAll(s));
+
+    // Theme persistence
+    const themeBtn = qs('#themeBtn');
+    const exportBtn = qs('#exportBtn');
+    const resetBtn = qs('#resetBtn');
+    const progressBar = qs('#progressBar');
+    const reflection = qs('#reflection');
+
+    const state = JSON.parse(localStorage.getItem(DOC_KEY) || '{}');
+
+    function applyTheme() {
+      const t = state.theme || 'dark';
+      document.documentElement.classList.toggle('light', t === 'light');
+      themeBtn.setAttribute('aria-pressed', String(t === 'light'));
+    }
+
+    function toggleTheme() {
+      state.theme = (state.theme === 'light') ? 'dark' : 'light';
+      save();
+      applyTheme();
+    }
+
+    // Checklist persistence
+    function attachChecklistListeners() {
+      qsa('.checklist').forEach(block => {
+        const key = block.getAttribute('data-key');
+        const saved = (state.checks && state.checks[key]) || [];
+        qsa('input[type="checkbox"]', block).forEach((cb, idx) => {
+          cb.checked = !!saved[idx];
+          cb.addEventListener('change', () => {
+            state.checks = state.checks || {}; 
+            state.checks[key] = state.checks[key] || [];
+            state.checks[key][idx] = cb.checked; 
+            updateProgress();
+            save();
+          }, {passive:true});
+        });
+      });
+    }
+
+    function updateProgress() {
+      const all = qsa('.checklist input[type="checkbox"]').length;
+      const done = qsa('.checklist input[type="checkbox"]:checked').length;
+      const pct = all ? Math.round((done / all) * 100) : 0;
+      progressBar.style.width = pct + '%';
+      progressBar.parentElement.setAttribute('aria-valuemin', '0');
+      progressBar.parentElement.setAttribute('aria-valuemax', '100');
+      progressBar.parentElement.setAttribute('aria-valuenow', String(pct));
+    }
+
+    // Notes (reflection) persistence — text only
+    function initNotes() {
+      if (reflection) {
+        reflection.value = typeof state.reflection === 'string' ? state.reflection : '';
+        reflection.addEventListener('input', () => {
+          // Store as plain text only
+          state.reflection = reflection.value;
+          save();
+        });
+      }
+    }
+
+    // Copy buttons for code blocks
+    function initCopy() {
+      qsa('.btn.copy').forEach(btn => {
+        const sel = btn.getAttribute('data-copy');
+        const target = sel ? qs(sel) : null;
+        btn.addEventListener('click', async () => {
+          if (!target) return;
+          try {
+            await navigator.clipboard.writeText(target.textContent || '');
+            const txt = btn.textContent;
+            btn.textContent = '✅ Copied';
+            setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+          } catch {
+            // Fallback: select text
+            const r = document.createRange();
+            r.selectNodeContents(target);
+            const selObj = window.getSelection();
+            selObj.removeAllRanges();
+            selObj.addRange(r);
+            try { document.execCommand('copy'); } catch {}
+            selObj.removeAllRanges();
+          }
+        });
+      });
+    }
+
+    function exportData() {
+      const exportObj = {
+        meta: { title: document.title, exportedAt: new Date().toISOString() },
+        state
+      };
+      const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'GLPI_Lab_Notes_and_Progress.json'; a.rel='noopener';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function resetAll() {
+      if (!confirm('Reset all saved progress and notes?')) return;
+      localStorage.removeItem(DOC_KEY);
+      location.reload();
+    }
+
+    function save() { localStorage.setItem(DOC_KEY, JSON.stringify(state)); }
+
+    // Init
+    themeBtn.addEventListener('click', toggleTheme);
+    exportBtn.addEventListener('click', exportData);
+    resetBtn.addEventListener('click', resetAll);
+
+    applyTheme();
+    attachChecklistListeners();
+    initNotes();
+    initCopy();
+    updateProgress();
+
+    // Accessibility: keyboard focus when using anchor links
+    window.addEventListener('hashchange', () => {
+      const id = location.hash.slice(1);
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) el.focus();
+      }
+    });
+  </script>
+</body>
+</html>
