@@ -7,6 +7,8 @@
   <meta name="referrer" content="no-referrer" />
   <meta name="color-scheme" content="light dark" />
   <title>Threats &amp; Risks (420-1C2-DW) — Course Outline | Fall 2025</title>
+
+  <!-- Strict Content Security Policy (strong defaults). For production, prefer sending via HTTP headers. -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' 'nonce-tr-fixed-2025';
@@ -15,71 +17,334 @@
     connect-src 'none'; media-src 'none'; object-src 'none';
     base-uri 'self'; form-action 'self';
     upgrade-insecure-requests; block-all-mixed-content; require-trusted-types-for 'script';" />
+
   <style nonce="tr-fixed-2025">
-    :root { --bg:#0B0D10; --card:#11151A; --muted:#6D7A8A; --text:#EAF0F6; --accent:#67B8FF; --accent-2:#8CD6A7; --danger:#FF7A7A; --border:#1F2833; --chip:#1B222C; --chiptext:#C9D6E3; --shadow:0 10px 25px rgba(0,0,0,.35) }
-    @media (prefers-color-scheme: light) { :root { --bg:#FBFCFE; --card:#FFFFFF; --muted:#515D6C; --text:#0B1220; --accent:#0A84FF; --accent-2:#0FAD50; --border:#E6ECF2; --chip:#F1F5F9; --chiptext:#0B1220; --shadow:0 6px 16px rgba(10,18,32,.08) } }
-    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji"}
-    a{color:var(--accent);text-decoration:none} a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
-    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(1.2) blur(6px);background:color-mix(in srgb,var(--bg) 88%,transparent);border-bottom:1px solid var(--border)}
-    .wrap{max-width:1100px;margin:0 auto;padding:18px 20px}
-    h1{margin:0 0 6px 0;font-size:clamp(22px,2.6vw,32px)} .meta{color:var(--muted)}
-    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px} .chip{background:var(--chip);color:var(--chiptext);border:1px solid var(--border);border-radius:12px;padding:4px 10px;font-size:12px}
-    main{max-width:1100px;margin:14px auto 60px auto;padding:0 20px;display:grid;gap:18px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)} .card>.inner{padding:16px 18px}
-    details.accordion{border:1px solid var(--border);border-radius:14px;background:var(--card);box-shadow:var(--shadow)} details.accordion+details.accordion{margin-top:12px}
-    details.accordion>summary{cursor:pointer;list-style:none;user-select:none} details.accordion>summary::-webkit-details-marker{display:none}
-    .summary-row{display:flex;align-items:center;gap:12px;padding:14px 16px} .chev{font-weight:700;opacity:.7;margin-right:4px}
-    .panel{border-top:1px solid var(--border)} .grid{display:grid;gap:16px} .cols-3{grid-template-columns:repeat(3,minmax(0,1fr))} @media (max-width:880px){.cols-3{grid-template-columns:1fr}}
-    ul{margin:8px 0 0 18px} li{margin:4px 0} footer{color:var(--muted);text-align:center;padding:22px 8px}
+    /* THEME TOKENS */
+    :root {
+      --bg: #0b0c0f; --bg-2:#101217; --text:#e6e6e6; --muted:#b7bcc7;
+      --accent:#7aa2f7; --ok:#7ad77a; --warn:#ffd166; --danger:#ff6b6b;
+      --card:#12151b; --border:#1e2430; --shadow:0 10px 30px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+    [data-theme="light"] {
+      --bg:#f7f8fa; --bg-2:#ffffff; --text:#111; --muted:#505a70;
+      --accent:#1e66f5; --ok:#2e7d32; --warn:#b26a00; --danger:#c62828;
+      --card:#ffffff; --border:#e4e7ee; --shadow:0 10px 30px rgba(20,30,55,.08);
+      color-scheme: light;
+    }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% -10%, color-mix(in oklab, var(--accent), transparent 92%), transparent 60%),
+                  radial-gradient(1400px 900px at 110% 10%, color-mix(in oklab, var(--ok), transparent 93%), transparent 55%),
+                  var(--bg);
+      color: var(--text); line-height: 1.55;
+    }
+    header.site { position: sticky; top: 0; z-index: 1000; backdrop-filter: saturate(140%) blur(8px); background: color-mix(in oklab, var(--bg-2) 90%, transparent); border-bottom: 1px solid var(--border); }
+    .container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+    nav.topnav { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; }
+    .brand { display: flex; align-items: center; gap: .75rem; font-weight: 700; letter-spacing: .2px; }
+    .brand svg { width: 28px; height: 28px; }
+    .links a { text-decoration: none; color: var(--text); opacity: .9; padding: .4rem .6rem; border-radius: .6rem; }
+    .links a:hover { background: var(--card); box-shadow: var(--shadow); }
+    .tools { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+    button, input, select { font: inherit; color: inherit; background: var(--bg-2); border: 1px solid var(--border); border-radius: .6rem; padding: .5rem .75rem; }
+    button { cursor: pointer; }
+    .hero { padding: 2rem 1rem 1.2rem; }
+    .hero .title { font-size: clamp(1.4rem, 1.2rem + 1.8vw, 2.2rem); font-weight: 800; letter-spacing: .2px; }
+    .hero .meta { margin-top: .2rem; color: var(--muted); }
+
+    /* CARDS / GRIDS */
+    .card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 1rem; box-shadow: var(--shadow); padding: 1rem; }
+    .grid { display: grid; gap: 1rem; }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 900px) { .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; } }
+    h2 { font-size: 1.4rem; margin: .2rem 0 .8rem; }
+    h3 { font-size: 1.1rem; margin: .2rem 0 .5rem; }
+    .badge { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; padding: .25rem .5rem; border: 1px solid var(--border); border-radius: .5rem; background: var(--card); }
+    .muted { color: var(--muted); }
+
+    /* ACCORDIONS */
+    details.accordion { border: 1px solid var(--border); border-radius: .8rem; background: var(--card); }
+    details.accordion + details.accordion { margin-top: .6rem; }
+    details.accordion[open] { box-shadow: var(--shadow); }
+    details.accordion summary { list-style: none; cursor: pointer; padding: .9rem 1rem; font-weight: 700; display: grid; grid-template-columns: 1fr auto; align-items: center; }
+    details.accordion summary::-webkit-details-marker { display: none; }
+    .summary-row { display: flex; align-items: center; gap: .5rem; }
+    .summary-row .chev { transition: transform .25s ease; }
+    details[open] .summary-row .chev { transform: rotate(90deg); }
+    .accordion .panel { padding: .2rem 1rem 1rem; }
+
+    /* TABLES */
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: .6rem .5rem; border-bottom: 1px dashed var(--border); vertical-align: top; }
+    thead th { position: sticky; top: calc(56px + 1rem); background: var(--bg-2); z-index: 5; }
+    tbody tr:hover { background: color-mix(in oklab, var(--bg-2), var(--card) 35%); }
+
+    .kpi { display: flex; gap: .75rem; flex-wrap: wrap; }
+    .kpi .card { flex: 1; min-width: 220px; }
+    .chip { display: inline-flex; align-items: center; gap: .4rem; padding: .15rem .5rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--bg-2); font-size: .85rem; }
+    .sticky-note { border-left: 3px solid var(--accent); background: color-mix(in oklab, var(--accent) 6%, transparent); padding: .75rem; border-radius: .6rem; }
+
+    .btn { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .8rem; border: 1px solid var(--border); border-radius: .7rem; background: var(--card); text-decoration: none; color: var(--text); }
+    .btn:hover { box-shadow: var(--shadow); }
+    .btn.primary { border-color: color-mix(in oklab, var(--accent) 40%, var(--border)); }
+
+    .footer { margin: 2rem 0; color: var(--muted); font-size: .9rem; display: grid; gap: .5rem; }
+
+    @media print {
+      header.site, .tools, .sticky-note, .footer .security, .search { display: none !important; }
+      .card, details.accordion { box-shadow: none !important; border-color: #bbb !important; }
+      body { background: #fff; color: #000; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <h1>Threats &amp; Risks (420-1C2-DW) — Course Outline</h1>
-      <div class="meta">Term 1 — Fall 2025 • Ponderation: 1-3-3 • 90 hours total</div>
-      <div class="chips"><span class="chip">Online &amp; In-class</span><span class="chip">Weeks 1–10</span><span class="chip">Labs every Friday</span><span class="chip">Exam weeks included</span></div>
+  <header class="site">
+    <div class="container">
+      <nav class="topnav" aria-label="Top navigation">
+        <div class="brand" aria-label="Course brand">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" role="img"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M7 13.5l3 3 7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Threats &amp; Risks — 420-1C2-DW</span>
+          <span class="badge" title="Ponderation">3–2–3</span>
+          <span class="badge" title="Credits">2 2/3 cr.</span>
+        </div>
+        <div class="tools">
+          <div class="search" role="search" aria-label="Search sections">
+            <label for="q" class="muted">Search</label>
+            <input id="q" name="q" type="search" inputmode="search" placeholder="Filter: OSSEC, labs, policies…" aria-controls="main" aria-describedby="search-help" autocomplete="off" />
+          </div>
+          <button id="toggle-theme" class="btn" type="button" aria-pressed="false" title="Toggle dark/light">🌓 Theme</button>
+          <button id="expand-all" class="btn" type="button" title="Expand all sections">➕ Expand</button>
+          <button id="collapse-all" class="btn" type="button" title="Collapse all sections">➖ Collapse</button>
+          <button id="print" class="btn primary" type="button" title="Print / Save as PDF">🖨️ Print</button>
+        </div>
+      </nav>
     </div>
   </header>
 
-  <main>
-    <section class="card"><div class="inner">
-      <h2>Weekly Schedule of Learning Activities</h2>
+  <main id="main" class="container" tabindex="-1">
+    <section class="hero">
+      <div class="title">Course Outline — <span style="color:var(--accent)">Fall 2025</span></div>
+      <div class="meta">Group 1 • Term 1 • Location: online &amp; <strong>2F.20</strong> (see dates) • <span id="today" class="muted"></span></div>
+    </section>
 
-      <details class="accordion" data-week="1" open>
-        <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 1 — Sept 9, 11, 13 (online)</span></div><span class="chip">3×2.5h</span></summary>
-        <div class="panel"><div class="grid cols-3">
-          <div><h3>Class 1</h3><ul><li>Course intro &amp; expectations</li><li>Threat taxonomy</li></ul></div>
-          <div><h3><a href="threats-and-risks.html" target="_blank" rel="noopener noreferrer">Class 2</a></h3><ul><li>Risk models &amp; frameworks</li><li>Case study walkthrough</li></ul></div>
-          <div><h3>Class 3 (Labs)</h3><ul>
-            <li><a href="glpi_lab.html" target="_blank" rel="noopener noreferrer">GLPI for asset management</a></li>
-            <li><a href="freeipa_lab.html" target="_blank" rel="noopener noreferrer">FreeIPA for permissions</a></li>
-            <li><strong>LAB #01.01</strong> &amp; <strong>#01.02</strong></li>
-          </ul></div>
-        </div></div>
-      </details>
+    <!-- OVERVIEW / IDENTIFIERS -->
+    <section aria-labelledby="overview-h">
+      <div class="grid cols-2">
+        <article class="card">
+          <h2 id="overview-h">Overview</h2>
+          <p><strong>Course Title:</strong> Threats &amp; Risks &nbsp;&nbsp; <strong>Course Number:</strong> 420-1C2-DW</p>
+          <p><strong>Course Hours:</strong> 75 &nbsp;&nbsp; <strong>Ponderation:</strong> 3–2–3 &nbsp;&nbsp; <strong>Credits:</strong> 2 2/3</p>
+          <p><strong>Prerequisite:</strong> None &nbsp;&nbsp; <strong>Corequisite:</strong> None</p>
+          <p><strong>Group:</strong> 1 &nbsp;&nbsp; <strong>Term:</strong> Fall 2025</p>
+          <p><strong>Teacher:</strong> Asen Grozdanov &nbsp;•&nbsp; <a href="mailto:agrozdanov@dawsoncollege.qc.ca" class="btn" rel="noopener noreferrer">agrozdanov@dawsoncollege.qc.ca</a> <span class="muted">(reply within 24 hours)</span></p>
+          <div class="sticky-note" role="note">
+            <p><strong>Course Description.</strong> This introductory course equips students to identify and represent information assets, assess internal and external threats, evaluate risk factors, and propose effective mitigation strategies. By the end of the course, students develop risk mitigation strategies based on assessed severity, likelihood, and impact on information assets.</p>
+          </div>
+        </article>
+        <article class="card">
+          <h2>Outcomes &amp; Program Integration</h2>
+          <div class="kpi">
+            <div class="card" aria-label="Labs 30%"><h3>Labs</h3><p class="muted">30%</p></div>
+            <div class="card" aria-label="Midterm 30%"><h3>Midterm</h3><p class="muted">30%</p></div>
+            <div class="card" aria-label="Final 40%"><h3>Final</h3><p class="muted">40%</p></div>
+          </div>
+          <h3 style="margin-top:.8rem">Course Learning Outcomes</h3>
+          <ul>
+            <li>Identify and represent information assets and associated permissions.</li>
+            <li>Identify internal and external threats to a computer network.</li>
+            <li>Identify risk factors and assess probability and severity.</li>
+            <li>Propose solutions to mitigate risks and eradicate threats.</li>
+          </ul>
+          <h3>Integration</h3>
+          <ul>
+            <li><strong>Term 2:</strong> Compliance Assessments — 420-2C2-DW</li>
+            <li><strong>Term 3:</strong> Managing Vulnerabilities — 420-3C1-DW</li>
+            <li><strong>Term 4:</strong> Incident Management — 420-4C1-DW; Implementation &amp; Management of Corporate Cybersecurity Measures — 420-4C2-DW</li>
+          </ul>
+        </article>
+      </div>
+    </section>
 
-      <!-- Other weeks kept as in your original file -->
+    <!-- COMPETENCY STATEMENT -->
+    <section aria-labelledby="competency-h" style="margin-top:1rem">
+      <article class="card">
+        <h2 id="competency-h">Competency</h2>
+        <p><strong>Code:</strong> EZ02 — <em>Risk &amp; threat analysis.</em> This course addresses EZ02 in its entirety. (Full mapping below.)</p>
+      </article>
+    </section>
 
-    </div></section>
+    <!-- WEEKLY SCHEDULE -->
+    <section aria-labelledby="schedule-h" style="margin-top:1rem">
+      <article class="card">
+        <h2 id="schedule-h">Weekly Schedule of Learning Activities</h2>
+        <p id="search-help" class="muted">Tip: Type a keyword to filter (e.g., “OSSEC”, “OpenVAS”, “incident response”).</p>
+
+        <!-- Weeks 1–10 reconstructed faithfully from the official outline -->
+        <details class="accordion" data-week="1" open>
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 1 — Sept 9, 11, 13 (online)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1</h3><ul><li>Introduction to Threats &amp; Risks</li><li>Information assets &amp; permissions</li></ul></div>
+              <div><h3><a href="threats-and-risks.html" target="_blank" rel="noopener noreferrer">Class 2</a></h3><ul><li>Asset types (hardware, software, data, services)</li><li>RBAC &amp; permissions</li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul><li><a href="glpi_lab.html" target="_blank" rel="noopener noreferrer">GLPI for asset management</a></li><li><a href="freeipa_lab.html" target="_blank" rel="noopener noreferrer">FreeIPA for permissions</a></li><li><strong>LAB #01.01</strong> &amp; <strong>#01.02</strong></li></ul></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" data-week="2">
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 2 — Sept 16, 18, 20 (online)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1</h3><ul><li>Internal threats: types &amp; indicators</li><li>External threats: types &amp; motivations</li></ul></div>
+              <div><h3>Class 2</h3><ul><li>Threat actor profiling</li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul><li>HIDS with <strong>OSSEC</strong></li><li>Profiling with <strong>Maltego</strong></li><li><strong>LAB #02.01</strong> &amp; <strong>#02.02</strong></li></ul></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" data-week="3">
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 3 — Sept 23, 25, 27 (online)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1</h3><ul><li>OSINT techniques</li><li>Gathering information from public sources</li></ul></div>
+              <div><h3>Class 2</h3><ul><li>Analyzing OSINT data</li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul><li>OSINT with <strong>SpiderFoot</strong></li><li>Analysis with <strong>Recon-ng</strong></li><li><strong>LAB #03.01</strong> &amp; <strong>#03.02</strong></li></ul></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" data-week="4">
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 4 — Sept 30, Oct 2, 4 (online)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1</h3><ul><li>Risk factors: identification &amp; classification</li><li>Assessing probability &amp; severity</li><li>Risk scoring</li></ul></div>
+              <div><h3>Class 2</h3><ul><li>Frameworks: NIST, ISO 31000, FAIR</li><li>Mitigation planning</li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul><li>Risk assessment with <strong>OpenVAS</strong></li><li>Threat modeling with <strong>Threat Dragon</strong></li><li><strong>LAB #04.01</strong> &amp; <strong>#04.02</strong></li></ul></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" data-week="5">
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 5 — Oct 7, 9 (online) &amp; Oct 11 (<strong>2F.20</strong>)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1 (Lab)</h3><ul><li>Implementing risk management with <strong>OpenSCAP</strong></li><li>Mitigation with <strong>Ansible</strong></li><li><strong>LAB #05.01</strong> &amp; <strong>#05.02</strong></li></ul></div>
+              <div><h3>Class 2</h3><ul><li>Midterm review: case studies on threats &amp; risks</li></ul></div>
+              <div><h3>Class 3</h3><ul><li><strong>Midterm Assessment (in class — 2F.20)</strong><br/>Practical exam based on Weeks 1–5 lab activities</li></ul></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" data-week="6">
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 6 — Oct 14, 16, 18 (online)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1</h3><ul><li>Mitigation strategies: avoidance, reduction, sharing, acceptance</li><li>Implementing &amp; evaluating measures</li></ul></div>
+              <div><h3>Class 2</h3><ul><li>Threat eradication: techniques &amp; tools</li><li>Preventative measures: best practices</li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul><li>Mitigation with <strong>pfSense</strong>; evaluation with <strong>Nessus</strong></li><li>IPS with <strong>Snort</strong>; IR plans with <strong>ELK</strong></li><li><strong>LAB #06.01</strong> &amp; <strong>#06.02</strong> + <strong>#07.01</strong> &amp; <strong>#07.02</strong></li></ul></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" data-week="7">
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 7 — Oct 21, 23, 25 (online)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1</h3><ul><li>Assessing risks of preventative measures</li><li>Balancing security &amp; usability</li></ul></div>
+              <div><h3>Class 2</h3><ul><li>Continuous monitoring &amp; improvement</li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul><li>Assessment with <strong>Suricata</strong></li><li>Monitoring with <strong>Zabbix</strong></li><li><strong>LAB #08.01</strong> &amp; <strong>#08.02</strong></li></ul></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" data-week="8">
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 8 — Oct 28, 30 &amp; Nov 1 (online)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1</h3><ul><li>Business continuity &amp; disaster recovery</li></ul></div>
+              <div><h3>Class 2</h3><ul><li>Ensuring continuity of operations</li><li>Developing recovery plans</li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul><li>Continuity with <strong>Keepalived</strong></li><li>Recovery with <strong>HAProxy</strong></li><li><strong>LAB #09.01</strong> &amp; <strong>#09.02</strong></li></ul></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" data-week="9">
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 9 — Nov 4, 6, 8 (online)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1</h3><ul><li>Reporting on threats, vulnerable assets</li></ul></div>
+              <div><h3>Class 2</h3><ul><li>Introduction to the final project</li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul><li>Threat reporting with <strong>ELK</strong></li><li>Project setup workshop</li><li><strong>LAB #10.01</strong> &amp; <strong>#10.02</strong></li></ul></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" data-week="10">
+          <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 10 — Nov 11, 13, 15 (online)</span></div><span class="chip">3×2.5h</span></summary>
+          <div class="panel">
+            <div class="grid cols-3">
+              <div><h3>Class 1</h3><ul><li>Final review: Q&amp;A, case analysis</li></ul></div>
+              <div><h3>Class 2</h3><ul><li>Final exam review workshop</li></ul></div>
+              <div><h3>Class 3</h3><ul><li><strong>Final Exam</strong></li></ul></div>
+            </div>
+          </div>
+        </details>
+
+      </article>
+    </section>
+
+    <section class="footer">
+      <div class="security">Hardened single-file page • CSP nonces • No inline handlers • No external resources • Works offline</div>
+      <div>© 2025 — Threats &amp; Risks (420-1C2-DW) — Course Outline</div>
+    </section>
   </main>
 
-  <footer>&copy; 2025 — Threats &amp; Risks (420-1C2-DW)</footer>
-
   <script nonce="tr-fixed-2025">
-  (function(){
-    const now = new Date();
-    const ranges = [
-      ['2025-09-08','2025-09-14',1], ['2025-09-15','2025-09-21',2], ['2025-09-22','2025-09-28',3],
-      ['2025-09-29','2025-10-05',4], ['2025-10-06','2025-10-12',5], ['2025-10-13','2025-10-19',6],
-      ['2025-10-20','2025-10-26',7], ['2025-10-27','2025-11-02',8], ['2025-11-03','2025-11-09',9], ['2025-11-10','2025-11-16',10],
-    ].map(([s,e,w])=>({ s:new Date(s), e:new Date(e), w }));
-    const hit = ranges.find(r => now >= r.s && now <= r.e);
-    if (hit) {
-      const target = document.querySelector(`details[data-week="${hit.w}"]`);
-      if (target) { target.open = true; target.scrollIntoView({ behavior:'smooth', block:'start' }); }
-    }
-  })();
+    (function(){
+      "use strict";
+      const $ = (s, el=document) => el.querySelector(s);
+      const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+
+      // Theme toggle
+      const themeBtn = $("#toggle-theme");
+      function setTheme(mode){
+        document.documentElement.setAttribute('data-theme', mode);
+        themeBtn.setAttribute('aria-pressed', String(mode === 'light'));
+        try { localStorage.setItem('tr.theme', mode); } catch {}
+      }
+      const savedTheme = (()=>{ try { return localStorage.getItem('tr.theme'); } catch { return null; } })();
+      setTheme(savedTheme === 'light' ? 'light' : 'dark');
+      themeBtn.addEventListener('click', () => setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+
+      // Expand/Collapse
+      const expandAll = $("#expand-all");
+      const collapseAll = $("#collapse-all");
+      expandAll.addEventListener('click', () => $$("details.accordion").forEach(d => d.open = true));
+      collapseAll.addEventListener('click', () => $$("details.accordion").forEach(d => d.open = false));
+
+      // Print
+      $("#print").addEventListener('click', () => window.print());
+
+      // Today helper
+      const today = new Date();
+      $("#today").textContent = today.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+      // Search filter
+      const q = $("#q");
+      const sections = $$("details.accordion");
+      q.addEventListener('input', () => {
+        const kw = q.value.toLowerCase().trim();
+        sections.forEach(sec => {
+          if (!kw) { sec.style.display = ''; return; }
+          const txt = sec.textContent.toLowerCase();
+          sec.style.display = txt.includes(kw) ? '' : 'none';
+        });
+      });
+    })();
   </script>
 </body>
 </html>
