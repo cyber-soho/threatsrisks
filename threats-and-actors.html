@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self' data:; script-src 'nonce-SECURE-2025'; style-src 'nonce-SECURE-2025'; font-src 'self'; connect-src 'self';">
+  <title>Course Content — Threats and Actors</title>
+  <style nonce="SECURE-2025">
+    :root{
+      --bg:#0b1115;--panel:#1c2733;--text:#e7eef7;--muted:#a6b3c2;--accent:#0b8bff;--accent2:#22c55e;--warn:#f97316;--shadow:0 8px 24px rgba(0,0,0,.35)
+    }
+    @media(prefers-color-scheme: light){
+      :root{--bg:#f8fafc;--panel:#ffffff;--text:#111827;--muted:#445160;--accent:#0b5cd6;--accent2:#16a34a;--warn:#d97706;--shadow:0 6px 20px rgba(0,0,0,.08)}
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;overflow-x:hidden}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header{padding:20px 0;position:sticky;top:0;background:var(--bg);z-index:10;transition:all .3s ease}
+    h1{margin:0;font-weight:800;letter-spacing:.2px;font-size:1.8rem;animation:float 4s ease-in-out infinite}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    nav{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+    .tab{border:2px solid #2c3a4b;background:var(--panel);color:var(--text);padding:10px 16px;border-radius:20px;cursor:pointer;transition:all .3s ease;font-weight:600}
+    .tab:hover{transform:scale(1.08) rotate(-1deg);background:var(--accent);color:#fff}
+    .tab[aria-selected="true"]{border-color:var(--accent2);box-shadow:0 0 10px var(--accent2)}
+    main{margin-top:20px}
+    section{margin-bottom:20px;animation:fadeIn .6s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .card{background:var(--panel);border-radius:16px;padding:16px;box-shadow:var(--shadow);transition:transform .3s ease, box-shadow .3s ease}
+    .card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 12px 30px rgba(0,0,0,.45)}
+    details{margin:10px 0;border:1px solid #2c3a4b;border-radius:12px;background:var(--panel);transition:all .2s ease}
+    summary{cursor:pointer;padding:12px 14px;font-weight:600;list-style:none}
+    summary:hover{color:var(--accent);transform:translateX(4px)}
+    .content{padding:14px;animation:slideIn .4s ease}
+    @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+    .muted{color:var(--muted)}
+    .quiz{margin-top:20px;display:grid;gap:16px}
+    .question{padding:16px;border-radius:14px;background:linear-gradient(135deg,var(--accent)10%,var(--accent2)90%);color:#fff;cursor:pointer;transition:transform .2s ease, box-shadow .2s ease;position:relative}
+    .question:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,.5)}
+    .answer{display:none;margin-top:8px;padding:10px;border-radius:10px;background:var(--panel);color:var(--text);animation:popIn .3s ease}
+    @keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+    .emoji{font-size:1.2rem;margin-right:6px}
+  </style>
+</head>
+<body>
+  <header class="container">
+    <h1>🎭 Threats and Actors</h1>
+    <nav aria-label="Primary">
+      <button class="tab" aria-selected="true" data-target="#internal">🔒 Internal Threats</button>
+      <button class="tab" aria-selected="false" data-target="#external">🌐 External Threats</button>
+      <button class="tab" aria-selected="false" data-target="#profiling">🕵️ Threat Actor Profiling</button>
+      <button class="tab" aria-selected="false" data-target="#quiz">🎮 Quick Quiz</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="internal">
+      <h2>🔒 Internal Threats</h2>
+      <div class="card">
+        <details>
+          <summary>Types</summary>
+          <div class="content">
+            <h3>😈 Malicious Insiders</h3>
+            <p>Employees, former employees, contractors, or partners who intentionally cause harm. Motives: financial gain, revenge, ideology, sabotage.</p>
+            <ul>
+              <li>💣 Admin plants a logic bomb deleting files after termination.</li>
+              <li>📂 Employee steals customer data to sell to competitor.</li>
+              <li>💰 Disgruntled employee embezzles funds.</li>
+            </ul>
+            <h3>😅 Negligent Insiders</h3>
+            <p>Unintentionally cause security breaches due to carelessness.</p>
+            <ul>
+              <li>🔑 Uses weak password like "password123".</li>
+              <li>📧 Clicks on phishing link, downloads malware.</li>
+              <li>💻 Leaves workstation unlocked.</li>
+            </ul>
+            <h3>🎭 Compromised Insiders</h3>
+            <p>Accounts/devices taken over by attackers.</p>
+            <ul>
+              <li>🔓 Stolen credentials abused.</li>
+              <li>🖥️ Laptop hijacked into botnet.</li>
+              <li>⌨️ Keylogger installed.</li>
+            </ul>
+          </div>
+        </details>
+        <details>
+          <summary>Indicators</summary>
+          <div class="content">
+            <ul>
+              <li>👀 Unusual logins or data access</li>
+              <li>📤 Data exfiltration attempts</li>
+              <li>🚫 Policy violations</li>
+              <li>✉️ Suspicious communications</li>
+              <li>⚙️ Unauthorized system changes</li>
+              <li>❌ Repeated failed logins</li>
+              <li>😡 Behavior changes</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="external" hidden>
+      <h2>🌐 External Threats</h2>
+      <div class="card">
+        <details>
+          <summary>Types</summary>
+          <div class="content">
+            <ul>
+              <li>🦠 <strong>Malware:</strong> viruses, worms, ransomware</li>
+              <li>🎭 <strong>Phishing:</strong> deception to get data</li>
+              <li>🌊 <strong>DDoS:</strong> flood systems with traffic</li>
+              <li>💾 <strong>SQL Injection:</strong> exploit database inputs</li>
+              <li>⚡ <strong>XSS:</strong> inject scripts into pages</li>
+              <li>🎯 <strong>APTs:</strong> long-term campaigns</li>
+              <li>🔗 <strong>Supply Chain:</strong> compromise vendor updates</li>
+            </ul>
+          </div>
+        </details>
+        <details>
+          <summary>Motivations</summary>
+          <div class="content">
+            <ul>
+              <li>💵 Financial Gain</li>
+              <li>🕵️ Espionage</li>
+              <li>⚔️ Cyber Warfare</li>
+              <li>✊ Hacktivism</li>
+              <li>😠 Revenge</li>
+              <li>🤓 Curiosity / Challenge</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="profiling" hidden>
+      <h2>🕵️ Threat Actor Profiling</h2>
+      <div class="card">
+        <details>
+          <summary>Key Elements</summary>
+          <div class="content">
+            <ul>
+              <li>🔍 Attribution</li>
+              <li>🎯 Motivation</li>
+              <li>🛠️ Capabilities</li>
+              <li>📌 Intent</li>
+              <li>🏭 Targeting</li>
+              <li>🧩 TTPs</li>
+              <li>📜 Past Activity</li>
+              <li>📈 Sophistication</li>
+              <li>💼 Resources</li>
+            </ul>
+          </div>
+        </details>
+        <details>
+          <summary>Why it Matters</summary>
+          <div class="content">
+            <ul>
+              <li>⚖️ Improved risk assessment</li>
+              <li>🧠 Better threat intelligence</li>
+              <li>🛡️ Proactive defense</li>
+              <li>🚨 Faster incident response</li>
+              <li>🔗 Supports attribution & deterrence</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="quiz" hidden>
+      <h2>🎮 Quick Quiz</h2>
+      <div class="quiz">
+        <div class="question" data-q="1">❓ Which is an indicator of insider threat?
+          <div class="answer">👀 Unusual file access, exfiltration, or policy violations.</div>
+        </div>
+        <div class="question" data-q="2">❓ What does XSS stand for?
+          <div class="answer">⚡ Cross-Site Scripting.</div>
+        </div>
+        <div class="question" data-q="3">❓ APTs are…
+          <div class="answer">🎯 Advanced Persistent Threats — long-term targeted attacks.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script nonce="SECURE-2025">"use strict";(function(){
+    const tabs=[...document.querySelectorAll(".tab")];
+    const sections=[...document.querySelectorAll("main>section")];
+    function show(id){sections.forEach(s=>s.hidden=("#"+s.id)!==id);tabs.forEach(t=>t.setAttribute("aria-selected",String(t.dataset.target===id)));}
+    tabs.forEach(t=>t.addEventListener("click",()=>show(t.dataset.target)));
+    show("#internal");
+
+    document.querySelectorAll('.question').forEach(q=>{
+      q.addEventListener('click',()=>{
+        const ans=q.querySelector('.answer');
+        ans.style.display= ans.style.display==='block'?'none':'block';
+      });
+    });
+  })();</script>
+</body>
+</html>
