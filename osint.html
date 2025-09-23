@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <!--
+    Secure, dynamic Course Content page (OSINT)
+    Key security measures:
+      - Strong Content Security Policy (CSP) with nonces, no remote execution, no inline/event-handler JS
+      - No external scripts, fonts, or stylesheets
+      - Frame-ancestors blocked; base-uri none; form-action none; connect-src none
+      - All dynamic rendering from constant strings; no HTML injection from user input
+      - Robust escaping and no use of eval / Function / innerHTML from untrusted sources
+  -->
+  <!-- CSP nonce (must match the nonce attributes below). For a static file, a fixed nonce is acceptable.
+       If you deploy via a server, generate a fresh high-entropy nonce per response and mirror it here and on <script>/<style>. -->
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'none';
+    script-src 'nonce-OSINT123nonce';
+    style-src 'nonce-OSINT123nonce';
+    img-src 'self' data:;
+    font-src 'self' data:;
+    connect-src 'none';
+    frame-ancestors 'none';
+    base-uri 'none';
+    form-action 'none';
+  ">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Referrer-Policy" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Course Content — OSINT Techniques, Gathering & Analysis</title>
+  <style nonce="OSINT123nonce">
+    :root{
+      --bg: #0b0f14; /* dark theme default */
+      --text: #e6edf3;
+      --muted: #a9b1ba;
+      --card: #111720;
+      --accent: #4ea1ff;
+      --accent-2: #7ee787;
+      --border: #1b2533;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --focus: 0 0 0 3px rgba(78,161,255,.45);
+    }
+    :root[data-theme="light"]{
+      --bg: #ffffff;          /* pure white for max contrast */
+      --text: #111827;        /* gray-900 */
+      --muted: #374151;       /* gray-700 */
+      --card: #ffffff;        /* surfaces */
+      --accent: #1d4ed8;      /* stronger accessible blue */
+      --accent-2: #047857;    /* stronger accessible green */
+      --border: #94a3b8;      /* slate-400 for clearer separation */
+      --shadow: 0 10px 30px rgba(2,6,23,.06);
+      --focus: 0 0 0 3px rgba(29,78,216,.35);
+    }
+
+    /* Light theme readability overrides (explicit colors, no color-mix) */
+    [data-theme="light"] body{ color: var(--text); background: var(--bg); }
+    [data-theme="light"] .hero{ background: var(--card); border-color: var(--border); }
+    [data-theme="light"] .meta{ color: var(--muted); }
+    [data-theme="light"] .search{ background: var(--card); }
+    [data-theme="light"] .toc a{ color: var(--text); }
+    [data-theme="light"] .toc a:hover, [data-theme="light"] .toc a[aria-current="true"]{ background:#eef2ff; }
+    [data-theme="light"] details{ background:#f3f4f6; border-color: var(--border); }
+    [data-theme="light"] details[open]{ background:#ffffff; }
+    [data-theme="light"] .badge{ background:#eef2ff; color:#111827; border-color:#c7d2fe; }
+    [data-theme="light"] .btn{ background: var(--card); color: var(--text); border-color: var(--border); }
+    [data-theme="light"] .search input{ color: var(--text); }
+    [data-theme="light"] ::placeholder{ color:#6b7280; }
+
+    /* Light theme readability tweaks */
+    [data-theme="light"] .search{ background: var(--card); }
+    [data-theme="light"] .toc a{ color: var(--text); }
+    [data-theme="light"] .badge{ background: #eef2ff; color: #1e293b; border-color: #c7d2fe; }
+    ::placeholder{ color: color-mix(in oklab, var(--text) 45%, transparent); }
+
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--text); font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    .app{display:grid; grid-template-columns: 320px 1fr; min-height:100vh}
+    @media (max-width: 980px){ .app{grid-template-columns: 1fr} .sidebar{position:static; height:auto} }
+
+    /* Sidebar */
+    .sidebar{
+      position: sticky; top:0; align-self:start; height:100dvh; border-right:1px solid var(--border); background:var(--card);
+      box-shadow: var(--shadow); display:flex; flex-direction:column; gap:12px; padding:16px 14px; z-index:10; overflow:auto;
+    }
+    .brand{display:flex; align-items:center; gap:10px}
+    .logo{width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); box-shadow: var(--shadow)}
+    .brand h1{font-size:18px; margin:0}
+
+    .controls{display:grid; gap:10px}
+    .search{
+      display:flex; gap:8px; align-items:center; background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:8px 10px;
+    }
+    .search input{flex:1; background:transparent; color:var(--text); border:0; outline:none}
+    .btn{cursor:pointer; user-select:none; border:1px solid var(--border); background:var(--card); color:var(--text); padding:8px 12px; border-radius:12px}
+    .btn:hover{border-color: var(--accent)}
+    .btn:focus-visible{outline: none; box-shadow: var(--focus)}
+    .btn-row{display:flex; gap:8px; flex-wrap:wrap}
+
+    nav{border-top:1px dashed var(--border); padding-top:10px; margin-top:4px}
+    .toc{list-style:none; padding:0; margin:0; display:grid; gap:2px}
+    .toc a{display:block; padding:8px 10px; border-radius:10px; color:var(--text); text-decoration:none}
+    .toc a:hover, .toc a[aria-current="true"]{background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 18%, transparent), transparent)}
+
+    /* Main */
+    main{padding:24px; display:grid; gap:18px}
+    .hero{background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 16%, transparent), transparent 60%), var(--card); border:1px solid var(--border); border-radius:20px; padding:24px; box-shadow: var(--shadow)}
+    .hero h2{margin:0 0 6px 0}
+    .meta{color:var(--muted); font-size:14px}
+
+    .toolbar{position:sticky; top:0; background: color-mix(in oklab, var(--bg) 86%, transparent); backdrop-filter: blur(6px);
+      border-bottom: 1px solid var(--border); padding:10px 0; z-index:5; display:flex; gap:10px; flex-wrap:wrap}
+
+    .card{background:var(--card); border:1px solid var(--border); border-radius:18px; padding:18px; box-shadow: var(--shadow)}
+    .section-title{margin-top:0}
+
+    details{border:1px solid var(--border); border-radius:14px; padding:10px 12px; background: color-mix(in oklab, var(--card) 90%, transparent)}
+    details summary{cursor:pointer; font-weight:600}
+    details[open]{background: color-mix(in oklab, var(--card) 100%, transparent)}
+
+    .badge{display:inline-block; padding:.25em .6em; border-radius:999px; border:1px solid var(--border); background:var(--bg); color:var(--muted); font-size:12px}
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; padding:2px 6px; border:1px solid var(--border); border-bottom-width:2px; border-radius:6px; background:var(--bg)}
+
+    h3, h4{scroll-margin-top: 90px}
+    mark{background: color-mix(in oklab, var(--accent) 20%, transparent); border-radius:6px; padding:2px 4px}
+
+    /* Footer note */
+    .foot{color:var(--muted); font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar" aria-label="Course navigator">
+      <div class="brand" role="banner">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>Course Content · OSINT</h1>
+      </div>
+      <div class="controls" role="region" aria-label="Controls">
+        <div class="search" role="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/></svg>
+          <label class="visually-hidden" for="q">Search</label>
+          <input id="q" type="search" placeholder="Search topics (e.g., Shodan, legality)" autocomplete="off" aria-label="Search course content" />
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="toggleTheme" aria-pressed="false" title="Toggle theme (L)" aria-label="Toggle light/dark">🌗 Theme</button>
+          <button class="btn" id="expandAll" title="Expand all sections" aria-label="Expand all">➕ Expand all</button>
+          <button class="btn" id="collapseAll" title="Collapse all sections" aria-label="Collapse all">➖ Collapse all</button>
+          <button class="btn" id="clearSearch" title="Clear search (Esc)" aria-label="Clear search">✖ Clear</button>
+        </div>
+      </div>
+      <nav role="navigation" aria-label="Table of contents">
+        <ul class="toc" id="toc"></ul>
+      </nav>
+      <p class="foot">Tip: Press <span class="kbd">/</span> to focus search. Use <span class="kbd">L</span> to toggle theme.</p>
+    </aside>
+
+    <main id="content" tabindex="-1">
+      <section class="hero" aria-label="Overview">
+        <h2>Open Source Intelligence (OSINT): Techniques, Gathering & Analysis</h2>
+        <div class="meta">Comprehensive, interactive course content with secure-by-default HTML</div>
+        <p>This page contains the full course content organized into expandable sections with search, a sticky table of contents, and accessibility-friendly navigation. Security hardening measures are applied to reduce risk from common web application attacks.</p>
+      </section>
+
+      <!-- Content sections will be rendered by JS from a constant JSON payload below to avoid unsafe HTML injection patterns. -->
+      <div id="sections" class="sections" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <script nonce="OSINT123nonce">
+    "use strict";
+    // Defensive coding settings
+    (function(){
+      // Lock down some globals where supported
+      const forbidden = ['eval','Function'];
+      for(const k of forbidden){ try{ Object.defineProperty(window, k, { value: undefined, configurable: false}); }catch{ /* ignore */ } }
+    })();
+
+    // Static course content (sanitized plain text only). Source: uploaded course document
+    // Each section has: id, title, intro, items[]; items may include nested bullets/examples.
+    const COURSE = {
+      title: "Open Source Intelligence (OSINT) Techniques, Gathering & Analysis",
+      sections: [
+        {
+          id: "osint-techniques",
+          title: "I. Open Source Intelligence (OSINT) Techniques (40 minutes)",
+          intro: "OSINT is the practice of collecting and analyzing information that is legally and freely available to the public. It turns diverse public data into actionable intelligence.",
+          items: [
+            { h3: "What is OSINT?", p: [
+              "OSINT leverages publicly accessible information—across news, social media, public records, and the open web—to produce insights.",
+              "'Open source' refers to accessibility, not cost or license."],
+              examples: [
+                "Journalist builds a timeline of a political scandal from social media, news, and records.",
+                "Security analyst tracks a threat actor via forums, GitHub, and security blogs (TTPs).",
+                "Business analyst reviews a competitor’s site, filings, and press to infer strategy."
+              ]
+            },
+            { h3: "Key Principles of OSINT", p:["Effective OSINT follows legality, accuracy, objectivity, and timeliness."], bullets:[
+              {strong:"Legality:", text:"Operate within law, privacy rules, copyright, and ToS; respect robots.txt; avoid bypassing controls."},
+              {strong:"Accuracy:", text:"Verify by cross-referencing independent sources; check credibility of outlets and authors."},
+              {strong:"Objectivity:", text:"Let data drive conclusions; avoid bias and cherry-picking."},
+              {strong:"Timeliness:", text:"Monitor updates; use real-time sources when needed."}
+            ], examples:[
+              "Access only public pages; no login bypass.",
+              "Confirm DOB from multiple public records.",
+              "Present findings even when they contradict hypotheses.",
+              "Track emerging CVEs and advisories in real time."
+            ]},
+            { h3: "Common OSINT Sources", p:["Use a diverse source mix; each has strengths and limitations."], bullets:[
+              {strong:"Search Engines:", text:"Advanced operators (site:, filetype:, AND/OR/NOT) and reverse image search."},
+              {strong:"Social Media:", text:"Twitter/X, LinkedIn, Instagram, TikTok for signals and network mapping."},
+              {strong:"Public Records:", text:"Registries, court records, and government datasets."},
+              {strong:"Websites & Forums:", text:"Blogs, docs, industry groups, and specialist communities."},
+              {strong:"News Media:", text:"Context and analysis from reputable outlets."},
+              {strong:"Image/Video Analysis:", text:"Metadata checks, geolocation cues, reverse searches."}
+            ]},
+            { h3: "OSINT Tools", p:["Automate collection and enhance analysis."], bullets:[
+              {strong:"Maltego:", text:"Link analysis and entity relationship mapping."},
+              {strong:"theHarvester:", text:"Find emails and subdomains for a target domain."},
+              {strong:"Shodan:", text:"Search engine for internet-exposed devices and services."},
+              {strong:"Recon-ng:", text:"Modular reconnaissance framework for multi-source collection."}
+            ]}
+          ]
+        },
+        {
+          id: "gathering-info",
+          title: "II. Gathering Information from Public Sources (40 minutes)",
+          intro: "A systematic, lawful process from objectives to organized datasets.",
+          items: [
+            { h3:"Information Gathering Process", p:["Define objectives, identify sources, collect data ethically, then organize."], bullets:[
+              {strong:"Defining Objectives:", text:"Clarify questions and desired outcomes."},
+              {strong:"Source Identification:", text:"Map credible sources by domain (gov, industry, media, OSN)."},
+              {strong:"Data Collection:", text:"Manual, automated, or hybrid—respect ToS and rate limits."},
+              {strong:"Data Organization:", text:"Use spreadsheets, databases, or DMS; track provenance and metadata."}
+            ]},
+            { h3:"Advanced Search Techniques", p:["Boolean logic, phrases, wildcards, and site-scoped queries."], bullets:[
+              {strong:"Boolean:", text:"AND / OR / NOT to refine results."},
+              {strong:"Phrase:", text:"Quote exact phrases to narrow."},
+              {strong:"Wildcard:", text:"Use * to match stems (e.g., secur*)."},
+              {strong:"Site-specific:", text:"site:example.gov or site:nytimes.com to target domains."}
+            ]},
+            { h3:"Web Scraping", p:["Automated extraction with ethical safeguards."], bullets:[
+              {strong:"Tools & Techniques:", text:"Beautiful Soup, Scrapy; parse HTML to structured data."},
+              {strong:"Ethics:", text:"Respect robots.txt; apply delays; comply with privacy and ToS."}
+            ]},
+            { h3:"Social Media Intelligence (SOCMINT)", p:["Platform-aware collection and verification under higher misinformation risk."], bullets:[
+              {strong:"Platform Techniques:", text:"Advanced search, APIs, and hashtag analysis."},
+              {strong:"Verification:", text:"Cross-check accounts, detect bots, and verify media with reverse search."}
+            ]}
+          ]
+        },
+        {
+          id: "analyzing-osint",
+          title: "III. Analyzing OSINT Data (40 minutes)",
+          intro: "Transform raw data into insights via cleaning, correlation, visualization, and reporting.",
+          items: [
+            { h3:"Data Analysis Process", p:["Clean, correlate, visualize, and report with documented methods and caveats."], bullets:[
+              {strong:"Cleaning:", text:"Remove noise, bots, duplicates, and errors."},
+              {strong:"Correlation:", text:"Connect domains, IPs, entities, and events."},
+              {strong:"Visualization:", text:"Timelines, graphs, and maps reveal patterns."},
+              {strong:"Reporting:", text:"Objective findings, methodology, and limitations."}
+            ]},
+            { h3:"Link Analysis", p:["Apply graph theory to discover structure and key actors."], bullets:[
+              {strong:"Graph Concepts:", text:"Nodes, edges, centrality, communities, shortest paths."},
+              {strong:"Tools:", text:"Maltego helps visualize relationships at scale."}
+            ]},
+            { h3:"Temporal Analysis", p:["Examine how signals evolve over time for trend and anomaly detection."], bullets:[
+              {strong:"Time Series:", text:"Identify trends and seasonality (e.g., incident counts)."},
+              {strong:"Event Sequencing:", text:"Reconstruct timelines to infer causality."}
+            ]},
+            { h3:"Attribution", p:["Triangulate indicators with caution; expect spoofing and false flags."], bullets:[
+              {strong:"Challenges:", text:"Obfuscation via VPNs/Tor, stolen creds, misdirection."},
+              {strong:"Indicators:", text:"IPs, domains, emails, code patterns, linguistics, personas."}
+            ]}
+          ]
+        }
+      ]
+    };
+
+    // Utility: escape text to prevent accidental HTML rendering
+    const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+
+    // Render sidebar TOC and main content
+    const tocEl = document.getElementById('toc');
+    const sectionsEl = document.getElementById('sections');
+
+    function render(){
+      // TOC
+      tocEl.textContent = '';
+      for(const sec of COURSE.sections){
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${sec.id}`; a.textContent = sec.title; a.setAttribute('data-id', sec.id);
+        li.appendChild(a); tocEl.appendChild(li);
+      }
+
+      // Sections
+      sectionsEl.textContent = '';
+      for(const sec of COURSE.sections){
+        const card = document.createElement('section');
+        card.className = 'card'; card.id = sec.id;
+        const h2 = document.createElement('h3'); h2.className = 'section-title'; h2.textContent = sec.title; card.appendChild(h2);
+        const intro = document.createElement('p'); intro.textContent = sec.intro; card.appendChild(intro);
+
+        for(const item of sec.items){
+          const d = document.createElement('details'); d.open = false; d.dataset.topic = (item.h3||'').toLowerCase();
+          const sum = document.createElement('summary'); sum.textContent = item.h3; d.appendChild(sum);
+
+          if(item.p){ for(const p of item.p){ const el = document.createElement('p'); el.textContent = p; d.appendChild(el);} }
+          if(item.bullets){ const ul = document.createElement('ul');
+            for(const b of item.bullets){ const li = document.createElement('li');
+              const strong = document.createElement('strong'); strong.textContent = b.strong + ' '; li.appendChild(strong);
+              li.append(document.createTextNode(b.text)); ul.appendChild(li);
+            }
+            d.appendChild(ul);
+          }
+          if(item.examples){ const ex = document.createElement('p'); ex.innerHTML = '<span class="badge">Examples</span>'; d.appendChild(ex);
+            const ulx = document.createElement('ul'); for(const e of item.examples){ const li = document.createElement('li'); li.textContent = e; ulx.appendChild(li);} d.appendChild(ulx);
+          }
+          card.appendChild(d);
+        }
+        sectionsEl.appendChild(card);
+      }
+    }
+
+    render();
+
+    // Theme toggle (persisted in localStorage without exposing cross-origin data)
+    const root = document.documentElement;
+    (function initTheme(){
+      try{ const saved = localStorage.getItem('theme'); if(saved === 'light' || saved === 'dark'){ root.dataset.theme = saved; } }catch{}
+    })();
+
+    document.getElementById('toggleTheme').addEventListener('click', () => {
+      const t = (root.dataset.theme === 'light') ? 'dark' : 'light';
+      root.dataset.theme = t; try{ localStorage.setItem('theme', t);}catch{}
+    });
+
+    // Expand/collapse controls
+    const expandAllBtn = document.getElementById('expandAll');
+    const collapseAllBtn = document.getElementById('collapseAll');
+    expandAllBtn.addEventListener('click', () => {
+      document.querySelectorAll('details').forEach(d => d.open = true);
+    });
+    collapseAllBtn.addEventListener('click', () => {
+      document.querySelectorAll('details').forEach(d => d.open = false);
+    });
+
+    // Search filtering (client-side, safe string includes)
+    const q = document.getElementById('q');
+    const clearBtn = document.getElementById('clearSearch');
+
+    function applySearch(val){
+      const needle = val.trim().toLowerCase();
+      const cards = Array.from(document.querySelectorAll('#sections .card'));
+      for(const card of cards){
+        const text = card.textContent.toLowerCase();
+        const match = !needle || text.includes(needle);
+        card.style.display = match ? '' : 'none';
+        // Auto-open matching details for context
+        if(needle){ card.querySelectorAll('details').forEach(d => {
+          const t = (d.textContent||'').toLowerCase(); d.open = t.includes(needle);
+        }); }
+      }
+      // Highlight in-view TOC
+      updateTOC();
+    }
+
+    q.addEventListener('input', () => applySearch(q.value));
+    clearBtn.addEventListener('click', () => { q.value=''; applySearch(''); q.focus(); });
+
+    // Keyboard shortcuts: / focus search, Esc clear, L theme
+    window.addEventListener('keydown', (e) => {
+      if(e.key === '/' && document.activeElement !== q){ e.preventDefault(); q.focus(); q.select(); }
+      if(e.key === 'Escape'){ if(q.value){ q.value=''; applySearch(''); } }
+      if(e.key.toLowerCase() === 'l'){ document.getElementById('toggleTheme').click(); }
+    });
+
+    // TOC active link tracking using IntersectionObserver
+    const links = Array.from(document.querySelectorAll('.toc a'));
+    const map = new Map(links.map(a => [a.getAttribute('data-id'), a]));
+    function updateTOC(){
+      let currentId = null; let top = Infinity;
+      for(const sec of document.querySelectorAll('main .card')){
+        const rect = sec.getBoundingClientRect();
+        if(rect.top >= 0 && rect.top < top){ top = rect.top; currentId = sec.id; }
+      }
+      links.forEach(a => a.setAttribute('aria-current', String(a.getAttribute('data-id')===currentId)));
+    }
+    const io = new IntersectionObserver(updateTOC, {rootMargin: '0px 0px -70% 0px'});
+    document.querySelectorAll('main .card').forEach(sec => io.observe(sec));
+    window.addEventListener('scroll', updateTOC, {passive:true});
+
+    // Ensure sidebar TOC retains visibility; no auto-scroll hiding
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.addEventListener('click', (e)=>{
+      const a = e.target.closest('a'); if(!a) return;
+      // Smooth scroll without changing focus abruptly
+      e.preventDefault(); const id = a.getAttribute('data-id');
+      const target = document.getElementById(id);
+      if(target){ target.scrollIntoView({behavior:'smooth', block:'start'}); target.focus({preventScroll:true}); }
+    });
+
+  </script>
+</body>
+</html>

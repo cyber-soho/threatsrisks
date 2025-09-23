@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course Labs — Maltego (Secure Interactive • Sticky Nav • Theme Toggle)</title>
+
+  <!-- Strict Content Security Policy. In production, generate a fresh nonce per response. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none';
+                 script-src 'nonce-T0ggleN0nce' 'self';
+                 connect-src 'self' https:; 
+                 style-src 'self' 'unsafe-inline';
+                 img-src 'self' data:; 
+                 font-src 'self';
+                 base-uri 'self';
+                 form-action 'self';" />
+
+  <style>
+    /* ===== THEME TOKENS ===== */
+    :root{
+      /* Dark (default) */
+      --bg: #0f1724;
+      --bg-grad: linear-gradient(180deg, var(--bg), #020617);
+      --card: #0b1220;
+      --text: #e6eef6;           /* high contrast on dark */
+      --muted: #9aa4b2;
+      --accent: #0ea5a4;
+      --accent-2: #048a89;
+      --glass: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.08);
+      --code-bg: rgba(255,255,255,0.04);
+      --btn-text: #042;
+      --input-bg: #0a1120;
+      --link: #a5f3fc;
+    }
+    /* Light theme override — tuned for readability */
+    :root[data-theme="light"]{
+      --bg: #f7fafc;
+      --bg-grad: linear-gradient(180deg, #f7fafc, #eef2f7);
+      --card: #ffffff;
+      --text: #0b1020;           /* near-black for strong contrast */
+      --muted: #425466;          /* readable secondary text */
+      --accent: #0ea5a4;
+      --accent-2: #0a8d8c;
+      --glass: rgba(0,0,0,0.03);
+      --border: rgba(0,0,0,0.10);
+      --code-bg: #f1f5f9;        /* light but distinct */
+      --btn-text: #032c2b;
+      --input-bg: #ffffff;
+      --link: #0550ae;           /* accessible blue */
+    }
+
+    /* ===== BASE ===== */
+    html, body { height: 100%; margin: 0; }
+    body{
+      font-family: Inter, ui-sans-serif, system-ui, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+      background: var(--bg-grad);
+      color: var(--text);
+    }
+    a{ color: var(--link); }
+    .wrap{ max-width: 1200px; margin: 0 auto; padding: 18px; }
+    header{ display:flex; gap:16px; align-items:center; margin-bottom:18px }
+    h1{ font-size: 18px; margin: 0 }
+
+    /* ===== LAYOUT ===== */
+    .grid{ display:grid; grid-template-columns:340px 1fr; gap:18px; align-items:start }
+    .card{ background: var(--card); padding:14px; border-radius:12px; box-shadow: 0 6px 24px rgba(2,6,23,.16); border:1px solid var(--border) }
+    .small{ color: var(--muted); font-size: 13px }
+
+    /* Sticky sidebar so it remains visible while scrolling */
+    aside.card{ position: sticky; top: 60px; max-height: calc(100vh - 72px); overflow:auto }
+
+    /* Section anchors: offset for sticky header */
+    section{ scroll-margin-top: 72px }
+
+    /* Buttons & inputs */
+    .btn{ display:inline-block; padding:8px 12px; border-radius:8px; background: linear-gradient(180deg, var(--accent), var(--accent-2)); color: var(--btn-text); cursor:pointer; font-weight:600; border:none }
+    .copy-btn{ margin-left:8px; padding:6px; border-radius:6px; background: var(--glass); color: inherit; border:1px solid var(--border) }
+    label, input, select { display:block }
+    input[type="text"], select{ width:100%; max-width:420px; background: var(--input-bg); color: var(--text); border:1px solid var(--border); border-radius:8px; padding:8px }
+
+    /* Code blocks */
+    pre{ background: var(--code-bg); padding:10px; border-radius:8px; overflow:auto; border:1px solid var(--border) }
+
+    /* Floating quick-nav */
+    .quicktop{ position:fixed; right:16px; bottom:16px; z-index:10 }
+    .quicktop .btn{ opacity:.95 }
+
+    /* Motion */
+    @media (prefers-reduced-motion:no-preference){ html{ scroll-behavior: smooth } }
+
+    /* Responsive */
+    @media (max-width:980px){
+      .grid{ grid-template-columns:1fr }
+      aside.card{ position:static; max-height:none; top:auto }
+      section{ scroll-margin-top: 16px }
+    }
+
+    footer{ margin-top:14px; color: var(--muted); font-size: 13px }
+  </style>
+</head>
+<body>
+  <a id="top" tabindex="-1" aria-hidden="true"></a>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Course Labs — Maltego: Install, Configure & Investigate (2hr)</h1>
+        <div class="small">Interactive lab page (VM setup, commands, solution script, safe test scaffolding)</div>
+      </div>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:10px">
+        <button id="themeToggle" class="btn" aria-pressed="false" aria-label="Toggle light/dark theme">Switch to Light</button>
+        <div class="small">Secure single-file deliverable — no personal metadata</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <aside class="card" aria-label="Lab navigation">
+        <strong>Lab sections</strong>
+        <nav style="margin-top:10px">
+          <ul style="padding-left:18px;line-height:1.8;margin:0">
+            <li><a href="#overview" class="small">Overview & Objectives</a></li>
+            <li><a href="#setup" class="small">Environment Setup (VM)</a></li>
+            <li><a href="#install" class="small">Maltego Install</a></li>
+            <li><a href="#investigate" class="small">Basic Investigation</a></li>
+            <li><a href="#solution" class="small">Solution Script & Expected Output</a></li>
+            <li><a href="#deliverable" class="small">Deliverables & Grading</a></li>
+            <li><a href="#safety" class="small">Security & Hardening Notes</a></li>
+          </ul>
+        </nav>
+
+        <div style="margin-top:12px">
+          <button id="downloadBtn" class="btn" aria-label="Download lab HTML">Download HTML</button>
+        </div>
+
+        <div class="accordion" role="region" aria-label="Quick checks">
+          <details class="acc-item"><summary>Quick VM spec</summary>
+            <div class="small">Kali Linux VM • 4GB RAM • 2 vCPU • 40GB disk • NAT networking</div>
+          </details>
+          <details class="acc-item"><summary>Why NAT?</summary>
+            <div class="small">NAT isolates your host from the VM while allowing outgoing internet for package downloads.</div>
+          </details>
+        </div>
+      </aside>
+
+      <main class="card" id="main">
+        <section id="overview">
+          <h2 style="margin-top:0">Overview & Objectives</h2>
+          <p class="small">Duration: ~2 hours. This practical teaches secure preparation of a VM environment, installation of Maltego Community Edition (CE), and a guided OSINT investigation of <code>examplephishing.com</code>. All code samples are display-only and safe — they do not execute sensitive operations on your host.</p>
+          <ul>
+            <li>Set up and harden a Kali Linux VM in VirtualBox</li>
+            <li>Install Maltego CE (.deb)</li>
+            <li>Run transforms to gather DNS, IP, netblock, and email intelligence</li>
+            <li>Produce a screenshot and a short findings summary</li>
+          </ul>
+        </section>
+
+        <section id="setup" style="margin-top:12px">
+          <h3>Phase 1 — Environment Setup (≈30 min)</h3>
+          <ol>
+            <li>Create a new VM in Oracle VirtualBox with the following specs:
+              <pre>Memory: 4 GB
+CPUs: 2
+Disk: 40 GB (dynamically allocated)
+Network: NAT</pre>
+            </li>
+            <li>Install recent Kali Linux ISO (rolling). Boot and login as your student user.
+              <div class="small">Open a terminal and run:</div>
+              <pre id="cmd-update">sudo apt update && sudo apt upgrade -y</pre>
+              <button class="copy-btn" data-copy-target="cmd-update">Copy</button>
+            </li>
+            <li>Ensure time sync and minimal hardening:
+              <pre>sudo timedatectl set-ntp true
+sudo ufw enable
+sudo ufw default deny incoming
+sudo ufw allow out 80,443/tcp</pre>
+              <div class="small">Note: UFW is used to demonstrate basic host firewalling for the VM. Don’t lock yourself out of remote sessions.</div>
+            </li>
+          </ol>
+        </section>
+
+        <section id="install" style="margin-top:12px">
+          <h3>Phase 2 — Maltego Installation & Configuration (≈30 min)</h3>
+          <ol>
+            <li>Register for a Maltego CE account (inside the VM). Download the Linux (.deb) package.</li>
+            <li>Open a terminal in the Downloads folder and run (show-only):</li>
+          </ol>
+          <pre id="install-cmds"># replace filename with the actual downloaded file
+sudo dpkg -i Maltego.v4.x.x.deb || true
+sudo apt-get install -f -y
+# Launch Maltego from the app menu or by running:
+maltego</pre>
+          <button class="copy-btn" data-copy-target="install-cmds">Copy</button>
+          <div style="margin-top:8px">
+            <strong>Initial configuration checklist (student)</strong>
+            <ul>
+              <li>Accept License → Choose Maltego CE (Free) → Login and activate</li>
+              <li>Install default Transforms / Data sources</li>
+              <li>Open a blank graph (Ready...Set...GO!)</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="investigate" style="margin-top:12px">
+          <h3>Phase 3 — Basic Domain Investigation (≈60 min)</h3>
+          <p>Follow these steps in Maltego. The web UI here is a safe checklist and helpers; it does <em>not</em> run transforms — those are inside the Maltego application.</p>
+          <ol>
+            <li>Create a new graph and add the <em>Domain</em> entity; set it to <code>examplephishing.com</code>.</li>
+            <li>Right-click the domain → <strong>To DNS Name [DNS]</strong> (MX/NS records).</li>
+            <li>Pivot: <strong>To IP Address [DNS]</strong> on an A record/hostname (e.g., www.examplephishing.com).</li>
+            <li>Then <strong>To Netblock [Using routing info]</strong> on the IP to find the network range.</li>
+            <li>Try <strong>To Email Addresses [PGP]</strong> or other transforms to collect public emails.</li>
+          </ol>
+
+          <div style="margin-top:10px">
+            <label for="targetDomain">Lab: example target (editable)</label>
+            <input id="targetDomain" type="text" value="examplephishing.com" aria-label="Target domain" />
+            <div class="small">Use this domain when you run transforms inside Maltego.</div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button id="checkDomainBtn" class="btn">Validate Domain Format</button>
+            <span id="checkResult" class="small"></span>
+          </div>
+
+          <h4 style="margin-top:12px">Safe helper: DNS lookups from the browser (info only)</h4>
+          <p class="small">Optional helper using DNS-over-HTTPS (DoH). In classroom deployments, prefer running checks inside the VM to avoid leaking student IPs.</p>
+
+          <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+            <select id="dohProvider">
+              <option value="https://cloudflare-dns.com/dns-query">Cloudflare (DoH)</option>
+              <option value="https://dns.google/resolve">Google DNS-over-HTTPS</option>
+            </select>
+            <button id="runDoh" class="btn">Run DNS lookup (safe)</button>
+            <span id="dohStatus" class="small"></span>
+          </div>
+
+          <pre id="dohOutput" style="margin-top:8px"></pre>
+        </section>
+
+        <section id="solution" style="margin-top:12px">
+          <h3>Solution Script & Expected Output</h3>
+          <p class="small">Commands below are for the Kali VM terminal only (display-only here).</p>
+          <pre id="solutionCode"># Install (example)
+sudo dpkg -i Maltego.v4.x.x.deb || true
+sudo apt-get install -f -y
+
+# Example DNS/Network checks (run inside Kali)
+# Show A record for www
+dig +short www.examplephishing.com
+# Show MX records
+dig +short MX examplephishing.com
+# Resolve IP
+dig +short a www.examplephishing.com
+
+# Expected outputs (illustrative):
+# MX: mx1.mail.ovh.net, mx2.mail.ovh.net, mx3.mail.ovh.net
+# NS: dns12.ovh.net
+# A: 188.165.23.19
+# Netblock: 188.165.16.0-188.165.23.255
+# Discovered emails: tech@ovh.net, abuse@ovh.net</pre>
+          <button class="copy-btn" data-copy-target="solutionCode">Copy</button>
+
+          <div style="margin-top:8px">
+            <strong>How to submit</strong>
+            <ol>
+              <li>Screenshot your final Maltego graph (.png).</li>
+              <li>Write a 2–3 sentence findings summary.</li>
+              <li>Upload screenshot + summary to the LMS by the deadline.</li>
+            </ol>
+          </div>
+        </section>
+
+        <section id="deliverable" style="margin-top:12px">
+          <h3>Deliverables & Grading</h3>
+          <ul>
+            <li>Screenshot of organized graph — 60%</li>
+            <li>Short findings summary (2–3 sentences) — 30%</li>
+            <li>Secure VM setup checklist evidence — 10%</li>
+          </ul>
+        </section>
+
+        <section id="safety" style="margin-top:12px">
+          <h3>Security, Privacy & Hardening Notes</h3>
+          <ul>
+            <li class="small">Perform transforms inside the isolated VM — not on the host.</li>
+            <li class="small">Use NAT networking or an internal network with an HTTP proxy if needed.</li>
+            <li class="small">Don’t paste sensitive credentials into the application or this page.</li>
+            <li class="small">This HTML avoids executing shell commands or storing credentials. The DoH helper is HTTPS-only, CORS-limited, and optional.</li>
+          </ul>
+        </section>
+
+        <footer>
+          Instructor information removed. Source: provided Maltego materials.
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <!-- Floating quick-nav: jump back to top -->
+  <div class="quicktop"><a href="#top" class="btn" id="toTop">Top</a></div>
+
+  <script nonce="T0ggleN0nce" type="module">
+    // ===== Utility: HTML escape for any dynamic text =====
+    const escapeHTML = (s) => String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+    // ===== Copy-to-clipboard buttons =====
+    document.querySelectorAll('.copy-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-copy-target');
+        const el = document.getElementById(id);
+        if(!el) return;
+        navigator.clipboard.writeText(el.textContent.trim()).then(()=>{
+          btn.textContent='Copied';
+          setTimeout(()=>btn.textContent='Copy',1100);
+        }).catch(()=>{btn.textContent='Err'});
+      })
+    });
+
+    // ===== Download current HTML =====
+    const dl = document.getElementById('downloadBtn');
+    if(dl){ dl.addEventListener('click', ()=>{
+      const blob = new Blob([document.documentElement.outerHTML],{type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'maltego_lab_secure_sticky_theme.html';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }); }
+
+    // ===== Domain validator =====
+    const domRe = /^(?=.{1,253}$)(?!\-)([A-Za-z0-9\-]{1,63}\.)+[A-Za-z]{2,63}\.?$/;
+    const checkBtn = document.getElementById('checkDomainBtn');
+    if(checkBtn){ checkBtn.addEventListener('click', ()=>{
+      const v = document.getElementById('targetDomain').value.trim();
+      const out = document.getElementById('checkResult');
+      out.textContent = domRe.test(v) ? 'Looks like a valid domain' : 'Invalid domain format';
+    }); }
+
+    // ===== DoH helper (optional) =====
+    const dohBtn = document.getElementById('runDoh');
+    if(dohBtn){ dohBtn.addEventListener('click', async ()=>{
+      const provider = document.getElementById('dohProvider').value;
+      const domain = document.getElementById('targetDomain').value.trim();
+      const out = document.getElementById('dohOutput');
+      const status = document.getElementById('dohStatus');
+      status.textContent = '';
+      out.textContent = '';
+      if(!domRe.test(domain)) { status.textContent = 'Invalid domain'; return; }
+      const allowed = {
+        'https://cloudflare-dns.com/dns-query':'cloudflare',
+        'https://dns.google/resolve':'google'
+      };
+      if(!allowed[provider]){ status.textContent='Provider not allowed'; return; }
+      try{
+        status.textContent = 'Querying...';
+        let url;
+        if(provider.includes('cloudflare')){
+          url = `${provider}?name=${encodeURIComponent(domain)}&type=A`;
+          const res = await fetch(url, {headers:{'Accept':'application/dns-json'}});
+          const j = await res.json();
+          out.textContent = escapeHTML(JSON.stringify(j, null, 2));
+        } else {
+          url = `${provider}?name=${encodeURIComponent(domain)}&type=A`;
+          const res = await fetch(url);
+          const j = await res.json();
+          out.textContent = escapeHTML(JSON.stringify(j, null, 2));
+        }
+        status.textContent = 'Done';
+      } catch (e){ status.textContent = 'Error — check network or CORS'; }
+    }); }
+
+    // ===== Theme toggle (persisted & accessible) =====
+    const root = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+
+    // Respect stored preference or system preference on first load
+    const stored = localStorage.getItem('labTheme');
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    if(stored === 'light' || (!stored && prefersLight)){
+      root.setAttribute('data-theme','light');
+      if(btn){ btn.textContent = 'Switch to Dark'; btn.setAttribute('aria-pressed','true'); }
+    }
+
+    if(btn){ btn.addEventListener('click', ()=>{
+      const isLight = root.getAttribute('data-theme') === 'light';
+      if(isLight){
+        root.removeAttribute('data-theme');
+        localStorage.setItem('labTheme','dark');
+        btn.textContent = 'Switch to Light';
+        btn.setAttribute('aria-pressed','false');
+      } else {
+        root.setAttribute('data-theme','light');
+        localStorage.setItem('labTheme','light');
+        btn.textContent = 'Switch to Dark';
+        btn.setAttribute('aria-pressed','true');
+      }
+    }); }
+
+    // Defensive: prevent drag-and-drop of files into the page
+    window.addEventListener('dragover', e=>e.preventDefault());
+    window.addEventListener('drop', e=>{ e.preventDefault(); });
+  </script>
+</body>
+</html>

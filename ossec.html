@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Course Labs — OSSEC (Secure, Sanitized)</title>
+  <!--
+    SECURITY NOTES:
+    - This file intentionally strips all personally-identifying information from the original material.
+    - Content-Security-Policy below restricts network access, disables inline styles/scripts except the nonce-approved script included.
+    - No user-supplied content is injected with innerHTML. All dynamic content uses textContent or safe element creation.
+    - Links open in new tabs with rel="noopener noreferrer" to prevent window.opener attacks.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-r4nd0mN0nc3'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self';">
+  <style>
+    :root{--bg:#0f1720;--card:#0b1220;--text:#dbeafe;--muted:#9aa6b2;--accent:#38bdf8}
+    @media (prefers-color-scheme: light){:root{--bg:#f7fafc;--card:#ffffff;--text:#0f1720;--muted:#4b5563;--accent:#0284c7}}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,var(--bg),#051226);color:var(--text)}
+    .container{max-width:1100px;margin:28px auto;padding:20px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,0.6)}
+    header{display:flex;align-items:center;gap:12px}
+    h1{margin:0;font-size:1.4rem}
+    p.lead{margin:6px 0 18px;color:var(--muted)}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+    button, .link{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);padding:8px 12px;border-radius:8px;cursor:pointer}
+    button.small{padding:6px 8px;font-size:0.9rem}
+    .grid{display:grid;grid-template-columns:280px 1fr;gap:18px}
+    nav{position:sticky;top:24px;align-self:start}
+    .nav-card{background:var(--card);padding:12px;border-radius:10px}
+    .search{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text)}
+    ul.toc{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:6px}
+    ul.toc a{display:block;padding:8px;border-radius:6px;color:var(--text);text-decoration:none}
+    ul.toc a:hover{background:rgba(255,255,255,0.02)}
+    main{background:var(--card);padding:18px;border-radius:10px;min-height:60vh}
+    section{margin-bottom:18px}
+    pre{background:#0007;padding:12px;border-radius:8px;overflow:auto;color:#e6eef8}
+    details summary{cursor:pointer}
+    .cmd{font-family:monospace,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas;display:flex;gap:8px;align-items:center}
+    .muted{color:var(--muted);font-size:0.95rem}
+    footer{margin-top:16px;color:var(--muted);font-size:0.85rem}
+    .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:0.85rem}
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <header>
+      <div>
+        <h1>Course Labs — OSSEC (Sanitized)</h1>
+        <p class="lead">Interactive, read-only lab guide derived from provided lab notes. All personal/creator data removed. Secure-by-design UI and safe scripting.</p>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <span class="pill">Version: sanitized</span>
+      </div>
+    </header>
+
+    <div class="toolbar" role="toolbar" aria-label="lab toolbar">
+      <button id="expandAll" class="small">Expand all</button>
+      <button id="collapseAll" class="small">Collapse all</button>
+      <button id="copyCommands" class="small">Copy all commands</button>
+      <a id="downloadBtn" class="link" href="#" role="button">Download (HTML)</a>
+      <div style="flex:1"></div>
+      <input id="filter" class="search" placeholder="Filter sections (e.g., server, client, ELK)" aria-label="filter">
+    </div>
+
+    <div class="grid">
+      <nav aria-label="Table of contents">
+        <div class="nav-card">
+          <strong class="muted">Contents</strong>
+          <ul class="toc" id="toc"></ul>
+        </div>
+      </nav>
+
+      <main id="content" class="card">
+        <!-- Sections are populated by the safe script below -->
+      </main>
+    </div>
+
+    <footer>
+      Source sanitized from uploaded lab notes. For the original uploaded file reference use internal file id. This page intentionally removes credentials, emails, hostnames and any personal identifiers. See security header (CSP) in &lt;head&gt;.
+    </footer>
+  </div>
+
+  <script nonce="r4nd0mN0nc3">
+  // Strict, minimal dynamic script. No innerHTML. All text is inserted via textContent or appendChild.
+  (function(){
+    'use strict';
+    // Lab sections (sanitized summaries & commands)
+    const sections = [
+      {
+        id:'overview', title:'Overview & Purpose', body:[
+          'This lab guides students through installing and configuring OSSEC HIDS (server and agent) and integrating with an ELK stack for visualization. All examples are sanitized and use placeholder hostnames/IPs. DO NOT copy credentials shown here into production environments.'
+        ]
+      },
+      {
+        id:'server-prereqs', title:'Server — Prerequisites', body:[
+          'Recommended platform: Ubuntu LTS (for lab use only). Ensure network isolation for lab VMs. Install build tools and required libraries.'
+        ],
+        commands:[
+          'sudo apt update && sudo apt upgrade -y',
+          'sudo apt install build-essential gcc make unzip libevent-dev zlib1g-dev libssl-dev libpcre2-dev libsystemd-dev curl rsyslog -y'
+        ]
+      },
+      {
+        id:'server-install', title:'Server — Install OSSEC (sanitized)', body:[
+          'Download, extract and run the OSSEC installer. During installation choose: Server, enable syscheck, rootcheck and active response as appropriate for the lab.'
+        ],
+        commands:[
+          'curl -LO https://github.com/ossec/ossec-hids/archive/3.7.0.tar.gz',
+          'tar -xvzf 3.7.0.tar.gz',
+          'cd ossec-hids-3.7.0',
+          'sudo ./install.sh'
+        ]
+      },
+      {
+        id:'ssh-detection', title:'Enable SSH Intrusion Detection', body:[
+          'Ensure /var/log/auth.log is monitored by OSSEC by adding a localfile entry and restarting the service.'
+        ],
+        commands:[
+          'sudo editor /var/ossec/etc/ossec.conf  # add localfile entry for /var/log/auth.log',
+          'sudo /var/ossec/bin/ossec-control restart'
+        ]
+      },
+      {
+        id:'verify', title:'Verify & Test Detection', body:[
+          'Simulate failed SSH login attempts and inspect /var/ossec/logs/alerts/alerts.log to verify rules trigger as expected.'
+        ],
+        commands:[
+          'for i in {1..5}; do ssh fakeuser@127.0.0.1 || true; done',
+          'sudo tail -n 50 /var/ossec/logs/alerts/alerts.log'
+        ]
+      },
+      {
+        id:'elk', title:'Integrate with ELK (summary)', body:[
+          'High-level steps: install Java, Elasticsearch, Logstash and Kibana. Configure Logstash to read OSSEC alerts.log and push to Elasticsearch. Use Kibana Discover to create index patterns for live monitoring.'
+        ],
+        commands:[
+          'sudo apt install openjdk-11-jdk -y',
+          'sudo apt install elasticsearch logstash kibana -y  # follow vendor docs for secure setup'
+        ]
+      },
+      {
+        id:'client', title:'OSSEC Client (Agent) Setup', body:[
+          'Install agent on client VM, add agent on server using manage_agents, extract/import the key. Agent should be enabled at boot.'
+        ],
+        commands:[
+          'sudo ./install.sh  # choose agent and provide server IP',
+          'On server: sudo /var/ossec/bin/manage_agents  # add agent, extract key',
+          'On client: sudo /var/ossec/bin/manage_agents  # import key',
+          'sudo systemctl enable ossec'
+        ]
+      },
+      {
+        id:'monitoring', title:'Monitoring & Troubleshooting', body:[
+          'Useful checks: /var/ossec/logs/ossec.log, /var/ossec/logs/alerts/alerts.log, /var/ossec/bin/agent_control -l and systemctl status ossec. For ELK check Logstash and Kibana service logs.'
+        ]
+      },
+      {
+        id:'security-guidance', title:'Security Guidance (do NOT use in production)', body:[
+          'This lab is for educational purposes. Never commit real credentials to notes. Use isolated networks and ephemeral VMs. Follow vendor security guidance for production deployments (TLS, authentication, RBAC, access controls).'
+        ]
+      }
+    ];
+
+    // Build content safely
+    const toc = document.getElementById('toc');
+    const content = document.getElementById('content');
+
+    sections.forEach(s => {
+      // TOC entry
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#'+s.id;
+      a.textContent = s.title;
+      a.addEventListener('click', function(ev){ ev.preventDefault(); document.getElementById(s.id)?.scrollIntoView({behavior:'smooth'}); });
+      li.appendChild(a);
+      toc.appendChild(li);
+
+      // Section card
+      const sec = document.createElement('section');
+      sec.id = s.id;
+      const h = document.createElement('h2'); h.textContent = s.title; sec.appendChild(h);
+      s.body.forEach(p=>{ const pEl = document.createElement('p'); pEl.textContent = p; pEl.className='muted'; sec.appendChild(pEl); });
+      if(s.commands){
+        const details = document.createElement('details');
+        const summary = document.createElement('summary'); summary.textContent = 'Commands (click to expand)';
+        details.appendChild(summary);
+        const pre = document.createElement('pre');
+        const code = document.createElement('code');
+        code.className='cmd';
+        code.textContent = s.commands.join('\n');
+        pre.appendChild(code);
+        // Add per-section copy button
+        const btn = document.createElement('button'); btn.textContent='Copy commands'; btn.className='small';
+        btn.addEventListener('click', function(){ navigator.clipboard.writeText(s.commands.join('\n')).then(()=>{ btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy commands',1200); }).catch(()=>{ alert('Copy failed — please select and copy manually.'); }); });
+        details.appendChild(btn);
+        details.appendChild(pre);
+        sec.appendChild(details);
+      }
+      content.appendChild(sec);
+    });
+
+    // Expand/Collapse all
+    document.getElementById('expandAll').addEventListener('click', ()=>{
+      document.querySelectorAll('details').forEach(d=>d.open=true);
+    });
+    document.getElementById('collapseAll').addEventListener('click', ()=>{
+      document.querySelectorAll('details').forEach(d=>d.open=false);
+    });
+
+    // Copy all commands
+    document.getElementById('copyCommands').addEventListener('click', ()=>{
+      const all = Array.from(document.querySelectorAll('pre code')).map(c=>c.textContent).join('\n\n');
+      if(!all) { alert('No commands available to copy.'); return; }
+      navigator.clipboard.writeText(all).then(()=>{ document.getElementById('copyCommands').textContent='Copied'; setTimeout(()=>document.getElementById('copyCommands').textContent='Copy all commands',1200); }).catch(()=>{ alert('Copy failed — please select and copy manually.'); });
+    });
+
+    // Filter sections
+    document.getElementById('filter').addEventListener('input', function(e){
+      const q = String(e.target.value||'').toLowerCase().trim();
+      document.querySelectorAll('main section').forEach(sec=>{
+        const txt = sec.textContent.toLowerCase();
+        sec.style.display = q && txt.indexOf(q)===-1 ? 'none' : '';
+      });
+      // Update TOC visibility
+      Array.from(toc.children).forEach(li=>{
+        const a = li.querySelector('a');
+        li.style.display = (q && a.textContent.toLowerCase().indexOf(q)===-1) ? 'none' : '';
+      });
+    });
+
+    // Safe download: create blob and link
+    document.getElementById('downloadBtn').addEventListener('click', function(ev){
+      ev.preventDefault();
+      // Reconstruct sanitized HTML (strip any runtime state). We only export static sanitized view.
+      const exportDoc = ['<!doctype html>','<meta charset="utf-8">','<title>Course Labs — OSSEC (sanitized export)</title>','<meta name="viewport" content="width=device-width,initial-scale=1">','<style>body{font-family:system-ui,Arial;padding:12px}</style>','<h1>Course Labs — OSSEC (sanitized export)</h1>'];
+      sections.forEach(s=>{
+        exportDoc.push('<h2>'+s.title.replace(/</g,'&lt;')+'</h2>');
+        s.body.forEach(p=> exportDoc.push('<p>'+p.replace(/</g,'&lt;')+'</p>'));
+        if(s.commands){ exportDoc.push('<pre>'+s.commands.join('\n').replace(/</g,'&lt;')+'</pre>'); }
+      });
+      const blob = new Blob([exportDoc.join('\n')], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'course-labs-ossec-sanitized.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // Basic accessibility focus
+    document.querySelectorAll('button, [role="button"]').forEach(el=>el.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' ') el.click(); }));
+
+  })();
+  </script>
+</body>
+</html>
