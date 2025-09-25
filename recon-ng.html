@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Lecture: Recon-ng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Serene Slate -->
+    <!-- Application Structure Plan: The application is structured as a single-page dashboard with a sticky top navigation, allowing users to jump between key lecture topics. This design breaks the dense, linear lecture into manageable, thematic sections (Introduction, Setup, Core Concepts, Walkthrough, Advanced). The goal is to facilitate both guided learning and quick reference. Key interactions include an interactive workflow diagram to explain core concepts visually, and a step-by-step simulated terminal for the practical walkthrough. This structure was chosen because it transforms passive reading material into an active learning experience, which is more effective for technical tutorials. -->
+    <!-- Visualization & Content Choices: 1. Report Info: Recon-ng vs. Other Tools table -> Goal: Compare -> Viz/Method: Horizontal Bar Chart (Chart.js) -> Interaction: Tooltips on hover -> Justification: Provides a quick, visual summary of Recon-ng's advantages, making the comparison more impactful than a static table. 2. Report Info: The Recon-ng Workflow -> Goal: Organize/Inform -> Viz/Method: Interactive Diagram (HTML/CSS Flexbox) -> Interaction: Clickable cards to reveal detailed text -> Justification: Visually maps out the tool's process, creating a strong mental model for learners. 3. Report Info: Practical Walkthrough Steps -> Goal: Instruct -> Viz/Method: Simulated Terminal Stepper -> Interaction: Next/Previous buttons to navigate steps -> Justification: Engages the user by mimicking the actual process of using the tool, improving comprehension and retention. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .mono-font {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .nav-item {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-item.active {
+            color: #0ea5e9; /* sky-500 */
+            border-bottom-color: #0ea5e9; /* sky-500 */
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <header class="bg-slate-800 text-white p-6 shadow-md text-center">
+        <h1 class="text-3xl md:text-4xl font-bold">Recon-ng: From Installation to Advanced Reconnaissance</h1>
+        <p class="text-slate-300 mt-2">An Interactive Guide based on the CYB-301 Lecture</p>
+    </header>
+
+    <nav class="sticky top-0 bg-white/80 backdrop-blur-lg shadow-md z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center items-center space-x-2 md:space-x-8 overflow-x-auto">
+                <button data-section="intro" class="nav-item text-sm md:text-base font-medium py-4 px-2 md:px-4 border-b-2 border-transparent hover:text-sky-500 hover:border-sky-500 whitespace-nowrap">Introduction</button>
+                <button data-section="setup" class="nav-item text-sm md:text-base font-medium py-4 px-2 md:px-4 border-b-2 border-transparent hover:text-sky-500 hover:border-sky-500 whitespace-nowrap">Installation & Setup</button>
+                <button data-section="core" class="nav-item text-sm md:text-base font-medium py-4 px-2 md:px-4 border-b-2 border-transparent hover:text-sky-500 hover:border-sky-500 whitespace-nowrap">Core Concepts</button>
+                <button data-section="walkthrough" class="nav-item text-sm md:text-base font-medium py-4 px-2 md:px-4 border-b-2 border-transparent hover:text-sky-500 hover:border-sky-500 whitespace-nowrap">Practical Walkthrough</button>
+                <button data-section="advanced" class="nav-item text-sm md:text-base font-medium py-4 px-2 md:px-4 border-b-2 border-transparent hover:text-sky-500 hover:border-sky-500 whitespace-nowrap">Advanced Topics</button>
+                <button data-section="qa" class="nav-item text-sm md:text-base font-medium py-4 px-2 md:px-4 border-b-2 border-transparent hover:text-sky-500 hover:border-sky-500 whitespace-nowrap">Q&A</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <!-- Introduction Section -->
+        <section id="intro" class="content-section">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800">What is Reconnaissance?</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg">Reconnaissance is the first and most critical phase of any penetration test. It is the art of gathering information to build a comprehensive profile of a target's digital footprint. The more you know, the higher your chance of success. This section introduces the foundational concepts of recon and the powerful tool designed to master it: Recon-ng.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="text-2xl font-semibold text-sky-600 mb-3">Passive Reconnaissance</h3>
+                    <p>Collecting information from publicly available sources without directly interacting with the target. This method is stealthy and goes unnoticed.</p>
+                    <p class="mt-3 text-sm text-slate-500"><strong>Examples:</strong> Searching Google, inspecting WHOIS records, browsing social media.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="text-2xl font-semibold text-orange-600 mb-3">Active Reconnaissance</h3>
+                    <p>Involves direct interaction with the target's infrastructure. This can yield more detail but is "noisier" and can be detected by security systems.</p>
+                    <p class="mt-3 text-sm text-slate-500"><strong>Examples:</strong> Port scanning, banner grabbing, probing web servers.</p>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-md border border-slate-200">
+                <h2 class="text-3xl font-bold text-slate-800 text-center">Why Choose Recon-ng?</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-center text-lg mb-8">While many tools can gather data, Recon-ng stands out for its systematic, database-driven approach. It transforms reconnaissance from a simple data dump into an interactive investigation. The chart below visualizes its key advantages over typical recon scripts.</p>
+                <div class="chart-container">
+                    <canvas id="reconngChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation & Setup Section -->
+        <section id="setup" class="content-section">
+            <div class="text-center mb-12">
+                 <h2 class="text-3xl font-bold text-slate-800">Installation & Setup</h2>
+                 <p class="mt-4 max-w-3xl mx-auto text-lg">This section guides you through getting Recon-ng running. We'll cover prerequisites and the recommended installation process on Kali Linux. A proper setup is the first step towards organized and effective reconnaissance missions.</p>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-md border border-slate-200">
+                <h3 class="text-2xl font-semibold mb-4">Installation on Kali Linux (Recommended)</h3>
+                <p class="mb-4">On a modern Kali system, Recon-ng is often pre-installed. If not, the process is straightforward. Open a terminal and run the following commands:</p>
+                <div class="space-y-4">
+                    <div class="bg-slate-900 rounded-md p-4 mono-font text-green-300 text-sm">
+                        <span class="text-slate-400"># Update your package list</span>
+                        <p>$ sudo apt update</p>
+                    </div>
+                    <div class="bg-slate-900 rounded-md p-4 mono-font text-green-300 text-sm">
+                        <span class="text-slate-400"># Install Recon-ng</span>
+                        <p>$ sudo apt install recon-ng</p>
+                    </div>
+                     <div class="bg-slate-900 rounded-md p-4 mono-font text-green-300 text-sm">
+                        <span class="text-slate-400"># Launch Recon-ng</span>
+                        <p>$ recon-ng</p>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-semibold mt-8 mb-4">Understanding Workspaces</h3>
+                <p>A workspace is a self-contained environment for a specific engagement, storing all collected data in its own database file. This is crucial for keeping projects organized. <strong class="text-red-600">Always create a new workspace for each target.</strong></p>
+                <div class="mt-4 grid md:grid-cols-2 gap-4 text-center">
+                    <div class="bg-slate-100 p-3 rounded"><code>workspaces create &lt;name&gt;</code></div>
+                    <div class="bg-slate-100 p-3 rounded"><code>workspaces select &lt;name&gt;</code></div>
+                    <div class="bg-slate-100 p-3 rounded"><code>workspaces list</code></div>
+                    <div class="bg-slate-100 p-3 rounded"><code>workspaces remove &lt;name&gt;</code></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Concepts Section -->
+        <section id="core" class="content-section">
+            <div class="text-center mb-12">
+                 <h2 class="text-3xl font-bold text-slate-800">The Recon-ng Workflow</h2>
+                 <p class="mt-4 max-w-3xl mx-auto text-lg">To use Recon-ng effectively, you must understand its core components. This section breaks down the workflow, from the database that stores your findings to the modules that do the work. Click each component below to learn more about its role in the process.</p>
+            </div>
+            <div id="workflow-container" class="flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+                <!-- JS will populate this -->
+            </div>
+            <div id="workflow-details" class="mt-8 bg-white p-6 rounded-lg shadow-md border border-slate-200 min-h-[150px]">
+                <!-- JS will populate this -->
+                <p class="text-slate-500">Select a component above to see its details.</p>
+            </div>
+        </section>
+
+        <!-- Practical Walkthrough Section -->
+        <section id="walkthrough" class="content-section">
+             <div class="text-center mb-12">
+                 <h2 class="text-3xl font-bold text-slate-800">Simulated Recon Mission</h2>
+                 <p class="mt-4 max-w-3xl mx-auto text-lg">Theory is important, but practice is essential. This section provides an interactive, step-by-step walkthrough of a standard reconnaissance mission against a fictional target, <code>megacorp.com</code>. Use the buttons below to navigate through the process as if you were using the tool yourself.</p>
+            </div>
+            <div class="bg-slate-900 rounded-lg shadow-2xl overflow-hidden border-4 border-slate-700">
+                <div class="bg-slate-700 p-3 flex items-center">
+                    <div class="flex space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div class="flex-grow text-center text-slate-300 text-sm mono-font">
+                        recon-ng :: megacorp
+                    </div>
+                </div>
+                <div id="walkthrough-content" class="p-6 mono-font text-white min-h-[300px]">
+                    <!-- JS will populate this -->
+                </div>
+                <div class="bg-slate-800 p-4 flex justify-between items-center">
+                    <button id="prev-step" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded transition disabled:bg-slate-600 disabled:cursor-not-allowed">Previous</button>
+                    <span id="step-indicator" class="text-slate-400 text-sm">Step 1 of 6</span>
+                    <button id="next-step" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded transition disabled:bg-slate-600 disabled:cursor-not-allowed">Next</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Techniques Section -->
+        <section id="advanced" class="content-section">
+            <div class="text-center mb-12">
+                 <h2 class="text-3xl font-bold text-slate-800">Advanced Techniques & Best Practices</h2>
+                 <p class="mt-4 max-w-3xl mx-auto text-lg">Once you've mastered the basics, you can streamline your workflow and deepen your investigations. This section covers techniques for automation, pivoting on gathered data, and the critical ethical considerations that must guide every engagement.</p>
+            </div>
+            <div id="advanced-accordion" class="space-y-4">
+                <!-- JS will populate this -->
+            </div>
+        </section>
+
+        <!-- Q&A Section -->
+        <section id="qa" class="content-section">
+            <div class="text-center mb-12">
+                 <h2 class="text-3xl font-bold text-slate-800">Frequently Asked Questions</h2>
+                 <p class="mt-4 max-w-3xl mx-auto text-lg">Here are some common questions about Recon-ng's capabilities and usage. Click on any question to reveal the answer. This is a great way to clarify differences between tools and understand the nuances of the framework.</p>
+            </div>
+            <div id="qa-accordion" class="space-y-4">
+                <!-- JS will populate this -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center py-8 mt-12 bg-slate-800 text-slate-400">
+        
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sections = document.querySelectorAll('.content-section');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            const data = {
+                chart: {
+                    labels: ['Data Storage', 'Workflow', 'Extensibility', 'Data Management'],
+                    reconNg: [10, 10, 9, 9],
+                    otherTools: [4, 5, 3, 2]
+                },
+                workflow: [
+                    { id: 'db', title: 'The Database', content: 'Every workspace has its own SQLite database, which is Recon-ng\'s brain. It contains tables for domains, hosts, contacts, etc. This organized storage prevents data duplication and allows you to easily query findings and pivot between data types. Key command: <code>show [table_name]</code>.' },
+                    { id: 'modules', title: 'Modules', content: 'Modules are the tools of the trade. They are small, focused scripts that perform a single task, like finding subdomains or contacts. They are organized into categories like Recon, Discovery, and Reporting. Key commands: <code>modules search</code>, <code>use [module_path]</code>, <code>info</code>, <code>run</code>.' },
+                    { id: 'marketplace', title: 'The Marketplace', content: 'The Marketplace is Recon-ng\'s package manager. It allows you to discover, install, and update modules. Not all modules are installed by default, making the marketplace your first stop when you need a new capability. Key commands: <code>marketplace search</code>, <code>marketplace install</code>.' },
+                    { id: 'keys', title: 'API Keys', content: 'Many modules rely on external services (Google, Shodan, etc.) and require API keys. Recon-ng provides a central, secure place to store these keys. Once added, any module that needs a key will use it automatically, greatly expanding your data gathering capabilities. Key command: <code>keys add [name] [value]</code>.' }
+                ],
+                walkthrough: [
+                    { title: 'Step 1: Setting up the Workspace', command: '[recon-ng][default] > workspaces create megacorp', output: 'Notice the prompt changes to <code>[recon-ng][megacorp] ></code>, confirming you are in the new workspace.' },
+                    { title: 'Step 2: Adding Seed Data (Domains)', command: '[recon-ng][megacorp] > add domains megacorp.com', output: 'This command adds your initial target to the `domains` table. You can verify this with <code>show domains</code>. This seed data is the starting point for all subsequent modules.' },
+                    { title: 'Step 3: Host Discovery with Modules', command: '[recon-ng][megacorp] > use recon/domains-hosts/hackertarget\n[recon-ng][megacorp][hackertarget] > run', output: 'We load a module to find subdomains. Since its `SOURCE` option defaults to the `domains` table, it automatically uses "megacorp.com" as input. Discovered hosts are saved to the `hosts` table.' },
+                    { title: 'Step 4: Harvesting Contacts', command: '[recon-ng][megacorp] > use recon/domains-contacts/whois_pocs\n[recon-ng][megacorp][whois_pocs] > run', output: 'Now we look for contacts. This module performs a WHOIS lookup on the domain and extracts any points of contact (names, emails), adding them to the `contacts` table.' },
+                    { title: 'Step 5: Querying the Database', command: '[recon-ng][megacorp] > db query SELECT email FROM contacts', output: 'As you gather data, you can run raw SQL queries against the database to filter and export specific information, which is extremely powerful for analyzing large datasets.' },
+                    { title: 'Step 6: Reporting', command: '[recon-ng][megacorp] > use reporting/html\n[recon-ng][megacorp][html] > run', output: 'Finally, load a reporting module to generate a clean report of your findings. The `html` module creates a portable file you can view in any browser.' }
+                ],
+                advanced: [
+                    { title: 'Using Resource Files for Automation', content: 'If you run the same sequence of commands often, you can save them in a resource file (`.rc`). A resource file is a simple text file with a list of Recon-ng commands. Launch with <code>recon-ng -r /path/to/file.rc</code> to automate your workflow.' },
+                    { title: 'Pivoting on Gathered Data', content: 'Pivoting is using one piece of discovered information to find more. For example, using a discovered contact name to search for their social media profiles with another module. Recon-ng\'s database makes this easy by allowing the output of one module to become the input for another.' },
+                    { title: 'Ethical Considerations', content: '<strong>Authorization:</strong> Always have explicit, written permission. <br><strong>Scope:</strong> Strictly adhere to the agreed-upon scope. <br><strong>Privacy:</strong> Be responsible with collected data (PII), secure your workspaces, and delete data post-engagement as required.' }
+                ],
+                qa: [
+                    { q: "What's the difference between Recon-ng and Maltego?", a: "Recon-ng is CLI-based and focused on a structured, repeatable workflow, while Maltego is GUI-based and excels at visualizing relationships between data points." },
+                    { q: "Can Recon-ng be detected?", a: "Most modules use passive techniques (querying public sources) and are undetectable. However, some modules may directly interact with the target and could be logged. Always read a module's description before running it." },
+                    { q: "How do I create my own module?", a: "Recon-ng modules are Python scripts that follow a specific template. The official developer wiki on GitHub provides a guide for creating your own." },
+                    { q: "What if a module I need requires a paid API key?", a: "For professional engagements, subscribing to data services is often a necessary business expense. These APIs provide invaluable data that cannot be gathered from free sources, making them a worthwhile investment." }
+                ]
+            };
+            
+            function switchSection(sectionId) {
+                sections.forEach(section => {
+                    section.classList.toggle('active', section.id === sectionId);
+                });
+                navItems.forEach(item => {
+                    item.classList.toggle('active', item.dataset.section === sectionId);
+                });
+            }
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => switchSection(item.dataset.section));
+            });
+            
+            switchSection('intro');
+
+            const ctx = document.getElementById('reconngChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.chart.labels,
+                    datasets: [
+                        {
+                            label: 'Recon-ng',
+                            data: data.chart.reconNg,
+                            backgroundColor: 'rgba(14, 165, 233, 0.6)',
+                            borderColor: 'rgba(14, 165, 233, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Other Tools (e.g., theHarvester)',
+                            data: data.chart.otherTools,
+                            backgroundColor: 'rgba(249, 115, 22, 0.6)',
+                            borderColor: 'rgba(249, 115, 22, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 10,
+                             ticks: { color: '#475569' }
+                        },
+                        y: {
+                             ticks: { color: '#475569' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                             labels: { color: '#1e293b' }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    let score = context.raw;
+                                    let desc = '';
+                                    if (score > 8) desc = 'Excellent';
+                                    else if (score > 6) desc = 'Good';
+                                    else if (score > 4) desc = 'Average';
+                                    else desc = 'Limited';
+                                    return `${label}${desc} (${score}/10)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            const workflowContainer = document.getElementById('workflow-container');
+            const workflowDetails = document.getElementById('workflow-details');
+            
+            data.workflow.forEach((item, index) => {
+                const button = document.createElement('button');
+                button.className = 'workflow-item bg-white p-4 rounded-lg shadow-sm border border-slate-200 hover:shadow-md hover:border-sky-500 transition w-full md:w-auto';
+                button.dataset.id = item.id;
+                button.innerHTML = `<h3 class="text-lg font-semibold">${item.title}</h3>`;
+                workflowContainer.appendChild(button);
+                
+                if(index < data.workflow.length - 1){
+                    const arrow = document.createElement('div');
+                    arrow.className = 'text-2xl text-slate-400 font-bold transform md:-rotate-90';
+                    arrow.innerHTML = `&darr;`;
+                    workflowContainer.appendChild(arrow);
+                }
+            });
+            
+            document.querySelectorAll('.workflow-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const detailData = data.workflow.find(d => d.id === id);
+                    if(detailData) {
+                       workflowDetails.innerHTML = `
+                          <h3 class="text-2xl font-bold text-slate-800 mb-2">${detailData.title}</h3>
+                          <p>${detailData.content}</p>
+                       `;
+                    }
+                    document.querySelectorAll('.workflow-item').forEach(btn => btn.classList.remove('bg-sky-100', 'border-sky-500'));
+                    e.currentTarget.classList.add('bg-sky-100', 'border-sky-500');
+                });
+            });
+
+            let currentStep = 0;
+            const walkthroughContent = document.getElementById('walkthrough-content');
+            const prevBtn = document.getElementById('prev-step');
+            const nextBtn = document.getElementById('next-step');
+            const stepIndicator = document.getElementById('step-indicator');
+            const totalSteps = data.walkthrough.length;
+
+            function updateWalkthrough() {
+                const step = data.walkthrough[currentStep];
+                walkthroughContent.innerHTML = `
+                    <p class="text-slate-400 mb-2">// ${step.title}</p>
+                    <div class="text-cyan-400 mb-4 whitespace-pre-wrap">${step.command.replace(/\n/g, '<br>')}</div>
+                    <p class="text-slate-200">${step.output}</p>
+                `;
+                stepIndicator.textContent = `Step ${currentStep + 1} of ${totalSteps}`;
+                prevBtn.disabled = currentStep === 0;
+                nextBtn.disabled = currentStep === totalSteps - 1;
+            }
+
+            prevBtn.addEventListener('click', () => {
+                if (currentStep > 0) {
+                    currentStep--;
+                    updateWalkthrough();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentStep < totalSteps - 1) {
+                    currentStep++;
+                    updateWalkthrough();
+                }
+            });
+
+            updateWalkthrough();
+            
+            function createAccordion(containerId, items) {
+                const container = document.getElementById(containerId);
+                items.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-white rounded-lg shadow-sm border border-slate-200';
+                    div.innerHTML = `
+                        <button class="accordion-toggle w-full flex justify-between items-center text-left p-4 font-semibold text-slate-800 hover:bg-slate-50">
+                            <span>${item.title || item.q}</span>
+                            <span class="transform transition-transform text-sky-500 text-xl">&plus;</span>
+                        </button>
+                        <div class="accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out">
+                            <div class="p-4 border-t border-slate-200">
+                                ${item.content || item.a}
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+
+                container.addEventListener('click', function(e) {
+                    const toggle = e.target.closest('.accordion-toggle');
+                    if (toggle) {
+                        const content = toggle.nextElementSibling;
+                        const icon = toggle.querySelector('span:last-child');
+                        if (content.style.maxHeight) {
+                            content.style.maxHeight = null;
+                            icon.innerHTML = '&plus;';
+                            icon.classList.remove('rotate-45');
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + "px";
+                            icon.innerHTML = '&times;';
+                            icon.classList.add('rotate-45');
+                        }
+                    }
+                });
+            }
+
+            createAccordion('advanced-accordion', data.advanced);
+            createAccordion('qa-accordion', data.qa);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+

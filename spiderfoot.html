@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpiderFoot: Interactive OSINT Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Cool Slate -->
+    <!-- Application Structure Plan: The SPA is structured as a single-page vertical dashboard with a sticky top navigation, replacing the linear lecture format. This design prioritizes usability by allowing users to either scroll through the content sequentially or use the navigation to jump directly to specific tasks like 'Installation' or 'First Scan'. Key information is presented in interactive components like accordions for FAQs, cards for API services and scan types, and step-by-step guides with copy-to-clipboard functionality. This task-oriented, interactive structure is better suited for a technical tutorial than a static document, facilitating active learning and quick reference. -->
+    <!-- Visualization & Content Choices: Report Info: Installation Commands -> Goal: Ease of Use -> Presentation: Code blocks -> Interaction: Copy-to-clipboard button -> Justification: Reduces user error and speeds up the setup process. | Report Info: API Key list -> Goal: Actionable Info -> Presentation: Interactive cards -> Interaction: Hover effects, links to services -> Justification: Modernizes the display of tabular data and makes it easier for users to obtain the keys. | Report Info: Ethical Rules -> Goal: Emphasize Importance -> Presentation: Highlighted callout boxes with icons -> Interaction: None -> Justification: Visual distinction ensures critical non-technical information is not overlooked. | Report Info: Graph visualization concept -> Goal: Explain a concept -> Presentation: HTML/CSS static diagram of nodes/edges -> Interaction: None -> Justification: Illustrates the concept effectively without requiring chart libraries or external images, adhering to the no SVG/image constraint. CONFIRMED: No Chart.js or Plotly.js used as no quantitative data exists in the source. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e29b; /* slate-800 */
+        }
+        .nav-link.active {
+            color: #0ea5e9; /* sky-500 */
+            font-weight: 600;
+        }
+        .code-block {
+            background-color: #0f172a; /* slate-900 */
+            color: #e2e8f0; /* slate-200 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            position: relative;
+        }
+        .copy-btn {
+            background-color: #334155; /* slate-700 */
+            color: #cbd5e1; /* slate-300 */
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #475569; /* slate-600 */
+        }
+        .callout {
+            border-left-width: 4px;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+        }
+        .callout-warning {
+            background-color: #fef9c3; /* yellow-50 */
+            border-color: #facc15; /* yellow-400 */
+            color: #713f12; /* yellow-900 */
+        }
+        .callout-info {
+            background-color: #f0f9ff; /* sky-50 */
+            border-color: #38bdf8; /* sky-400 */
+            color: #0c4a6e; /* sky-900 */
+        }
+        .accordion-content {
+            display: none;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        @keyframes pulse-bg {
+          0%, 100% {
+            background-color: #f8fafc;
+          }
+          50% {
+            background-color: #f0f9ff;
+          }
+        }
+        .is-loading-scan {
+          animation: pulse-bg 2s ease-in-out infinite;
+          border-radius: 0.5rem;
+          padding-top: 1rem;
+          padding-bottom: 1rem;
+        }
+        .viz-node {
+            position: absolute;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem;
+            text-align: center;
+        }
+        .viz-line {
+            position: absolute;
+            background-color: #cbd5e1; /* slate-300 */
+            height: 2px;
+        }
+    </style>
+</head>
+<body class="font-sans">
+
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-slate-700">SpiderFoot OSINT Guide</h1>
+            <div class="hidden md:flex space-x-6 text-sm font-medium text-slate-600">
+                <a href="#intro" class="hover:text-sky-500 transition-colors nav-link">Introduction</a>
+                <a href="#install" class="hover:text-sky-500 transition-colors nav-link">Installation</a>
+                <a href="#first-scan" class="hover:text-sky-500 transition-colors nav-link">First Scan</a>
+                <a href="#results" class="hover:text-sky-500 transition-colors nav-link">Analyzing Results</a>
+                <a href="#advanced" class="hover:text-sky-500 transition-colors nav-link">Advanced</a>
+                <a href="#ethics" class="hover:text-sky-500 transition-colors nav-link">Ethics</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <section id="intro" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-2 text-sky-600">Automating OSINT for Modern Reconnaissance</h2>
+            <p class="text-lg text-slate-500 mb-6">An interactive guide based on the CYB-310 lecture on installing, setting up, and using SpiderFoot for Open-Source Intelligence gathering.</p>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">What is OSINT?</h3>
+                    <p class="text-slate-600 mb-4">Open-Source Intelligence (OSINT) is the practice of collecting and analyzing data from open, publicly available sources to produce actionable intelligence. It's a critical first step in penetration testing, threat intelligence, and digital forensics, leveraging public information without any illegal activities.</p>
+                    <p class="text-sm font-semibold text-slate-700 mb-2">Common Sources:</p>
+                    <ul class="text-sm text-slate-500 list-disc list-inside space-y-1">
+                        <li>Search Engines (Google, Bing)</li>
+                        <li>Social Media (LinkedIn, Twitter)</li>
+                        <li>Public Records & Code Repositories</li>
+                        <li>DNS Registries & Specialized Databases (SHODAN)</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">Introducing SpiderFoot</h3>
+                    <p class="text-slate-600 mb-4">SpiderFoot is an open-source OSINT automation tool. It automates gathering intelligence about a target (like a domain, IP, or email) by integrating with over 200 data sources (modules) and organizing the findings into a cross-referenced database for analysis.</p>
+                     <p class="text-sm font-semibold text-slate-700 mb-2">Key Features:</p>
+                    <ul class="text-sm text-slate-500 list-disc list-inside space-y-1">
+                        <li>Modular & Extensible Design</li>
+                        <li>Automated Data Cross-Correlation</li>
+                        <li>User-Friendly Web UI & Powerful Visualizations</li>
+                        <li>Extensive API Integration</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="install" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 text-sky-600">Installation & Setup</h2>
+            
+            <div class="space-y-8">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-4">Step 1: Installation Walkthrough</h3>
+                    <div class="bg-white p-6 rounded-lg shadow-sm space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold mr-4">1</div>
+                            <div>
+                                <h4 class="font-bold">Clone the Repository</h4>
+                                <p class="text-slate-500 text-sm mb-2">Get the latest version of SpiderFoot from GitHub.</p>
+                                <div class="code-block">
+                                    <pre><code>git clone https://github.com/smicallef/spiderfoot.git</code></pre>
+                                    <div class="absolute top-2 right-2 flex items-center">
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                             <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold mr-4">2</div>
+                            <div>
+                                <h4 class="font-bold">Install Dependencies</h4>
+                                <p class="text-slate-500 text-sm mb-2">Navigate into the new directory and install the required Python packages.</p>
+                                <div class="code-block">
+                                    <pre><code>cd spiderfoot
+pip3 install -r requirements.txt</code></pre>
+                                    <div class="absolute top-2 right-2 flex items-center">
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                             <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold mr-4">3</div>
+                            <div>
+                                <h4 class="font-bold">Launch SpiderFoot</h4>
+                                <p class="text-slate-500 text-sm mb-2">Start the local web server. Access it at <a href="http://127.0.0.1:5001" target="_blank" class="text-sky-500 font-medium">http://127.0.0.1:5001</a>.</p>
+                                <div class="code-block">
+                                    <pre><code>python3 ./sf.py -l 127.0.0.1:5001</code></pre>
+                                    <div class="absolute top-2 right-2 flex items-center">
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-semibold mb-4">Step 2: Configure API Keys</h3>
+                    <p class="text-slate-600 mb-4">A scan without API keys is like fishing with no bait. To unlock SpiderFoot's full potential, configure API keys in the <span class="font-semibold">Settings → API Key Manager</span> tab. Here are some essential free-tier services to start with:</p>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <h4 class="font-bold">SHODAN</h4>
+                            <p class="text-sm text-slate-500">Scans for internet-connected devices, finding servers, open ports, and vulnerabilities.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <h4 class="font-bold">VirusTotal</h4>
+                            <p class="text-sm text-slate-500">Analyzes files and URLs for malware, checking for malicious associations.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <h4 class="font-bold">Hunter.io</h4>
+                            <p class="text-sm text-slate-500">Finds professional email addresses and corporate email patterns.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <h4 class="font-bold">BuiltWith</h4>
+                            <p class="text-sm text-slate-500">Identifies technologies used on websites, like CMS and frameworks.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <h4 class="font-bold">HaveIBeenPwned</h4>
+                            <p class="text-sm text-slate-500">Checks if an email address has appeared in a known data breach.</p>
+                        </div>
+                         <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <h4 class="font-bold">Censys</h4>
+                            <p class="text-sm text-slate-500">An alternative to SHODAN for finding internet-connected devices.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="first-scan" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 text-sky-600">Conducting Your First Scan</h2>
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <p class="mb-4 text-slate-600">From the "New Scan" tab, you configure your investigation. Let's use <code class="bg-slate-100 text-sm p-1 rounded">scanme.nmap.org</code> as a safe target.</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-2">1. Define Scan Target</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Scan Name</label>
+                                <input type="text" value="Nmap_Test_Scan" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Scan Target</label>
+                                <input type="text" value="scanme.nmap.org" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Target Type</label>
+                                <select class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" disabled><option>Domain Name</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-2">2. Select Use Case</h4>
+                        <p class="text-sm text-slate-500 mb-3">Use cases are pre-configured templates. "Footprint" is a great starting point.</p>
+                        <div class="space-y-2">
+                           <div class="p-3 border-2 border-sky-500 rounded-lg bg-sky-50">
+                                <h5 class="font-bold text-sky-800">Footprint</h5>
+                                <p class="text-sm text-sky-700">Comprehensive investigation of a target's infrastructure. Gathers subdomains, IPs, servers, etc. Balances depth and speed.</p>
+                           </div>
+                           <div class="p-3 border rounded-lg bg-slate-50">
+                                <h5 class="font-bold text-slate-800">Passive</h5>
+                                <p class="text-sm text-slate-600">Safest option. Uses only third-party sources and does not directly interact with the target's servers.</p>
+                           </div>
+                           <div class="p-3 border rounded-lg bg-slate-50">
+                                <h5 class="font-bold text-slate-800">Investigate</h5>
+                                <p class="text-sm text-slate-600">Focuses on potential threats by checking blacklists and threat intelligence feeds.</p>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="scan-status" class="hidden mt-6 p-3 rounded-md bg-green-100 text-green-800 border border-green-300 text-center text-sm"></div>
+                <div class="mt-6 text-center space-x-4">
+                    <button id="run-scan-btn" class="bg-sky-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-600 transition-colors">Run Scan Now</button>
+                    <button id="clear-scan-btn" class="hidden bg-slate-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-slate-600 transition-colors">Clear Scan</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="results" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 text-sky-600">Interpreting Scan Results</h2>
+            <p class="mb-6 text-slate-600">Once a scan is running, the results page allows you to browse and visualize the discovered data. Understanding these views is key to analysis.</p>
+             <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">Browse Tab: Detailed View</h3>
+                    <p class="text-slate-600 mb-4">This is your primary view for sifting through data. You can filter by element type (like IP Address or Sub-domain) and see which module found each piece of information.</p>
+                    <div class="border rounded-md p-2 bg-slate-50 text-sm">
+                        <div class="flex font-bold border-b pb-1 mb-1">
+                            <div class="w-2/5">Data Element</div>
+                            <div class="w-2/5">Source Module</div>
+                            <div class="w-1/5">Correlated</div>
+                        </div>
+                        <div id="browse-results-content">
+                            <!-- Results will be dynamically inserted here -->
+                        </div>
+                        <div id="results-loader" class="hidden space-y-2 mt-2">
+                            <div class="h-4 bg-slate-200 rounded animate-pulse"></div>
+                            <div class="h-4 bg-slate-200 rounded animate-pulse"></div>
+                            <div class="h-4 bg-slate-200 rounded animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">Visualize Tab: The Big Picture</h3>
+                    <p class="text-slate-600 mb-4">This tab generates an interactive graph showing the relationships between data points. It's powerful for identifying central assets and unexpected connections.</p>
+                    <div id="visualization-container" class="w-full h-48 sm:h-56 md:h-64 relative flex items-center justify-center">
+                        <!-- Visualization will be dynamically inserted here -->
+                    </div>
+                </div>
+             </div>
+        </section>
+
+        <section id="advanced" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 text-sky-600">Advanced Concepts</h2>
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <h3 class="text-xl font-semibold mb-3">Using the Command-Line (CLI)</h3>
+                <p class="text-slate-600 mb-4">For automation and scripting, SpiderFoot can be run entirely from the command line. Click "Run Sim" to see a sample output for each command.</p>
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-semibold text-sm">Run a passive scan:</h4>
+                        <div class="code-block mt-1">
+                            <pre><code>python3 ./sf.py -u PASSIVE -s example.com</code></pre>
+                            <div class="absolute top-2 right-2 flex items-center space-x-2">
+                                <button class="run-sim-btn bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1 rounded-md transition-colors" data-target-id="passive-scan-output">Run Sim</button>
+                                <button class="clear-sim-btn hidden bg-slate-500 hover:bg-slate-600 text-white text-xs font-bold px-3 py-1 rounded-md transition-colors" data-target-id="passive-scan-output">Clear</button>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                        <div id="passive-scan-output" class="hidden"></div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">Run a scan with specific modules:</h4>
+                        <div class="code-block mt-1">
+                            <pre><code>python3 ./sf.py -m sfp_dns,sfp_whois -s example.com</code></pre>
+                            <div class="absolute top-2 right-2 flex items-center space-x-2">
+                                <button class="run-sim-btn bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1 rounded-md transition-colors" data-target-id="module-scan-output">Run Sim</button>
+                                <button class="clear-sim-btn hidden bg-slate-500 hover:bg-slate-600 text-white text-xs font-bold px-3 py-1 rounded-md transition-colors" data-target-id="module-scan-output">Clear</button>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                        <div id="module-scan-output" class="hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ethics" class="scroll-mt-20">
+             <h2 class="text-3xl font-bold mb-6 text-sky-600">Best Practices & Ethics</h2>
+             <div class="callout callout-warning">
+                <h3 class="font-bold mb-2">Ethical and Legal Considerations</h3>
+                <p class="text-sm">With great power comes great responsibility. Using OSINT tools requires strict adherence to ethical and legal guidelines.</p>
+                <ul class="list-disc list-inside text-sm mt-2 space-y-1">
+                    <li><span class="font-semibold">Authorization is Mandatory:</span> Never scan a target without explicit, written permission.</li>
+                    <li><span class="font-semibold">Understand Scan Types:</span> Differentiate between passive (low-risk) and active (direct interaction) scans.</li>
+                    <li><span class="font-semibold">Respect Privacy:</span> Focus on organizational security weaknesses, not the personal lives of individuals.</li>
+                    <li><span class="font-semibold">Know Local Laws:</span> Be aware of data privacy and computer access laws in your region.</li>
+                </ul>
+             </div>
+              <div class="callout callout-info">
+                <h3 class="font-bold mb-2">Troubleshooting Common Issues</h3>
+                <div id="faq-accordion" class="text-sm">
+                    <div class="accordion-item border-b border-sky-200 py-2">
+                        <button class="accordion-header w-full text-left font-semibold flex justify-between items-center">
+                            "My scan isn't finding much data."
+                            <span>+</span>
+                        </button>
+                        <div class="accordion-content pt-2 text-sky-800">This is almost always due to a lack of configured API keys. Go to the API Key Manager and add as many as you can.</div>
+                    </div>
+                     <div class="accordion-item border-b border-sky-200 py-2">
+                        <button class="accordion-header w-full text-left font-semibold flex justify-between items-center">
+                           "A module is failing with an error."
+                           <span>+</span>
+                        </button>
+                        <div class="accordion-content pt-2 text-sky-800">Check the "Log" tab. The error message will often tell you the problem, such as an invalid API key or exceeding a rate limit (HTTP 429).</div>
+                    </div>
+                     <div class="accordion-item py-2">
+                        <button class="accordion-header w-full text-left font-semibold flex justify-between items-center">
+                           "My scan is taking forever."
+                           <span>+</span>
+                        </button>
+                        <div class="accordion-content pt-2 text-sky-800">You may have enabled too many modules. Stick to the 'Passive' or 'Footprint' use cases for initial scans to save time.</div>
+                    </div>
+                </div>
+             </div>
+        </section>
+
+    </main>
+    
+    <footer class="text-center py-6 border-t mt-12">
+        <p class="text-sm text-slate-500">Interactive Guide created from the SpiderFoot Lecture.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let scanCycleIndex = 0;
+            const scanExamples = [
+                { // 1. Nmap Scan
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="scanme.nmap.org">scanme.nmap.org</div><div class="w-2/5 truncate" title="sfp_dnsresolve">sfp_dnsresolve</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="45.33.32.156">45.33.32.156</div><div class="w-2/5 truncate" title="sfp_dnsresolve">sfp_dnsresolve</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center"><div class="w-2/5 truncate" title="TCP:80 (HTTP) - Open">TCP:80 (HTTP) - Open</div><div class="w-2/5 truncate" title="sfp_tcpportscan">sfp_tcpportscan</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">scanme nmap.org</div><div class="viz-node bg-slate-200 text-slate-700 w-14 h-14" style="top: 15%; left: 45%; transform: translateX(-50%);">45.33.32.156</div><div class="viz-node bg-emerald-200 text-emerald-800 w-12 h-12" style="top: 0%; left: 45%; transform: translateX(-50%);">TCP:80</div><div class="viz-line" style="width: 25%; height: 2px; top: 40%; left: 48%; transform: rotate(90deg) translateX(-50%); transform-origin: top left;"></div><div class="viz-line" style="width: 10%; height: 2px; top: 8%; left: 45%; transform-origin: center; transform: translateX(-50%) rotate(90deg);"></div>`
+                },
+                { // 2. Corporate Scan
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="MegaCorp.com">MegaCorp.com</div><div class="w-2/5 truncate" title="sfp_dnsresolve">sfp_dnsresolve</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="mail.megacorp.com">mail.megacorp.com</div><div class="w-2/5 truncate" title="sfp_dnsbrute">sfp_dnsbrute</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center"><div class="w-2/5 truncate" title="vpn.megacorp.com">vpn.megacorp.com</div><div class="w-2/5 truncate" title="sfp_dnsbrute">sfp_dnsbrute</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">MegaCorp .com</div><div class="viz-node bg-slate-200 text-slate-700 w-14 h-14" style="top: 10%; left: 20%;">mail.</div><div class="viz-node bg-slate-200 text-slate-700 w-14 h-14" style="top: 10%; right: 20%;">vpn.</div><div class="viz-line" style="width: 20%; top: 38%; left: 30%; transform: rotate(45deg);"></div><div class="viz-line" style="width: 20%; top: 38%; right: 30%; transform: rotate(-45deg);"></div>`
+                },
+                { // 3. Email Breach Scan
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="ceo@megacorp.com">ceo@megacorp.com</div><div class="w-2/5 truncate" title="sfp_haveibeenpwned">sfp_haveibeenpwned</div><div class="w-1/5 text-red-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="LinkedIn Profile">LinkedIn Profile</div><div class="w-2/5 truncate" title="sfp_linkedin">sfp_linkedin</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">ceo@ megacorp</div><div class="viz-node bg-red-200 text-red-800 w-14 h-14" style="top: 50%; left: 10%; transform: translateY(-50%);">Data Breach</div><div class="viz-node bg-blue-200 text-blue-800 w-14 h-14" style="top: 15%; left: 50%; transform: translateX(-50%);">LinkedIn</div><div class="viz-line" style="width: 30%; height: 2px; top: 50%; left: 25%;"></div><div class="viz-line" style="width: 25%; height: 2px; top: 40%; left: 48%; transform: rotate(90deg) translateX(-50%); transform-origin: top left;"></div>`
+                },
+                { // 4. IP Address Scan
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="8.8.8.8">8.8.8.8</div><div class="w-2/5 truncate" title="sfp_arin">sfp_arin</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="AS15169 (GOOGLE)">AS15169 (GOOGLE)</div><div class="w-2/5 truncate" title="sfp_arin">sfp_arin</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center"><div class="w-2/5 truncate" title="TCP:53 (DNS) - Open">TCP:53 (DNS) - Open</div><div class="w-2/5 truncate" title="sfp_shodan">sfp_shodan</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">8.8.8.8</div><div class="viz-node bg-slate-200 text-slate-700 w-14 h-14" style="top: 15%; left: 50%; transform: translateX(-50%);">AS15169</div><div class="viz-node bg-emerald-200 text-emerald-800 w-12 h-12" style="top: 50%; right: 10%; transform: translateY(-50%);">DNS:53</div><div class="viz-line" style="width: 25%; height: 2px; top: 40%; left: 48%; transform: rotate(90deg) translateX(-50%); transform-origin: top left;"></div><div class="viz-line" style="width: 30%; height: 2px; top: 50%; right: 25%;"></div>`
+                },
+                { // 5. Staging Server Discovery
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="BigBank.com">BigBank.com</div><div class="w-2/5 truncate" title="sfp_dnsresolve">sfp_dnsresolve</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="staging-portal.bigbank.net">staging-portal.bigbank.net</div><div class="w-2/5 truncate" title="sfp_crt">sfp_crt</div><div class="w-1/5 text-red-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 20%; left: 50%; transform: translate(-50%, -50%);">BigBank .com</div><div class="viz-node bg-red-200 text-red-800 w-16 h-16" style="top: 80%; left: 50%; transform: translate(-50%, -50%);">staging .bigbank.net</div><div class="viz-line" style="width: 40%; height: 2px; top: 50%; left: 50%; transform: rotate(90deg) translateX(-50%) translateY(-50%); transform-origin: top left;"></div>`
+                },
+                { // 6. Code Repo Discovery
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="startup.io">startup.io</div><div class="w-2/5 truncate" title="sfp_dnsresolve">sfp_dnsresolve</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="GitHub Org: startup-co">GitHub Org: startup-co</div><div class="w-2/5 truncate" title="sfp_github">sfp_github</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center"><div class="w-2/5 truncate" title="dev@startup.io">dev@startup.io</div><div class="w-2/5 truncate" title="sfp_github">sfp_github</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">startup.io</div><div class="viz-node bg-slate-200 text-slate-700 w-14 h-14" style="top: 50%; left: 10%; transform: translateY(-50%);">GitHub</div><div class="viz-node bg-amber-200 text-amber-800 w-14 h-14" style="top: 15%; left: 10%;">dev@ startup.io</div><div class="viz-line" style="width: 30%; height: 2px; top: 50%; left: 25%;"></div><div class="viz-line" style="width: 20%; height: 2px; top: 40%; left: 15%; transform: rotate(90deg) translateX(-50%); transform-origin: top left;"></div>`
+                },
+                 { // 7. Social Media Scan
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="johndoe">johndoe</div><div class="w-2/5 truncate" title="sfp_socialmedia">sfp_socialmedia</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="twitter.com/johndoe">twitter.com/johndoe</div><div class="w-2/5 truncate" title="sfp_socialmedia">sfp_socialmedia</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center"><div class="w-2/5 truncate" title="linkedin.com/in/johndoe">linkedin.com/in/johndoe</div><div class="w-2/5 truncate" title="sfp_socialmedia">sfp_socialmedia</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">johndoe</div><div class="viz-node bg-blue-200 text-blue-800 w-12 h-12" style="top: 10%; left: 25%;">Twitter</div><div class="viz-node bg-blue-200 text-blue-800 w-12 h-12" style="top: 10%; right: 25%;">LinkedIn</div><div class="viz-line" style="width: 15%; top: 38%; left: 35%; transform: rotate(45deg);"></div><div class="viz-line" style="width: 15%; top: 38%; right: 35%; transform: rotate(-45deg);"></div>`
+                },
+                { // 8. Threat Intel Scan
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="1.2.3.4">1.2.3.4</div><div class="w-2/5 truncate" title="sfp_alienvault">sfp_alienvault</div><div class="w-1/5 text-red-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="Blacklisted: Spamhaus">Blacklisted: Spamhaus</div><div class="w-2/5 truncate" title="sfp_spamhaus">sfp_spamhaus</div><div class="w-1/5 text-red-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-red-200 text-red-800 w-16 h-16" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">1.2.3.4 (Malicious)</div><div class="viz-node bg-slate-200 text-slate-700 w-14 h-14" style="top: 15%; left: 50%; transform: translateX(-50%);">Spamhaus</div><div class="viz-node bg-slate-200 text-slate-700 w-14 h-14" style="top: 85%; left: 50%; transform: translateX(-50%);">AlienVault</div><div class="viz-line" style="width: 25%; height: 2px; top: 40%; left: 48%; transform: rotate(90deg) translateX(-50%); transform-origin: top left;"></div><div class="viz-line" style="width: 25%; height: 2px; top: 65%; left: 48%; transform: rotate(90deg) translateX(-50%); transform-origin: top left;"></div>`
+                },
+                { // 9. Physical Location
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="smallbiz.com">smallbiz.com</div><div class="w-2/5 truncate" title="sfp_whois">sfp_whois</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="123 Main St, Anytown">123 Main St, Anytown</div><div class="w-2/5 truncate" title="sfp_whois">sfp_whois</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 50%; left: 20%; transform: translateY(-50%);">smallbiz .com</div><div class="viz-node bg-emerald-200 text-emerald-800 w-16 h-16" style="top: 50%; left: 80%; transform: translate(-50%, -50%);">123 Main St</div><div class="viz-line" style="width: 40%; top: 50%; left: 40%;"></div>`
+                },
+                { // 10. Complex Infrastructure
+                    browseHTML: `<div class="flex items-center"><div class="w-2/5 truncate" title="ecomm.com">ecomm.com</div><div class="w-2/5 truncate" title="sfp_dnsresolve">sfp_dnsresolve</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center bg-white rounded"><div class="w-2/5 truncate" title="Amazon AWS">Amazon AWS</div><div class="w-2/5 truncate" title="sfp_dnsresolve">sfp_dnsresolve</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div><div class="flex items-center"><div class="w-2/5 truncate" title="Cloudflare CDN">Cloudflare CDN</div><div class="w-2/5 truncate" title="sfp_dnsresolve">sfp_dnsresolve</div><div class="w-1/5 text-sky-500">🔗 Yes</div></div>`,
+                    vizHTML: `<div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">ecomm .com</div><div class="viz-node bg-orange-200 text-orange-800 w-12 h-12" style="top: 10%; left: 20%;">AWS</div><div class="viz-node bg-yellow-200 text-yellow-800 w-14 h-14" style="top: 10%; right: 20%;">Cloudflare</div><div class="viz-line" style="width: 20%; top: 38%; left: 30%; transform: rotate(45deg);"></div><div class="viz-line" style="width: 20%; top: 38%; right: 30%; transform: rotate(-45deg);"></div>`
+                }
+            ];
+
+            const vizContainer = document.getElementById('visualization-container');
+            const initialVizHtml = `
+                <div class="viz-node bg-sky-200 text-sky-800 w-16 h-16" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">Target Domain</div>
+                <div class="viz-node bg-slate-200 text-slate-700 w-12 h-12" style="top: 10%; left: 20%;">IP</div>
+                <div class="viz-node bg-slate-200 text-slate-700 w-12 h-12" style="top: 10%; right: 20%;">Sub-domain</div>
+                <div class="viz-line" style="width: 20%; top: 38%; left: 30%; transform: rotate(45deg);"></div>
+                <div class="viz-line" style="width: 20%; top: 38%; right: 30%; transform: rotate(-45deg);"></div>
+            `;
+            vizContainer.innerHTML = initialVizHtml;
+
+            // Copy to clipboard
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const code = button.closest('.code-block').querySelector('pre code').innerText;
+                    navigator.clipboard.writeText(code).then(() => {
+                        button.innerText = 'Copied!';
+                        setTimeout(() => {
+                            button.innerText = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+
+            // Accordion
+            document.querySelectorAll('.accordion-header').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('span');
+                    const isOpen = content.style.display === 'block';
+
+                    content.style.display = isOpen ? 'none' : 'block';
+                    icon.textContent = isOpen ? '+' : '-';
+                });
+            });
+            
+            // Main Scan Simulation
+            const scanButton = document.getElementById('run-scan-btn');
+            const clearScanButton = document.getElementById('clear-scan-btn');
+            const scanStatus = document.getElementById('scan-status');
+            const resultsSection = document.getElementById('results');
+            const resultsContent = document.getElementById('browse-results-content');
+            const resultsLoader = document.getElementById('results-loader');
+            
+            if (scanButton) {
+                scanButton.addEventListener('click', () => {
+                    scanButton.disabled = true;
+                    scanButton.innerText = 'Scanning...';
+                    scanButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    clearScanButton.classList.add('hidden');
+
+                    scanStatus.innerText = `Scan ${scanCycleIndex + 1}/10 initiated! Scrolling to results area...`;
+                    scanStatus.classList.remove('hidden');
+                    
+                    resultsContent.innerHTML = '';
+                    resultsLoader.classList.remove('hidden');
+                    
+                    vizContainer.innerHTML = `<div class="text-slate-500">Generating visualization...</div>`;
+
+                    resultsSection.classList.add('is-loading-scan');
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+                    setTimeout(() => {
+                        const currentScan = scanExamples[scanCycleIndex];
+                        resultsLoader.classList.add('hidden');
+                        resultsContent.innerHTML = currentScan.browseHTML;
+                        vizContainer.innerHTML = currentScan.vizHTML;
+
+                        scanButton.disabled = false;
+                        scanButton.innerText = 'Run Scan Now';
+                        scanButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                        clearScanButton.classList.remove('hidden');
+
+                        scanStatus.innerText = 'Scan simulation complete!';
+                        resultsSection.classList.remove('is-loading-scan');
+                        
+                        setTimeout(() => {
+                            scanStatus.classList.add('hidden');
+                        }, 3000);
+
+                        scanCycleIndex = (scanCycleIndex + 1) % scanExamples.length;
+                    }, 4000);
+                });
+            }
+
+            if(clearScanButton) {
+                clearScanButton.addEventListener('click', () => {
+                    resultsContent.innerHTML = '';
+                    vizContainer.innerHTML = initialVizHtml;
+                    clearScanButton.classList.add('hidden');
+                    scanStatus.classList.add('hidden');
+                    scanButton.disabled = false;
+                    scanButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
+            }
+
+            // CLI Simulation Buttons
+            document.querySelectorAll('.run-sim-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.targetId;
+                    const outputContainer = document.getElementById(targetId);
+                    const clearButton = button.nextElementSibling;
+
+                    const outputs = {
+                        'passive-scan-output': `[*] Starting scan against example.com (Example Domain Scan)\n[*] Scan Use Case: PASSIVE\n[*] Modules enabled: 150+\n[+] [sfp_dnsresolve] Found IP Address: 93.184.216.34\n[+] [sfp_whois] Found Related Domain: iana.org\n[+] [sfp_haveibeenpwned] No breaches found for emails at example.com\n[+] [sfp_builtwith] Found Technology: Nginx\n[*] Scan completed. Found 20+ total data elements.`,
+                        'module-scan-output': `[*] Starting scan against example.com (Example Domain Scan)\n[*] Modules enabled: sfp_dns, sfp_whois\n[+] [sfp_dns] Found IP Address: 93.184.216.34\n[+] [sfp_dns] Found Nameserver: a.iana-servers.net\n[+] [sfp_whois] Found Registrar: Reseller TLDs\n[+] [sfp_whois] Found Related Domain: iana.org\n[*] Scan completed. Found 4 total data elements.`
+                    };
+                    
+                    const outputContent = outputs[targetId];
+                    if (!outputContent) return;
+
+                    button.disabled = true;
+                    button.innerText = '...';
+
+                    outputContainer.innerHTML = `<div class="code-block mt-2 text-xs text-slate-400"><pre><code>Running simulation...</code></pre></div>`;
+                    outputContainer.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        outputContainer.innerHTML = `<div class="code-block mt-2 text-xs text-slate-400"><pre><code>${outputContent}</code></pre></div>`;
+                        button.disabled = false;
+                        button.innerText = 'Run Sim';
+                        clearButton.classList.remove('hidden');
+                    }, 2500);
+                });
+            });
+
+            document.querySelectorAll('.clear-sim-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.targetId;
+                    const outputContainer = document.getElementById(targetId);
+                    
+                    outputContainer.innerHTML = '';
+                    outputContainer.classList.add('hidden');
+                    button.classList.add('hidden');
+                });
+            });
+
+            // Nav link active state on scroll
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+
+</body>
+</html>
+

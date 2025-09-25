@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SpiderFoot — Install, Setup, and Usage (Interactive Lecture)</title>
+  <!-- Accessibility & Security minded, self‑contained, no external fonts/scripts -->
+  <meta name="color-scheme" content="light dark" />
+  <style>
+    :root {
+      /* Light theme */
+      --bg: #ffffff;
+      --bg-soft: #f6f7f9;
+      --panel: #fbfbfe;
+      --text: #0b1220;
+      --text-soft: #374151;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-contrast: #ffffff;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --border: #e5e7eb;
+      --code-bg: #f3f4f6;
+      --shadow: 0 4px 14px rgba(0,0,0,.08);
+      --ring: 0 0 0 3px rgba(37,99,235,.25);
+      --font-body: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    [data-theme="dark"] {
+      --bg: #0c1118;
+      --bg-soft: #0f1623;
+      --panel: #111827;
+      --text: #f3f4f6;
+      --text-soft: #e5e7eb;
+      --muted: #9ca3af;
+      --primary: #60a5fa;
+      --primary-contrast: #0b1220;
+      --accent: #34d399;
+      --danger: #f87171;
+      --warning: #fbbf24;
+      --border: #1f2937;
+      --code-bg: #0b1220;
+      --shadow: 0 6px 18px rgba(0,0,0,.35);
+      --ring: 0 0 0 3px rgba(96,165,250,.35);
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 22px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+    .sidebar {
+      position: sticky;
+      top: 16px;
+      align-self: start;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .brand .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(145deg, var(--primary), var(--accent)); }
+    .brand h1 { font-size: 1.1rem; margin: 0; letter-spacing: .2px; }
+    .search { position: relative; margin: 12px 0 8px; }
+    .search input {
+      width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); outline: none;
+    }
+    .search input:focus { box-shadow: var(--ring); border-color: var(--primary); }
+    .toc { list-style: none; margin: 10px 0 0; padding: 0; }
+    .toc li { margin: 6px 0; }
+    .toc a { text-decoration: none; color: var(--text-soft); font-size: .95rem; display: block; padding: 6px 8px; border-radius: 8px; }
+    .toc a.active, .toc a:hover { background: var(--bg-soft); color: var(--text); }
+    .toggle-row { display:flex; gap:8px; align-items:center; justify-content: space-between; margin-top: 10px; }
+    .btn, button { cursor: pointer; border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 10px; padding: 8px 12px; box-shadow: var(--shadow); }
+    .btn.primary { background: var(--primary); color: var(--primary-contrast); border-color: transparent; }
+    .btn.ghost { background: transparent; }
+
+    .content {
+      min-height: 100vh;
+    }
+    .hero {
+      background: linear-gradient(135deg, var(--panel), var(--bg-soft));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      display:grid; grid-template-columns: 1.15fr .85fr; gap: 18px; align-items:center;
+      box-shadow: var(--shadow);
+    }
+    .hero h2 { margin: 0 0 8px; font-size: 1.6rem; }
+    .kpis { display:flex; gap:12px; flex-wrap: wrap; margin-top: 10px; }
+    .chip { padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border); font-size: .85rem; background: var(--bg); }
+
+    .card { background: var(--panel); border:1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 16px; }
+    .grid { display:grid; gap: 16px; }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+
+    section { scroll-margin-top: 90px; }
+    h3 { margin-top: 28px; font-size: 1.3rem; }
+    h4 { margin-top: 16px; font-size: 1.1rem; color: var(--text-soft); }
+    p { margin: 10px 0; color: var(--text-soft); }
+    ul, ol { margin: 8px 0 8px 24px; }
+
+    pre, code, kbd, samp { font-family: var(--font-mono); }
+    pre { background: var(--code-bg); color: var(--text); border-radius: 12px; padding: 12px; overflow: auto; border: 1px solid var(--border); position: relative; }
+    .copy { position:absolute; top:8px; right:8px; }
+
+    details { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; background: var(--panel); }
+    details + details { margin-top: 10px; }
+    summary { cursor: pointer; font-weight: 600; }
+
+    .callout { border-left: 4px solid var(--primary); padding: 10px 12px; background: var(--bg-soft); border-radius: 10px; }
+    .callout.warn { border-left-color: var(--warning); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    .tabbar { display:flex; gap:8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .tabbar button { padding: 6px 10px; }
+    .tabbar button.active { background: var(--primary); color: var(--primary-contrast); border-color: transparent; }
+
+    .step { display:flex; gap:10px; align-items:flex-start; }
+    .step .bubble { width:28px; height:28px; border-radius:999px; background: var(--primary); color: var(--primary-contrast); display:grid; place-items:center; font-weight:700; flex: none; }
+
+    .footer { margin: 40px 0 10px; text-align:center; color: var(--muted); }
+
+    @media (max-width: 980px) { .app { grid-template-columns: 1fr; } .hero { grid-template-columns: 1fr; } .sidebar { position: static; max-height: none; } }
+  </style>
+</head>
+<body>
+  <div id="root" class="app">
+    <nav class="sidebar" aria-label="Table of contents & tools">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>SpiderFoot — Lecture</h1>
+      </div>
+      <div class="toggle-row">
+        <span>Theme</span>
+        <div>
+          <button id="themeLight" class="btn" title="Switch to light">Light</button>
+          <button id="themeDark" class="btn" title="Switch to dark">Dark</button>
+        </div>
+      </div>
+      <div class="search" role="search">
+        <input id="search" type="search" placeholder="Filter sections… (e.g., Docker)" aria-label="Filter content" />
+      </div>
+      <ul id="toc" class="toc">
+        <!-- Populated by JS to enable scroll‑spy -->
+      </ul>
+      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn ghost" id="expandAll">Expand all</button>
+        <button class="btn ghost" id="collapseAll">Collapse all</button>
+      </div>
+    </nav>
+
+    <main class="content" id="content">
+      <header class="hero">
+        <div>
+          <h2>Install, Setup, and Use <span style="white-space:nowrap;">SpiderFoot</span> in ~60 minutes</h2>
+          <p>This interactive page is your visual knowledge base for deploying SpiderFoot, exploring modules, and running safe OSINT scans—ideal for classroom labs and self‑study.</p>
+          <div class="kpis">
+            <span class="chip" title="Estimated delivery time">⏱️ 60–90 min</span>
+            <span class="chip" title="Difficulty">⭐ Beginner → Intermediate</span>
+            <span class="chip" title="Operating systems covered">🐧 Linux • 🪟 Windows • 🍎 macOS • 🐳 Docker</span>
+          </div>
+        </div>
+        <div class="card">
+          <strong>Quick Actions</strong>
+          <div class="grid cols-2" style="margin-top:10px;">
+            <button class="btn primary" data-jump="install">Start: Install</button>
+            <button class="btn" data-jump="ui-tour">UI Tour</button>
+            <button class="btn" data-jump="run-scan">Run a Scan</button>
+            <button class="btn" data-jump="lab">Course Lab</button>
+          </div>
+        </div>
+      </header>
+
+      <section id="overview">
+        <h3>1) Overview</h3>
+        <p><strong>SpiderFoot</strong> is an open‑source OSINT automation framework that discovers information about IPs, domains, emails, and more using hundreds of modules. You can run it via a web UI or CLI.</p>
+        <div class="grid cols-3">
+          <div class="card"><h4>What it does</h4><ul>
+            <li>Automates queries against many OSINT sources</li>
+            <li>Maps relationships between artifacts</li>
+            <li>Exports results (JSON/CSV) for analysis</li>
+          </ul></div>
+          <div class="card"><h4>Use cases</h4><ul>
+            <li>Asset discovery & attack‑surface mapping</li>
+            <li>Brand/domain monitoring</li>
+            <li>Intel collection for security investigations</li>
+          </ul></div>
+          <div class="card"><h4>Safety</h4><ul>
+            <li>Use your own targets or get written permission</li>
+            <li>Review module TOS/API policies</li>
+            <li>Respect rate limits & privacy regulations</li>
+          </ul></div>
+        </div>
+      </section>
+
+      <section id="install" data-keywords="install installation setup debian ubuntu rocky alma centos docker windows macos python pip venv">
+        <h3>2) Install & Setup</h3>
+        <p>Choose a path below. For class labs, Docker or Python virtualenv is usually the smoothest.</p>
+
+        <details open>
+          <summary>Debian/Ubuntu (venv)</summary>
+          <div class="step"><div class="bubble">1</div><div><strong>Prereqs</strong><p>Ensure Python 3.10+ and git:</p>
+            <pre><button class="btn copy" data-copy>Copy</button><code>sudo apt update
+sudo apt install -y python3 python3-venv python3-pip git
+</code></pre></div></div>
+          <div class="step"><div class="bubble">2</div><div><strong>Get SpiderFoot</strong>
+            <pre><button class="btn copy" data-copy>Copy</button><code>git clone https://github.com/smicallef/spiderfoot.git
+cd spiderfoot
+python3 -m venv .venv
+. .venv/bin/activate
+pip install --upgrade pip wheel
+pip install -r requirements.txt
+</code></pre></div></div>
+          <div class="step"><div class="bubble">3</div><div><strong>Run</strong> (web UI at <code>http://127.0.0.1:5001</code>)
+            <pre><button class="btn copy" data-copy>Copy</button><code>python3 sf.py -l 127.0.0.1:5001
+</code></pre>
+            <div class="callout">If port 5001 is busy, try <code>-l 127.0.0.1:0</code> and check the printed port.</div>
+          </div></div>
+        </details>
+
+        <details>
+          <summary>Rocky/Alma/CentOS (venv)</summary>
+          <pre><button class="btn copy" data-copy>Copy</button><code>sudo dnf install -y python3 python3-venv python3-pip git
+git clone https://github.com/smicallef/spiderfoot.git
+cd spiderfoot
+python3 -m venv .venv
+. .venv/bin/activate
+pip install --upgrade pip wheel
+pip install -r requirements.txt
+python3 sf.py -l 127.0.0.1:5001
+</code></pre>
+          <div class="callout warn">On SELinux‑enforcing hosts, ensure the chosen port is permitted for user apps.</div>
+        </details>
+
+        <details>
+          <summary>Docker (fastest path)</summary>
+          <pre><button class="btn copy" data-copy>Copy</button><code># 1) pull image
+sudo docker pull smicallef/spiderfoot
+# 2) run
+sudo docker run -it --rm -p 5001:5001 smicallef/spiderfoot
+# UI → http://127.0.0.1:5001
+</code></pre>
+          <div class="callout">Persist data with a volume: <code>-v $PWD/sfdata:/root/.spiderfoot</code></div>
+        </details>
+
+        <details>
+          <summary>Windows (Python)</summary>
+          <pre><button class="btn copy" data-copy>Copy</button><code># In PowerShell
+winget install Git.Git
+winget install Python.Python.3.12
+cd $HOME
+git clone https://github.com/smicallef/spiderfoot.git
+cd spiderfoot
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install --upgrade pip wheel
+pip install -r requirements.txt
+python sf.py -l 127.0.0.1:5001
+</code></pre>
+        </details>
+
+        <details>
+          <summary>macOS (Python)</summary>
+          <pre><button class="btn copy" data-copy>Copy</button><code># With Homebrew installed
+brew install python git
+git clone https://github.com/smicallef/spiderfoot.git
+cd spiderfoot
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip wheel
+pip install -r requirements.txt
+python3 sf.py -l 127.0.0.1:5001
+</code></pre>
+        </details>
+
+        <div class="callout danger"><strong>Important:</strong> Use only domains/assets you own or have written permission to assess. Configure API keys responsibly.</div>
+      </section>
+
+      <section id="ui-tour" data-keywords="ui tour interface modules dashboard">
+        <h3>3) UI Tour</h3>
+        <div class="grid cols-3">
+          <div class="card"><h4>Dashboard</h4><p>Create and manage scans, set targets, choose modules, and control scope.</p></div>
+          <div class="card"><h4>Scan Results</h4><p>View graphs, data tables, and artifacts; filter by module or data type.</p></div>
+          <div class="card"><h4>Settings</h4><p>Set API keys, rate limits, and privacy options; export/import configurations.</p></div>
+        </div>
+      </section>
+
+      <section id="run-scan" data-keywords="run scan quickstart target domain ip email">
+        <h3>4) Quickstart: Run Your First Scan</h3>
+        <ol>
+          <li>Target: e.g., <code>example.com</code> (owned/authorized)</li>
+          <li>Choose a preset (e.g., "Footprint")</li>
+          <li>Limit scope (e.g., same domain only)</li>
+          <li>Start. Watch progress and inspect artifacts.</li>
+        </ol>
+        <details>
+          <summary>CLI equivalent</summary>
+          <pre><button class="btn copy" data-copy>Copy</button><code>python3 sf.py -s example.com -m sfp_dns,sfp_dnsresolve,sfp_httpx -l 127.0.0.1:5001 --no-browser
+</code></pre>
+        </details>
+        <div class="callout warn">Tip: Start small. Add modules gradually to learn what each contributes and to avoid noisy output.</div>
+      </section>
+
+      <section id="modules" data-keywords="modules apis keys configuration">
+        <h3>5) Key Modules & API Keys</h3>
+        <p>Some modules need API keys (Shodan, VirusTotal, HaveIBeenPwned, etc.). Store keys in <em>Settings → API Keys</em>. Respect provider TOS.</p>
+        <div class="grid cols-2">
+          <details>
+            <summary>Discovery modules (common)</summary>
+            <ul>
+              <li><code>sfp_dns</code>, <code>sfp_dnsresolve</code> — DNS records, subdomains</li>
+              <li><code>sfp_httpx</code> — web probing</li>
+              <li><code>sfp_sslcert</code> — certificate intel</li>
+              <li><code>sfp_breach</code> — breach references (API may be required)</li>
+            </ul>
+          </details>
+          <details>
+            <summary>Risk/Intel modules</summary>
+            <ul>
+              <li><code>sfp_shodan</code>, <code>sfp_censys</code> — exposed services</li>
+              <li><code>sfp_virustotal</code> — malware/URL intel</li>
+              <li><code>sfp_hibp</code> — credential exposure</li>
+            </ul>
+          </details>
+        </div>
+      </section>
+
+      <section id="best-practices" data-keywords="best practices scope rate limits ethics">
+        <h3>6) Best Practices</h3>
+        <ul>
+          <li>Document scope and authorization before scanning.</li>
+          <li>Throttle modules; respect rate limits.</li>
+          <li>Use separate API keys per student/team where possible.</li>
+          <li>Keep a scan journal: target, modules, timestamps, notable findings.</li>
+        </ul>
+      </section>
+
+      <section id="exports" data-keywords="export json csv graph reporting">
+        <h3>7) Exporting & Reporting</h3>
+        <p>From Results, export artifacts to CSV/JSON. For visual graphs, capture screenshots or use data in Gephi/Maltego.</p>
+      </section>
+
+      <section id="troubleshoot" data-keywords="troubleshoot errors ports deps permissions selinux firewall">
+        <h3>8) Troubleshooting</h3>
+        <details>
+          <summary>Port already in use</summary>
+          <pre><button class="btn copy" data-copy>Copy</button><code># Find process using 5001
+ss -lntp | grep 5001 || sudo lsof -i :5001
+</code></pre>
+        </details>
+        <details>
+          <summary>Missing Python deps</summary>
+          <p>Activate venv and re‑run <code>pip install -r requirements.txt</code>.</p>
+        </details>
+        <details>
+          <summary>Firewall/SELinux</summary>
+          <p>Allow the local port or temporarily switch to an unconfined port for testing.</p>
+        </details>
+      </section>
+
+      <section id="lab" data-keywords="lab exercise assessment tasks grading rubrics virtualbox docker venv">
+        <h3>9) Course Lab (60–90 min)</h3>
+        <div class="grid cols-2">
+          <div class="card">
+            <h4>Tasks</h4>
+            <ol>
+              <li>Install SpiderFoot using Docker <em>or</em> Python venv.</li>
+              <li>Configure at least one API key (free tier acceptable).</li>
+              <li>Run a scoped scan on your approved lab target.</li>
+              <li>Export results (CSV) and write a 1‑page summary.</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h4>Deliverables</h4>
+            <ul>
+              <li>Screenshot of running UI</li>
+              <li>CSV export file</li>
+              <li>Short summary (key findings, limitations, ethics)</li>
+            </ul>
+          </div>
+        </div>
+        <details>
+          <summary>Suggested rubric</summary>
+          <ul>
+            <li>Setup (20%) — Installed, documented steps</li>
+            <li>Scan config (30%) — Appropriate modules/scope</li>
+            <li>Analysis (30%) — Findings are accurate & relevant</li>
+            <li>Reporting (20%) — Clear export & reflection</li>
+          </ul>
+        </details>
+      </section>
+
+      <section id="refs" data-keywords="references links docs help">
+        <h3>10) References</h3>
+        <ul>
+          <li><a href="https://github.com/smicallef/spiderfoot" target="_blank" rel="noopener noreferrer">SpiderFoot on GitHub</a></li>
+          <li><a href="https://www.spiderfoot.net/" target="_blank" rel="noopener noreferrer">Project website</a></li>
+        </ul>
+      </section>
+
+      <div class="footer">Made for hands‑on learning. Toggle theme for best readability in your environment.</div>
+    </main>
+  </div>
+
+  <script>
+    (function(){
+      const root = document.getElementById('root');
+      const html = document.documentElement;
+      const toc = document.getElementById('toc');
+      const content = document.getElementById('content');
+      const search = document.getElementById('search');
+      const sections = Array.from(content.querySelectorAll('section'));
+
+      // Persisted theme
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') { html.setAttribute('data-theme','dark'); root.setAttribute('data-theme','dark'); } else { html.setAttribute('data-theme','light'); root.setAttribute('data-theme','light'); }
+
+      // Theme buttons
+      document.getElementById('themeLight').addEventListener('click', ()=>{
+        html.setAttribute('data-theme','light'); root.setAttribute('data-theme','light');
+        localStorage.setItem('theme','light');
+      });
+      document.getElementById('themeDark').addEventListener('click', ()=>{
+        html.setAttribute('data-theme','dark'); root.setAttribute('data-theme','dark');
+        localStorage.setItem('theme','dark');
+      });
+
+      // Build TOC
+      const makeIdTitle = (sec)=>{
+        const h = sec.querySelector('h3');
+        return h ? h.textContent.replace(/^\d+\)\s*/, '') : sec.id;
+      };
+      sections.forEach(sec => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${sec.id}`;
+        a.textContent = makeIdTitle(sec);
+        a.addEventListener('click', ()=> a.blur());
+        li.appendChild(a); toc.appendChild(li);
+      });
+
+      // Scroll spy
+      const observer = new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{
+          const id = e.target.id;
+          const link = toc.querySelector(`a[href="#${id}"]`);
+          if (!link) return;
+          if (e.isIntersecting) {
+            toc.querySelectorAll('a').forEach(x=>x.classList.remove('active'));
+            link.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-40% 0px -55% 0px', threshold: 0.01 });
+      sections.forEach(sec=>observer.observe(sec));
+
+      // Quick jump buttons
+      document.querySelectorAll('[data-jump]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = btn.getAttribute('data-jump');
+          const el = document.getElementById(id);
+          if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+        });
+      });
+
+      // Copy buttons in code blocks
+      document.querySelectorAll('pre .copy').forEach(btn => {
+        btn.addEventListener('click', async (e)=>{
+          const pre = e.target.closest('pre');
+          const code = pre.querySelector('code').innerText;
+          try {
+            await navigator.clipboard.writeText(code);
+            e.target.textContent = 'Copied!';
+            setTimeout(()=> e.target.textContent='Copy', 1200);
+          } catch { alert('Copy failed. Select the text manually.'); }
+        });
+      });
+
+      // Filter sections by search keywords
+      search.addEventListener('input', ()=>{
+        const q = search.value.trim().toLowerCase();
+        sections.forEach(sec=>{
+          const text = (sec.getAttribute('data-keywords')||sec.textContent||'').toLowerCase();
+          const match = q === '' || text.includes(q);
+          sec.style.display = match ? '' : 'none';
+          const link = toc.querySelector(`a[href="#${sec.id}"]`);
+          if (link) link.parentElement.style.display = match ? '' : 'none';
+        });
+      });
+
+      // Expand/Collapse all details
+      const setAllDetails = (open) => {
+        content.querySelectorAll('details').forEach(d => d.open = open);
+      };
+      document.getElementById('expandAll').addEventListener('click', ()=> setAllDetails(true));
+      document.getElementById('collapseAll').addEventListener('click', ()=> setAllDetails(false));
+    })();
+  </script>
+</body>
+</html>
