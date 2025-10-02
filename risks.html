@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Course Content — Threats & Risks: Risk Factors, Assessment, and Scoring Methods</title>
+  <!-- Content Security Policy: restricts external resources and disables eval-like features -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; connect-src 'none';">
+  <style>
+    :root{--bg:#0f1724;--panel:#0b1220;--text:#e6eef8;--muted:#9fb0c9;--accent:#6ee7b7}
+    [data-theme='light']{--bg:#f8fafc;--panel:#ffffff;--text:#0b1220;--muted:#4b5563;--accent:#0ea5a4}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.45}
+    header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(90deg,rgba(255,255,255,0.02),transparent);border-bottom:1px solid rgba(255,255,255,0.02)}
+    h1{font-size:1.25rem;margin:0}
+    .wrap{display:grid;grid-template-columns:300px 1fr;gap:20px;padding:20px}
+    nav{background:var(--panel);padding:12px;border-radius:10px;height:calc(100vh - 120px);overflow:auto}
+    main{background:var(--panel);padding:20px;border-radius:10px;height:calc(100vh - 120px);overflow:auto}
+    .chapter{border:1px solid rgba(255,255,255,0.03);border-radius:8px;margin-bottom:12px}
+    .chapter summary{list-style:none;cursor:pointer;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+    .chapter-details{padding:12px 16px;background:transparent}
+    details{background:transparent}
+    .muted{color:var(--muted);font-size:0.95rem}
+    .controls{display:flex;gap:8px;align-items:center}
+    button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer}
+    input[type=search]{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .code{font-family:monospace;background:rgba(0,0,0,0.05);padding:8px;border-radius:6px;color:var(--muted);overflow:auto}
+    footer{padding:12px 20px;text-align:right;color:var(--muted);font-size:0.9rem}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr;}.nav-hide{display:none}}
+  </style>
+</head>
+<body data-theme="dark">
+  <header>
+    <div>
+      <h1>Threats &amp; Risks — Course Content</h1>
+      <div class="muted">Risk Factors, Assessment, and Scoring Methods — interactive course page</div>
+    </div>
+    <div class="controls">
+      <input type="search" id="siteSearch" placeholder="Search content (keywords)" aria-label="Search content">
+      <button id="toggleTheme" title="Toggle dark / light">Toggle theme</button>
+      <button id="expandAll" title="Expand all sections">Expand all</button>
+      <button id="collapseAll" title="Collapse all sections">Collapse all</button>
+    </div>
+  </header>
+  <div class="wrap">
+    <nav aria-label="Chapters" id="sideNav">
+      <strong class="muted">Chapters</strong>
+      <ul id="navList" style="padding:0;margin:8px 0 0 0;list-style:none">
+        <li><button data-target="ch1">I. Risk Factors: Identification and Classification (1 Hour)</button></li>
+        <li><button data-target="ch2">II. Assessing Risk Probability and Severity (1 Hour)</button></li>
+        <li><button data-target="ch3">III. Risk Scoring Methods (1 Hour)</button></li>
+      </ul>
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+      <div class="muted">Quick links</div>
+      <ul style="padding:0;margin:8px 0 0 0;list-style:none">
+        <li><button data-target="ch1-a">Asset Inventory & Valuation</button></li>
+        <li><button data-target="ch1-b">Threat Intelligence</button></li>
+        <li><button data-target="ch2-a">Probability Assessment</button></li>
+        <li><button data-target="ch2-b">Severity & Impact</button></li>
+      </ul>
+    </nav>
+    <main id="content">
+      <!-- Chapter I -->
+      <section id="ch1" class="chapter">
+        <details open>
+          <summary><strong>I. Risk Factors: Identification and Classification (1 Hour)</strong> <span class="muted">Overview + learning objectives</span></summary>
+          <div class="chapter-details">
+            <p><strong>Description:</strong> Risk factors are conditions, events, or circumstances that, if they occur, could lead to a loss or negative impact on an organization's assets. Identifying and classifying these factors is the foundational step in effective risk management.</p>
+            <h3>A. Identification of Risk Factors</h3>
+            <p><strong>Description:</strong> The process of discovering and documenting potential sources of risk. This involves looking at various aspects of an organization's operations, technology, and environment.</p>
+            <div class="grid">
+              <div>
+                <h4 id="ch1-a">Asset Inventory and Valuation</h4>
+<figure style="margin:16px 0;text-align:center">
+  <figcaption class="muted">Schematic: Asset Inventory &amp; Valuation Process</figcaption>
+  <svg viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:transparent">
+    <defs>
+      <marker id="arrow-dark" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="currentColor" />
+      </marker>
+    </defs>
+    <g fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="20" y="40" width="160" height="60" rx="8"/>
+      <rect x="220" y="40" width="160" height="60" rx="8"/>
+      <rect x="420" y="40" width="160" height="60" rx="8"/>
+      <line x1="180" y1="70" x2="220" y2="70" marker-end="url(#arrow-dark)"/>
+      <line x1="380" y1="70" x2="420" y2="70" marker-end="url(#arrow-dark)"/>
+    </g>
+    <g font-family="sans-serif" font-size="14" fill="currentColor">
+      <text x="100" y="75" text-anchor="middle">Identify Assets</text>
+      <text x="300" y="75" text-anchor="middle">Assign Value</text>
+      <text x="500" y="75" text-anchor="middle">Link to Risks</text>
+    </g>
+  </svg>
+</figure>
+                <p><strong>Definition:</strong> Understanding what assets an organization possesses (e.g., data, hardware, software, people, reputation) and their value. Risks are tied to potential harm to these assets.</p>
+                <ul>
+                  <li>Example: A company lists all its customer databases, intellectual property, and critical servers.</li>
+                  <li>Example: A university identifies its student records system and research data as high-value assets.</li>
+                  <li>Example: A small business values its online store and payment processing system as crucial for revenue.</li>
+                </ul>
+              </div>
+              <div>
+                <h4 id="ch1-b">Threat Intelligence</h4>
+                <p><strong>Definition:</strong> Gathering and analyzing information about potential threats (e.g., malicious actors, attack vectors, malware trends) to anticipate attacks.</p>
+                <ul>
+                  <li>Example: A security team subscribes to a threat intelligence feed that reports new ransomware variants targeting healthcare organizations.</li>
+                  <li>Example: An analyst reads a report about a specific nation-state APT group known to target critical infrastructure.</li>
+                  <li>Example: A company monitors dark web forums for discussions about vulnerabilities in software they use.</li>
+                </ul>
+              </div>
+            </div>
+
+            <h4>Vulnerability Assessments</h4>
+            <p><strong>Definition:</strong> Identifying weaknesses in systems, applications, or processes that could be exploited by threats.</p>
+            <ul>
+              <li>Example: Running a network scanner that finds an outdated operating system on a server with known security flaws.</li>
+              <li>Example: A web application scan reveals an SQL Injection vulnerability in a login page.</li>
+              <li>Example: A penetration tester discovers that default credentials are still active on a newly installed device.</li>
+            </ul>
+
+            <h4>Compliance Requirements &amp; Regulations</h4>
+            <p><strong>Definition:</strong> Understanding legal, regulatory, or contractual obligations that, if not met, could lead to fines, legal action, or reputational damage.</p>
+            <ul>
+              <li>Example: A financial institution identifies that failing to encrypt customer data violates PCI DSS requirements.</li>
+              <li>Example: A healthcare provider realizes that not having proper access controls to patient records could lead to HIPAA violations.</li>
+              <li>Example: A company operating in Europe identifies GDPR as a key risk factor for data privacy.</li>
+            </ul>
+
+            <h4>Incident History &amp; Lessons Learned</h4>
+            <p><strong>Definition:</strong> Reviewing past security incidents (both internal and external) to identify recurring patterns, root causes, and areas for improvement.</p>
+            <ul>
+              <li>Example: After a phishing attack, a company identifies that employee security awareness training needs to be improved.</li>
+              <li>Example: A data breach involving a misconfigured cloud storage bucket leads to a new policy requiring regular configuration audits.</li>
+              <li>Example: Repeated malware infections traced back to USB drives highlight the need for stricter removable media policies.</li>
+            </ul>
+
+            <h3>B. Classification of Risk Factors</h3>
+            <p><strong>Description:</strong> Categorizing identified risks helps in organizing, prioritizing, and assigning ownership for mitigation efforts. Risks can be classified based on their origin, nature, or the assets they affect.</p>
+
+            <h4>Technical Risk Factors</h4>
+            <p><strong>Definition:</strong> Risks arising from vulnerabilities in hardware, software, network infrastructure, or system configurations.</p>
+            <ul>
+              <li>Example: An unpatched server operating system is vulnerable to a remote code execution exploit.</li>
+              <li>Example: A web application has insecure direct object references, allowing unauthorized access to user accounts.</li>
+              <li>Example: A firewall misconfiguration allows unauthorized traffic to bypass security rules.</li>
+            </ul>
+
+            <h4>Operational Risk Factors</h4>
+            <p><strong>Definition:</strong> Risks related to failures in processes, procedures, human error, or internal controls.</p>
+            <ul>
+              <li>Example: Lack of a clear data backup and recovery procedure leads to permanent data loss after a system failure.</li>
+              <li>Example: Employees not following the "clean desk" policy, leaving sensitive documents exposed.</li>
+              <li>Example: Poor change management processes result in unauthorized system modifications causing outages.</li>
+            </ul>
+
+            <h4>Human Risk Factors</h4>
+            <p><strong>Definition:</strong> Risks stemming from actions or inactions of individuals, including malicious intent, negligence, or lack of awareness.</p>
+            <ul>
+              <li>Example: A disgruntled employee intentionally deletes critical files before leaving the company.</li>
+              <li>Example: An employee accidentally clicks on a malicious link in a phishing email, compromising their workstation.</li>
+              <li>Example: An IT administrator makes a configuration error due to insufficient training.</li>
+            </ul>
+
+            <h4>Environmental Risk Factors</h4>
+            <p><strong>Definition:</strong> Risks originating from external, non-human factors such as natural disasters, power outages, or supply chain disruptions.</p>
+            <ul>
+              <li>Example: A hurricane causes a prolonged power outage, disrupting data center operations.</li>
+              <li>Example: A fire in the building damages server equipment, leading to data loss.</li>
+              <li>Example: A major internet service provider outage affects the company's ability to conduct online business.</li>
+            </ul>
+
+            <h4>Strategic/Business Risk Factors</h4>
+            <p><strong>Definition:</strong> Risks that impact an organization's ability to achieve its strategic objectives, market position, or competitive advantage.</p>
+            <ul>
+              <li>Example: A competitor suffers a major data breach, causing customers to lose trust in the industry.</li>
+              <li>Example: A new cybersecurity regulation is introduced that significantly increases operational costs for compliance.</li>
+              <li>Example: A company's reputation is severely damaged due to a highly publicized security incident, leading to loss of customers.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- Chapter II -->
+      <section id="ch2" class="chapter">
+        <details>
+          <summary><strong>II. Assessing Risk Probability and Severity (1 Hour)</strong> <span class="muted">Probability & Impact</span></summary>
+          <div class="chapter-details">
+            <p><strong>Description:</strong> Once risk factors are identified, the next step is to assess their likelihood of occurrence (probability) and the potential impact if they do occur (severity/impact). This assessment helps in understanding the true level of risk.</p>
+
+            <h3 id="ch2-a">A. Assessing Risk Probability</h3>
+            <p><strong>Definition:</strong> The likelihood or frequency of a specific risk event occurring. This can be expressed qualitatively (e.g., low, medium, high) or quantitatively (e.g., percentage, number of occurrences per year).</p>
+            <ul>
+              <li><strong>Qualitative Probability Assessment:</strong> Using descriptive terms to estimate the likelihood of a risk event. Often based on expert judgment, historical data, or industry trends.</li>
+              <li><strong>Quantitative Probability Assessment:</strong> Assigning numerical values or percentages to the likelihood of a risk event.</li>
+            </ul>
+            <p class="muted">Examples: average of 3 successful malware infections per month; 10% chance of attacker exploiting vulnerability within a year; 0.5% annual hardware failure probability.</p>
+
+            <h3 id="ch2-b">B. Assessing Risk Severity (Impact)</h3>
+            <p><strong>Definition:</strong> The magnitude of loss or damage that would result if a risk event occurs. This can also be expressed qualitatively (minor, moderate, catastrophic) or quantitatively (monetary value, downtime hours).</p>
+            <p class="muted">Examples: $1,000,000 estimated cost of breach; $50,000 lost sales during 24-hour outage; $250,000 replacement costs after major cyberattack.</p>
+
+            <h4>Impact Categories</h4>
+            <ul>
+              <li><strong>Financial Impact:</strong> Direct monetary losses, fines, legal fees, lost revenue.</li>
+              <li><strong>Operational Impact:</strong> Disruption to business processes, downtime, reduced productivity.</li>
+              <li><strong>Reputational Impact:</strong> Damage to brand image, loss of customer trust, negative media coverage.</li>
+              <li><strong>Legal/Compliance Impact:</strong> Fines, lawsuits, regulatory penalties, loss of certifications.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- Chapter III -->
+      <section id="ch3" class="chapter">
+        <details>
+          <summary><strong>III. Risk Scoring Methods (1 Hour)</strong> <span class="muted">Scoring, Prioritization & Models</span></summary>
+          <div class="chapter-details">
+            <p><strong>Description:</strong> Risk scoring is the process of assigning a numerical or qualitative value to a risk, typically by combining its probability and severity. This helps organizations prioritize risks and allocate resources effectively.</p>
+
+            <h3>A. Purpose of Risk Scoring</h3>
+            <ul>
+              <li><strong>Prioritization:</strong> Ranking risks based on their calculated scores to determine which ones require immediate attention and resources.</li>
+              <li><strong>Communication:</strong> Providing a standardized way to communicate the significance of risks to stakeholders.</li>
+              <li><strong>Decision-Making:</strong> Supporting informed decisions about risk treatment strategies (acceptance, mitigation, transfer, avoidance).</li>
+              <li><strong>Monitoring and Reporting:</strong> Tracking changes in risk levels over time and reporting on the effectiveness of mitigation efforts.</li>
+            </ul>
+
+            <h3>B. Common Risk Scoring Models</h3>
+            <p>Various models exist for calculating risk scores, ranging from simple qualitative matrices to more complex quantitative formulas.</p>
+            <h4>Qualitative Risk Matrix (Probability x Impact)</h4>
+<figure style="margin:16px 0;text-align:center">
+  <figcaption class="muted">Schematic: Qualitative Risk Matrix</figcaption>
+  <svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:transparent">
+    <g stroke="currentColor" stroke-opacity="0.5">
+      <!-- grid -->
+      <rect x="60" y="50" width="240" height="240" fill="none"/>
+      <line x1="140" y1="50" x2="140" y2="290"/>
+      <line x1="220" y1="50" x2="220" y2="290"/>
+      <line x1="60" y1="130" x2="300" y2="130"/>
+      <line x1="60" y1="210" x2="300" y2="210"/>
+    </g>
+    <!-- example cells -->
+    <rect x="220" y="50" width="80" height="80" fill="currentColor" fill-opacity="0.25"/>
+    <rect x="220" y="130" width="80" height="80" fill="currentColor" fill-opacity="0.18"/>
+    <rect x="140" y="210" width="80" height="80" fill="currentColor" fill-opacity="0.12"/>
+    <g fill="currentColor" font-family="sans-serif" font-size="12">
+      <text x="180" y="24" text-anchor="middle">Impact →</text>
+      <text x="20" y="170" transform="rotate(-90 20,170)" text-anchor="middle">Probability ↑</text>
+      <text x="260" y="100" text-anchor="middle">High</text>
+      <text x="260" y="180" text-anchor="middle">Medium</text>
+      <text x="180" y="260" text-anchor="middle">Low</text>
+    </g>
+  </svg>
+</figure>
+            <p>Use a matrix with probability on one axis and impact on the other. Intersection yields qualitative risk level.</p>
+
+            <h4>Simple Quantitative Scoring (Probability x Impact = Risk Score)</h4>
+<figure style="margin:16px 0;text-align:center">
+  <figcaption class="muted">Schematic: Risk Scoring Process</figcaption>
+  <svg viewBox="0 0 620 160" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:transparent">
+    <defs>
+      <marker id="arrow-dark2" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="currentColor" />
+      </marker>
+    </defs>
+    <g fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="20" y="40" width="180" height="60" rx="8"/>
+      <rect x="240" y="40" width="180" height="60" rx="8"/>
+      <rect x="460" y="40" width="140" height="60" rx="8"/>
+      <line x1="200" y1="70" x2="240" y2="70" marker-end="url(#arrow-dark2)"/>
+      <line x1="420" y1="70" x2="460" y2="70" marker-end="url(#arrow-dark2)"/>
+    </g>
+    <g font-family="sans-serif" font-size="14" fill="currentColor">
+      <text x="110" y="75" text-anchor="middle">Assess Probability</text>
+      <text x="330" y="75" text-anchor="middle">Assess Impact</text>
+      <text x="530" y="75" text-anchor="middle">Calculate Score</text>
+    </g>
+  </svg>
+</figure>
+            <p>Assign numerical values to probability and impact (e.g., 1-5) and multiply to get a score.</p>
+
+            <h4>Weighted Scoring Models</h4>
+            <p>Assign different weights to various impact categories before summing them up (e.g., financial weight 0.6).</p>
+
+            <h4>CVSS (Common Vulnerability Scoring System)</h4>
+            <p>Standardized framework to communicate severity of software vulnerabilities. Many security teams use CVSS to prioritize patching.</p>
+
+            <h3>C. Using Risk Scores</h3>
+            <ul>
+              <li><strong>Risk Register Management:</strong> Maintain centralized list of risks, assessment details, scores, owners, mitigation plans.</li>
+              <li><strong>Thresholds and Tiers:</strong> Define score ranges for Critical / High / Medium / Low and guide actions.</li>
+              <li><strong>Trend Analysis:</strong> Analyze changes in risk scores over time to find emerging risks or measure control effectiveness.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+    </main>
+  </div>
+  <footer>
+    Content generated for classroom use. No external scripts or resources.
+  </footer>
+  <script>
+    // All DOM operations here avoid using innerHTML with untrusted strings. This app does not load user-supplied HTML.
+    (function(){
+      const btnTheme = document.getElementById('toggleTheme');
+      const body = document.body;
+      btnTheme.addEventListener('click',()=>{
+        const cur = body.getAttribute('data-theme')||'dark';
+        body.setAttribute('data-theme', cur==='dark'?'light':'dark');
+      });
+
+      // Side nav quick scroll
+      document.getElementById('sideNav').addEventListener('click', (e)=>{
+        const t = e.target.closest('button');
+        if(!t) return;
+        const id = t.getAttribute('data-target');
+        if(!id) return;
+        const el = document.getElementById(id);
+        if(el){ el.scrollIntoView({behavior:'smooth',block:'start'});
+          // open the details if any
+          const d = el.querySelector('details'); if(d && !d.open) d.open = true;
+        }
+      });
+
+      // Expand / collapse all
+      document.getElementById('expandAll').addEventListener('click', ()=>{
+        document.querySelectorAll('main details').forEach(d=>d.open=true);
+      });
+      document.getElementById('collapseAll').addEventListener('click', ()=>{
+        document.querySelectorAll('main details').forEach(d=>d.open=false);
+      });
+
+      // Search: simple keyword search across textContent
+      document.getElementById('siteSearch').addEventListener('input', (e)=>{
+        const q = (e.target.value||'').trim().toLowerCase();
+        document.querySelectorAll('main section').forEach(sec=>{
+          const text = sec.textContent.toLowerCase();
+          if(!q) { sec.style.display='block'; return; }
+          sec.style.display = text.indexOf(q) !== -1 ? 'block' : 'none';
+        });
+      });
+
+      // Keyboard accessibility: Enter on nav buttons
+      document.querySelectorAll('nav button').forEach(b=>{
+        b.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter'){ b.click(); } });
+      });
+
+      // Prevent any potential unsafe JS features (no eval, no dynamic script insertion used)
+    })();
+  </script>
+</body>
+</html>

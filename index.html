@@ -1,14 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Threats & Risks | 420-1C2-DW | Course Outline | Term 1 (Fall 2025) -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="referrer" content="no-referrer" />
   <meta name="color-scheme" content="light dark" />
   <title>Threats &amp; Risks (420-1C2-DW) — Course Outline | Fall 2025</title>
 
-  <!-- Strict Content Security Policy (strong defaults). For production, prefer sending via HTTP headers. -->
+  <!-- Strong CSP; keep nonce values in sync with script/style -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' 'nonce-tr-fixed-2025';
@@ -19,86 +18,53 @@
     upgrade-insecure-requests; block-all-mixed-content; require-trusted-types-for 'script';" />
 
   <style nonce="tr-fixed-2025">
-    /* THEME TOKENS */
-    :root {
-      --bg: #0b0c0f; --bg-2:#101217; --text:#e6e6e6; --muted:#b7bcc7;
-      --accent:#7aa2f7; --ok:#7ad77a; --warn:#ffd166; --danger:#ff6b6b;
-      --card:#12151b; --border:#1e2430; --shadow:0 10px 30px rgba(0,0,0,.35);
-      color-scheme: dark;
-    }
-    [data-theme="light"] {
-      --bg:#f7f8fa; --bg-2:#ffffff; --text:#111; --muted:#505a70;
-      --accent:#1e66f5; --ok:#2e7d32; --warn:#b26a00; --danger:#c62828;
-      --card:#ffffff; --border:#e4e7ee; --shadow:0 10px 30px rgba(20,30,55,.08);
-      color-scheme: light;
-    }
-
-    html, body { height: 100%; }
-    body {
-      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: radial-gradient(1200px 800px at 10% -10%, color-mix(in oklab, var(--accent), transparent 92%), transparent 60%),
-                  radial-gradient(1400px 900px at 110% 10%, color-mix(in oklab, var(--ok), transparent 93%), transparent 55%),
-                  var(--bg);
-      color: var(--text); line-height: 1.55;
-    }
-    header.site { position: sticky; top: 0; z-index: 1000; backdrop-filter: saturate(140%) blur(8px); background: color-mix(in oklab, var(--bg-2) 90%, transparent); border-bottom: 1px solid var(--border); }
-    .container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
-    nav.topnav { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; }
-    .brand { display: flex; align-items: center; gap: .75rem; font-weight: 700; letter-spacing: .2px; }
-    .brand svg { width: 28px; height: 28px; }
-    .links a { text-decoration: none; color: var(--text); opacity: .9; padding: .4rem .6rem; border-radius: .6rem; }
-    .links a:hover { background: var(--card); box-shadow: var(--shadow); }
-    .tools { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
-    button, input, select { font: inherit; color: inherit; background: var(--bg-2); border: 1px solid var(--border); border-radius: .6rem; padding: .5rem .75rem; }
-    button { cursor: pointer; }
-    .hero { padding: 2rem 1rem 1.2rem; }
-    .hero .title { font-size: clamp(1.4rem, 1.2rem + 1.8vw, 2.2rem); font-weight: 800; letter-spacing: .2px; }
-    .hero .meta { margin-top: .2rem; color: var(--muted); }
-
-    /* CARDS / GRIDS */
-    .card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 1rem; box-shadow: var(--shadow); padding: 1rem; }
-    .grid { display: grid; gap: 1rem; }
-    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    @media (max-width: 900px) { .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; } }
-    h2 { font-size: 1.4rem; margin: .2rem 0 .8rem; }
-    h3 { font-size: 1.1rem; margin: .2rem 0 .5rem; }
-    .badge { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; padding: .25rem .5rem; border: 1px solid var(--border); border-radius: .5rem; background: var(--card); }
-    .muted { color: var(--muted); }
-
-    /* ACCORDIONS */
-    details.accordion { border: 1px solid var(--border); border-radius: .8rem; background: var(--card); }
-    details.accordion + details.accordion { margin-top: .6rem; }
-    details.accordion[open] { box-shadow: var(--shadow); }
-    details.accordion summary { list-style: none; cursor: pointer; padding: .9rem 1rem; font-weight: 700; display: grid; grid-template-columns: 1fr auto; align-items: center; }
-    details.accordion summary::-webkit-details-marker { display: none; }
-    .summary-row { display: flex; align-items: center; gap: .5rem; }
-    .summary-row .chev { transition: transform .25s ease; }
-    details[open] .summary-row .chev { transform: rotate(90deg); }
-    .accordion .panel { padding: .2rem 1rem 1rem; }
-
-    /* TABLES */
-    table { width: 100%; border-collapse: collapse; }
-    th, td { text-align: left; padding: .6rem .5rem; border-bottom: 1px dashed var(--border); vertical-align: top; }
-    thead th { position: sticky; top: calc(56px + 1rem); background: var(--bg-2); z-index: 5; }
-    tbody tr:hover { background: color-mix(in oklab, var(--bg-2), var(--card) 35%); }
-
-    .kpi { display: flex; gap: .75rem; flex-wrap: wrap; }
-    .kpi .card { flex: 1; min-width: 220px; }
-    .chip { display: inline-flex; align-items: center; gap: .4rem; padding: .15rem .5rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--bg-2); font-size: .85rem; }
-    .sticky-note { border-left: 3px solid var(--accent); background: color-mix(in oklab, var(--accent) 6%, transparent); padding: .75rem; border-radius: .6rem; }
-
-    .btn { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .8rem; border: 1px solid var(--border); border-radius: .7rem; background: var(--card); text-decoration: none; color: var(--text); }
-    .btn:hover { box-shadow: var(--shadow); }
-    .btn.primary { border-color: color-mix(in oklab, var(--accent) 40%, var(--border)); }
-
-    .footer { margin: 2rem 0; color: var(--muted); font-size: .9rem; display: grid; gap: .5rem; }
-
-    @media print {
-      header.site, .tools, .sticky-note, .footer .security, .search { display: none !important; }
-      .card, details.accordion { box-shadow: none !important; border-color: #bbb !important; }
-      body { background: #fff; color: #000; }
-    }
+    :root { --bg:#0b0c0f; --bg-2:#101217; --text:#e6e6e6; --muted:#b7bcc7; --accent:#7aa2f7; --ok:#7ad77a; --warn:#ffd166; --danger:#ff6b6b; --card:#12151b; --border:#1e2430; --shadow:0 10px 30px rgba(0,0,0,.35); color-scheme: dark; }
+    [data-theme="light"] { --bg:#f7f8fa; --bg-2:#ffffff; --text:#111; --muted:#505a70; --accent:#1e66f5; --ok:#2e7d32; --warn:#b26a00; --danger:#c62828; --card:#ffffff; --border:#e4e7ee; --shadow:0 10px 30px rgba(20,30,55,.08); color-scheme: light; }
+    html, body { height:100%; }
+    body{ margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: radial-gradient(1200px 800px at 10% -10%, color-mix(in oklab, var(--accent), transparent 92%), transparent 60%), radial-gradient(1400px 900px at 110% 10%, color-mix(in oklab, var(--ok), transparent 93%), transparent 55%), var(--bg); color:var(--text); line-height:1.55; }
+    header.site { position:sticky; top:0; z-index:1000; backdrop-filter:saturate(140%) blur(8px); background: color-mix(in oklab, var(--bg-2) 90%, transparent); border-bottom:1px solid var(--border); }
+    .container{ max-width:1100px; margin:0 auto; padding:1rem; }
+    nav.topnav{ display:grid; grid-template-columns:1fr auto; align-items:center; gap:1rem; }
+    .brand{ display:flex; align-items:center; gap:.75rem; font-weight:700; letter-spacing:.2px; }
+    .brand svg{ width:28px; height:28px; }
+    .links a{ text-decoration:none; color:var(--text); opacity:.9; padding:.4rem .6rem; border-radius:.6rem; }
+    .links a:hover{ background:var(--card); box-shadow:var(--shadow); }
+    .tools{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+    button,input,select{ font:inherit; color:inherit; background:var(--bg-2); border:1px solid var(--border); border-radius:.6rem; padding:.5rem .75rem; }
+    button{ cursor:pointer; }
+    .hero{ padding:2rem 1rem 1.2rem; }
+    .hero .title{ font-size:clamp(1.4rem,1.2rem + 1.8vw,2.2rem); font-weight:800; letter-spacing:.2px; }
+    .hero .meta{ margin-top:.2rem; color:var(--muted); }
+    .card{ background:var(--bg-2); border:1px solid var(--border); border-radius:1rem; box-shadow:var(--shadow); padding:1rem; }
+    .grid{ display:grid; gap:1rem; }
+    .grid.cols-2{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+    .grid.cols-3{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+    @media (max-width:900px){ .grid.cols-2, .grid.cols-3{ grid-template-columns:1fr; } }
+    h2{ font-size:1.4rem; margin:.2rem 0 .8rem; }
+    h3{ font-size:1.1rem; margin:.2rem 0 .5rem; }
+    .badge{ display:inline-flex; align-items:center; gap:.35rem; font-size:.85rem; padding:.25rem .5rem; border:1px solid var(--border); border-radius:.5rem; background:var(--card); }
+    .muted{ color:var(--muted); }
+    details.accordion{ border:1px solid var(--border); border-radius:.8rem; background:var(--card); }
+    details.accordion + details.accordion{ margin-top:.6rem; }
+    details.accordion[open]{ box-shadow:var(--shadow); }
+    details.accordion summary{ list-style:none; cursor:pointer; padding:.9rem 1rem; font-weight:700; display:grid; grid-template-columns:1fr auto; align-items:center; }
+    details.accordion summary::-webkit-details-marker{ display:none; }
+    .summary-row{ display:flex; align-items:center; gap:.5rem; }
+    .summary-row .chev{ transition: transform .25s ease; }
+    details[open] .summary-row .chev{ transform: rotate(90deg); }
+    .accordion .panel{ padding:.2rem 1rem 1rem; }
+    table{ width:100%; border-collapse:collapse; }
+    th,td{ text-align:left; padding:.6rem .5rem; border-bottom:1px dashed var(--border); vertical-align:top; }
+    thead th{ position:sticky; top:calc(56px + 1rem); background:var(--bg-2); z-index:5; }
+    .kpi{ display:flex; gap:.75rem; flex-wrap:wrap; }
+    .kpi .card{ flex:1; min-width:220px; }
+    .chip{ display:inline-flex; align-items:center; gap:.4rem; padding:.15rem .5rem; border:1px solid var(--border); border-radius:1rem; background:var(--bg-2); font-size:.85rem; }
+    .sticky-note{ border-left:3px solid var(--accent); background: color-mix(in oklab, var(--accent) 6%, transparent); padding:.75rem; border-radius:.6rem; }
+    .btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.55rem .8rem; border:1px solid var(--border); border-radius:.7rem; background:var(--card); text-decoration:none; color:var(--text); }
+    .btn:hover{ box-shadow:var(--shadow); }
+    .btn.primary{ border-color: color-mix(in oklab, var(--accent) 40%, var(--border)); }
+    .footer{ margin:2rem 0; color:var(--muted); font-size:.9rem; display:grid; gap:.5rem; }
+    @media print{ header.site, .tools, .sticky-note, .footer .security, .search{ display:none !important; } .card, details.accordion{ box-shadow:none !important; border-color:#bbb !important; } body{ background:#fff; color:#000; } }
   </style>
 </head>
 <body>
@@ -131,7 +97,6 @@
       <div class="meta">Group 1 • Term 1 • Location: online &amp; <strong>2F.20</strong> (see dates) • <span id="today" class="muted"></span></div>
     </section>
 
-    <!-- OVERVIEW / IDENTIFIERS -->
     <section aria-labelledby="overview-h">
       <div class="grid cols-2">
         <article class="card">
@@ -148,42 +113,20 @@
         <article class="card">
           <h2>Outcomes &amp; Program Integration</h2>
           <div class="kpi">
-            <div class="card" aria-label="Labs 30%"><h3>Labs</h3><p class="muted">30%</p></div>
+            <div class="card" aria-label="Labs 30%"><h3><a href="how-to-test.html" target="_blank" rel="noopener noreferrer">Labs</a></h3><p class="muted">30%</p></div>
             <div class="card" aria-label="Midterm 30%"><h3>Midterm</h3><p class="muted">30%</p></div>
             <div class="card" aria-label="Final 40%"><h3>Final</h3><p class="muted">40%</p></div>
           </div>
-          <h3 style="margin-top:.8rem">Course Learning Outcomes</h3>
-          <ul>
-            <li>Identify and represent information assets and associated permissions.</li>
-            <li>Identify internal and external threats to a computer network.</li>
-            <li>Identify risk factors and assess probability and severity.</li>
-            <li>Propose solutions to mitigate risks and eradicate threats.</li>
-          </ul>
-          <h3>Integration</h3>
-          <ul>
-            <li><strong>Term 2:</strong> Compliance Assessments — 420-2C2-DW</li>
-            <li><strong>Term 3:</strong> Managing Vulnerabilities — 420-3C1-DW</li>
-            <li><strong>Term 4:</strong> Incident Management — 420-4C1-DW; Implementation &amp; Management of Corporate Cybersecurity Measures — 420-4C2-DW</li>
-          </ul>
         </article>
       </div>
     </section>
 
-    <!-- COMPETENCY STATEMENT -->
-    <section aria-labelledby="competency-h" style="margin-top:1rem">
-      <article class="card">
-        <h2 id="competency-h">Competency</h2>
-        <p><strong>Code:</strong> EZ02 — <em>Risk &amp; threat analysis.</em> This course addresses EZ02 in its entirety. (Full mapping below.)</p>
-      </article>
-    </section>
-
-    <!-- WEEKLY SCHEDULE -->
     <section aria-labelledby="schedule-h" style="margin-top:1rem">
       <article class="card">
         <h2 id="schedule-h">Weekly Schedule of Learning Activities</h2>
         <p id="search-help" class="muted">Tip: Type a keyword to filter (e.g., “OSSEC”, “OpenVAS”, “incident response”).</p>
 
-        <!-- Weeks 1–10 reconstructed faithfully from the official outline -->
+        <!-- Week 1 -->
         <details class="accordion" data-week="1" open>
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 1 — Sept 9, 11, 13 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
@@ -195,16 +138,15 @@
           </div>
         </details>
 
+        <!-- Week 2 -->
         <details class="accordion" data-week="2">
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 2 — Sept 16, 18, 20 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
             <div class="grid cols-3">
-              <!-- UPDATED PREVIOUSLY: Link Class 1 to threats-and-actors.html in a new tab -->
               <div><h3><a href="threats-and-actors.html" target="_blank" rel="noopener noreferrer">Class 1</a></h3><ul><li>Internal threats: types &amp; indicators</li><li>External threats: types &amp; motivations</li></ul></div>
               <div><h3>Class 2</h3><ul><li>Threat actor profiling</li></ul></div>
               <div><h3>Class 3 (Labs)</h3>
                 <ul>
-                  <!-- NEW LINKS ADDED AS REQUESTED -->
                   <li><a href="ossec.html" target="_blank" rel="noopener noreferrer">HIDS with <strong>OSSEC</strong></a></li>
                   <li><a href="maltego.html" target="_blank" rel="noopener noreferrer">Profiling with <strong>Maltego</strong></a></li>
                   <li><strong>LAB #02.01</strong> &amp; <strong>#02.02</strong></li>
@@ -214,6 +156,7 @@
           </div>
         </details>
 
+        <!-- Week 3 -->
         <details class="accordion" data-week="3">
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 3 — Sept 23, 25, 27 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
@@ -223,7 +166,6 @@
               <div>
                 <h3>Class 3 (Labs)</h3>
                 <ul>
-                  <!-- UPDATED: make these open the provided files in new tabs -->
                   <li><a href="spiderfoot.html" target="_blank" rel="noopener noreferrer">OSINT with <strong>SpiderFoot</strong></a></li>
                   <li><a href="recon-ng.html" target="_blank" rel="noopener noreferrer">Analysis with <strong>Recon-ng</strong></a></li>
                   <li><a href="spiderfoot2.html" target="_blank" rel="noopener noreferrer"><strong>LAB #03.01</strong></a> &amp; <a href="recon-ng2.html" target="_blank" rel="noopener noreferrer"><strong>#03.02</strong></a></li>
@@ -233,17 +175,23 @@
           </div>
         </details>
 
+        <!-- Week 4 -->
         <details class="accordion" data-week="4">
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 4 — Sept 30, Oct 2, 4 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
             <div class="grid cols-3">
-              <div><h3>Class 1</h3><ul><li>Risk factors: identification &amp; classification</li><li>Assessing probability &amp; severity</li><li>Risk scoring</li></ul></div>
+              <div><h3><a href="risks.html" target="_blank" rel="noopener noreferrer">Class 1</a></h3><ul><li>Risk factors: identification &amp; classification</li><li>Assessing probability &amp; severity</li><li>Risk scoring</li></ul></div>
               <div><h3>Class 2</h3><ul><li>Frameworks: NIST, ISO 31000, FAIR</li><li>Mitigation planning</li></ul></div>
-              <div><h3>Class 3 (Labs)</h3><ul><li>Risk assessment with <strong>OpenVAS</strong></li><li>Threat modeling with <strong>Threat Dragon</strong></li><li><strong>LAB #04.01</strong> &amp; <strong>#04.02</strong></li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul>
+                <li><a href="ovas-intro.html" target="_blank" rel="noopener noreferrer">Risk assessment with <strong>OpenVAS</strong></a></li>
+                <li><a href="tdragon-intro.html" target="_blank" rel="noopener noreferrer">Threat modeling with <strong>Threat Dragon</strong></a></li>
+                <li><a href="ovas-shellgpt.html" target="_blank" rel="noopener noreferrer"><strong>LAB #04.01</strong></a> &amp; <a href="threat_dragon.html" target="_blank" rel="noopener noreferrer"><strong>#04.02</strong></a></li>
+              </ul></div>
             </div>
           </div>
         </details>
 
+        <!-- Week 5 -->
         <details class="accordion" data-week="5">
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 5 — Oct 7, 9 (online) &amp; Oct 11 (<strong>2F.20</strong>)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
@@ -255,6 +203,7 @@
           </div>
         </details>
 
+        <!-- Week 6 -->
         <details class="accordion" data-week="6">
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 6 — Oct 14, 16, 18 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
@@ -266,6 +215,7 @@
           </div>
         </details>
 
+        <!-- Week 7 -->
         <details class="accordion" data-week="7">
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 7 — Oct 21, 23, 25 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
@@ -277,6 +227,7 @@
           </div>
         </details>
 
+        <!-- Week 8 -->
         <details class="accordion" data-week="8">
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 8 — Oct 28, 30 &amp; Nov 1 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
@@ -288,6 +239,7 @@
           </div>
         </details>
 
+        <!-- Week 9 (added as-is) -->
         <details class="accordion" data-week="9">
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 9 — Nov 4, 6, 8 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
@@ -299,6 +251,7 @@
           </div>
         </details>
 
+        <!-- Week 10 (added as-is) -->
         <details class="accordion" data-week="10">
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 10 — Nov 11, 13, 15 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
@@ -321,45 +274,45 @@
 
   <script nonce="tr-fixed-2025">
     (function(){
-      "use strict";
+      'use strict';
       const $ = (s, el=document) => el.querySelector(s);
       const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
 
-      // Theme toggle
-      const themeBtn = $("#toggle-theme");
-      function setTheme(mode){
-        document.documentElement.setAttribute('data-theme', mode);
-        themeBtn.setAttribute('aria-pressed', String(mode === 'light'));
-        try { localStorage.setItem('tr.theme', mode); } catch {}
-      }
-      const savedTheme = (()=>{ try { return localStorage.getItem('tr.theme'); } catch { return null; } })();
-      setTheme(savedTheme === 'light' ? 'light' : 'dark');
-      themeBtn.addEventListener('click', () => setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+      // Ensure DOM is ready before binding
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once:true });
+      } else { init(); }
 
-      // Expand/Collapse
-      const expandAll = $("#expand-all");
-      const collapseAll = $("#collapse-all");
-      expandAll.addEventListener('click', () => $$("details.accordion").forEach(d => d.open = true));
-      collapseAll.addEventListener('click', () => $$("details.accordion").forEach(d => d.open = false));
+      function init(){
+        const themeBtn = $('#toggle-theme');
+        const root = document.documentElement;
+        function setTheme(mode){
+          root.setAttribute('data-theme', mode);
+          if (themeBtn) themeBtn.setAttribute('aria-pressed', String(mode === 'light'));
+          try { localStorage.setItem('tr.theme', mode); } catch {}
+        }
+        let saved=null; try { saved = localStorage.getItem('tr.theme'); } catch {}
+        setTheme(saved === 'light' ? 'light' : 'dark');
+        if (themeBtn) themeBtn.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
 
-      // Print
-      $("#print").addEventListener('click', () => window.print());
+        const expandAll = $('#expand-all');
+        const collapseAll = $('#collapse-all');
+        const detailsNodes = $$('details.accordion');
+        if (expandAll) expandAll.addEventListener('click', () => detailsNodes.forEach(d => d.open = true));
+        if (collapseAll) collapseAll.addEventListener('click', () => detailsNodes.forEach(d => d.open = false));
 
-      // Today helper
-      const today = new Date();
-      $("#today").textContent = today.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+        const printBtn = $('#print');
+        if (printBtn) printBtn.addEventListener('click', () => window.print());
 
-      // Search filter
-      const q = $("#q");
-      const sections = $$("details.accordion");
-      q.addEventListener('input', () => {
-        const kw = q.value.toLowerCase().trim();
-        sections.forEach(sec => {
-          if (!kw) { sec.style.display = ''; return; }
-          const txt = sec.textContent.toLowerCase();
-          sec.style.display = txt.includes(kw) ? '' : 'none';
+        const todayEl = $('#today');
+        if (todayEl) todayEl.textContent = new Date().toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+        const q = $('#q');
+        if (q) q.addEventListener('input', () => {
+          const kw = (q.value || '').toLowerCase().trim();
+          detailsNodes.forEach(sec => { sec.style.display = !kw || sec.textContent.toLowerCase().includes(kw) ? '' : 'none'; });
         });
-      });
+      }
     })();
   </script>
 </body>

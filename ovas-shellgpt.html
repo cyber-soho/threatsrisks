@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course Labs — OpenVAS & ShellGPT</title>
+  <!-- Strict, local-only CSP; no external loads, no eval -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'none'">
+  <style>
+    :root{--bg:#0f1724;--panel:#0b1220;--text:#e6eef8;--muted:#9fb0c9;--accent:#89f0c3;--border:rgba(255,255,255,0.08)}
+    [data-theme="light"]{--bg:#f8fafc;--panel:#ffffff;--text:#0b1220;--muted:#4b5563;--accent:#0ea5a4;--border:rgba(0,0,0,0.12)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;line-height:1.5}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(255,255,255,0.04),transparent)}
+    h1{font-size:1.2rem;margin:0}
+    .muted{color:var(--muted)}
+    .wrap{display:grid;grid-template-columns:280px 1fr;gap:20px;padding:20px}
+    nav{background:var(--panel);padding:12px;border-radius:12px;border:1px solid var(--border);height:calc(100vh - 120px);overflow:auto;position:sticky;top:20px}
+    main{background:var(--panel);padding:20px;border-radius:12px;border:1px solid var(--border);min-height:60vh}
+    ul.nav{list-style:none;margin:8px 0 0 0;padding:0}
+    ul.nav li{margin-bottom:6px}
+    ul.nav button{width:100%;text-align:left;border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer}
+    .controls{display:flex;gap:8px}
+    button.ctrl{border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer}
+    section.lab{border:1px solid var(--border);border-radius:10px;margin-bottom:16px}
+    section.lab>details[open]>summary{border-bottom:1px solid var(--border)}
+    summary{list-style:none;padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+    .step{border:1px dashed var(--border);border-radius:10px;padding:12px;margin:10px 0}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:rgba(255,255,255,0.06);padding:0 6px;border-radius:6px;color:var(--text)}
+    .code{position:relative;margin:8px 0;border:1px solid var(--border);border-radius:8px;overflow:auto}
+    .code pre{margin:0;padding:12px;white-space:pre-wrap;word-break:break-word}
+    .copy{position:absolute;top:6px;right:6px;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:6px;padding:6px 8px;cursor:pointer}
+    .callout{border-left:4px solid var(--accent);background:rgba(137,240,195,0.08);padding:10px;border-radius:6px;margin:10px 0}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .badge{display:inline-block;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:12px}
+    figure{margin:12px 0;text-align:center}
+    figcaption{font-size:0.9rem}
+    @media (max-width:1000px){.wrap{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body data-theme="dark">
+  <header>
+    <div>
+      <h1>Course Labs — OpenVAS & ShellGPT</h1>
+      <div class="muted">Hands-on, step-by-step labs with secure, offline-friendly UI</div>
+    </div>
+    <div class="controls">
+      <button class="ctrl" id="toggleTheme" title="Toggle dark/light">Toggle theme</button>
+      <button class="ctrl" id="expandAll" title="Expand all labs">Expand all</button>
+      <button class="ctrl" id="collapseAll" title="Collapse all labs">Collapse all</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav id="sideNav" aria-label="Lab Navigation">
+      <div class="muted" style="margin-bottom:6px">Labs & Sections</div>
+      <ul class="nav" id="navList">
+        <li><button data-target="lab0">Overview & Safety</button></li>
+        <li><button data-target="lab1">Lab 1 — OpenVAS Quickstart</button></li>
+        <li><button data-target="lab1a">Environment (Parrot Security)</button></li>
+        <li><button data-target="lab1b">Run OpenVAS (Docker)</button></li>
+        <li><button data-target="lab1c">Visit Web UI & Credentials</button></li>
+        <li><button data-target="lab1d">Create Target & Scan (Task Wizard)</button></li>
+        <li><button data-target="lab1e">Scenario A — Firewall OFF</button></li>
+        <li><button data-target="lab1f">Scenario B — Firewall ON</button></li>
+        <li><button data-target="lab2">Lab 2 — ShellGPT as OPS Assistant</button></li>
+        <li><button data-target="lab2a">Install via Virtual Env</button></li>
+        <li><button data-target="lab2b">Option A — OpenAI API Key</button></li>
+        <li><button data-target="lab2c">Option B — Ollama Backend</button></li>
+        <li><button data-target="lab2d">Troubleshooting & Tuning</button></li>
+        <li><button data-target="lab3">Appendix — Commands & Checks</button></li>
+      </ul>
+      <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+      <div class="muted">Quick Tools</div>
+      <ul class="nav">
+        <li><button data-action="expandOpenVAS">Expand only OpenVAS</button></li>
+        <li><button data-action="expandShellGPT">Expand only ShellGPT</button></li>
+      </ul>
+    </nav>
+
+    <main id="content">
+
+      <!-- Overview -->
+      <section id="lab0" class="lab">
+        <details open>
+          <summary><strong>Overview & Safety</strong> <span class="badge">Read first</span></summary>
+          <div style="padding:12px">
+            <p>This page consolidates the OpenVAS and ShellGPT labs into an interactive, step-by-step format. All instructions are drawn from the source handout and organized for classroom use.</p>
+            <div class="callout"><strong>Legal & Ethical Use:</strong> Only scan systems you own or have <em>written authorization</em> to test. Follow institutional policies and local laws. Use isolated lab networks where possible.</div>
+            <p class="muted">Source: classroom notes on Parrot Security issues, OpenVAS setup, scan scenarios, ShellGPT installation and Ollama configuration.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- Lab 1: OpenVAS -->
+      <section id="lab1" class="lab">
+        <details>
+          <summary><strong>Lab 1 — OpenVAS Quickstart</strong> <span class="badge">Vulnerability Scanning</span></summary>
+          <div style="padding:12px">
+            <p>Goal: deploy OpenVAS quickly via Docker, access the web UI, define a target, and run basic scans against a Windows Server 2019 host under two firewall configurations.</p>
+            <figure>
+              <figcaption class="muted">OpenVAS flow</figcaption>
+              <svg viewBox="0 0 720 120" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">
+                <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="currentColor"/></marker></defs>
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="20" y="30" width="160" height="60" rx="8"/><rect x="220" y="30" width="160" height="60" rx="8"/><rect x="420" y="30" width="160" height="60" rx="8"/><rect x="620" y="30" width="80" height="60" rx="8"/>
+                  <line x1="180" y1="60" x2="220" y2="60" marker-end="url(#ar)"/><line x1="380" y1="60" x2="420" y2="60" marker-end="url(#ar)"/><line x1="580" y1="60" x2="620" y2="60" marker-end="url(#ar)"/>
+                </g>
+                <g font-family="sans-serif" font-size="13" fill="currentColor">
+                  <text x="100" y="65" text-anchor="middle">Run Docker</text>
+                  <text x="300" y="65" text-anchor="middle">Open Web UI</text>
+                  <text x="500" y="65" text-anchor="middle">Create Task</text>
+                  <text x="660" y="65" text-anchor="middle">Scan</text>
+                </g>
+              </svg>
+            </figure>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab1a" class="lab">
+        <details>
+          <summary><strong>Environment — Parrot Security</strong> <span class="badge">Setup & Issues</span></summary>
+          <div style="padding:12px" class="grid">
+            <div>
+              <div class="step"><strong>Issue #1:</strong> Short-name image resolution failed.<div class="code"><button class="copy" data-copy>Copy</button><pre>$ docker run -d -p 443:443 --name openvas mikesplain/openvas
+# Error: short-name "mikesplain/openvas" did not resolve</pre></div>
+              <div>✅ <em>Fix</em> — specify the registry explicitly:</div>
+              <div class="code"><button class="copy" data-copy>Copy</button><pre>$ docker run -d -p 443:443 --name openvas docker.io/mikesplain/openvas</pre></div></div>
+            </div>
+            <div>
+              <div class="step"><strong>Issue #2:</strong> AppArmor profile error.
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>install profile containers-default-: wait for AppArmor command: exit status 1
+# apparmor failed to start: could not open tunables/proc</pre></div>
+                <div>✅ <em>Fix</em> — remove any broken container and run with relaxed AppArmor:</div>
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ docker rm openvas   # delete if exists
+$ docker run -d -p 443:443 --name openvas \
+  --privileged --security-opt apparmor=unconfined \
+  docker.io/mikesplain/openvas</pre></div>
+                <div class="callout"><strong>Note:</strong> <span class="kbd">--privileged</span> grants broad access to the host; use only in trusted lab environments.</div>
+              </div>
+            </div>
+          </div>
+          <div class="step"><strong>Enter container shell</strong>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>$ docker exec -it openvas bash</pre></div>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab1b" class="lab">
+        <details>
+          <summary><strong>Run OpenVAS (Docker)</strong> <span class="badge">Service Access</span></summary>
+          <div style="padding:12px">
+            <p>Once running, browse to the local HTTPS endpoint:</p>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>https://127.0.0.1</pre></div>
+            <p>Default account (change after first login):</p>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>Username: admin
+Password: admin</pre></div>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab1c" class="lab">
+        <details>
+          <summary><strong>Visit Web UI & Credentials</strong> <span class="badge">Login</span></summary>
+          <div style="padding:12px" class="grid">
+            <div>
+              <div class="step"><strong>Open the site</strong> → <span class="kbd">https://127.0.0.1</span></div>
+              <div class="step"><strong>Login</strong> with <span class="kbd">admin/admin</span></div>
+            </div>
+            <div>
+              <figure>
+                <figcaption class="muted">Minimal topology</figcaption>
+                <svg viewBox="0 0 420 140" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">
+                  <g fill="none" stroke="currentColor">
+                    <rect x="20" y="40" width="130" height="60" rx="8"/>
+                    <rect x="270" y="40" width="130" height="60" rx="8"/>
+                    <line x1="150" y1="70" x2="270" y2="70" stroke-width="1.5"/>
+                  </g>
+                  <g fill="currentColor" font-family="sans-serif" font-size="12">
+                    <text x="85" y="70" text-anchor="middle">OpenVAS</text>
+                    <text x="335" y="70" text-anchor="middle">Windows 2019</text>
+                  </g>
+                </svg>
+              </figure>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab1d" class="lab">
+        <details>
+          <summary><strong>Create Target & Scan (Task Wizard)</strong> <span class="badge">Scans ▸ Tasks</span></summary>
+          <div style="padding:12px">
+            <ol>
+              <li>Navigate to <span class="kbd">Scans ▸ Tasks ▸ Task Wizard</span>.</li>
+              <li>Enter the target IP/hostname of <span class="kbd">Windows Server 2019</span> (ICMP allowed).</li>
+              <li>Click <em>Start Scan</em>.</li>
+            </ol>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab1e" class="lab">
+        <details>
+          <summary><strong>Scenario A — Firewall OFF</strong> <span class="badge">Expected: richer findings</span></summary>
+          <div style="padding:12px">
+            <div class="step"><strong>On the target (Windows Server 2019)</strong>
+              <div class="code"><button class="copy" data-copy>Copy</button><pre>C:\> netsh advfirewall set allprofiles state off</pre></div>
+            </div>
+            <p>Re-run the scan and compare detected services and vulnerabilities. You should observe more results with the firewall disabled.</p>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab1f" class="lab">
+        <details>
+          <summary><strong>Scenario B — Firewall ON</strong> <span class="badge">Expected: limited results</span></summary>
+          <div style="padding:12px">
+            <div class="step"><strong>On the target (Windows Server 2019)</strong>
+              <div class="code"><button class="copy" data-copy>Copy</button><pre>C:\> netsh advfirewall set allprofiles state on</pre></div>
+            </div>
+            <p>Run the same task again. With the firewall enabled, discovery and port access will be reduced, often resulting in minimal or no findings.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- Lab 2: ShellGPT -->
+      <section id="lab2" class="lab">
+        <details>
+          <summary><strong>Lab 2 — ShellGPT as OPS Assistant</strong> <span class="badge">CLI AI helper</span></summary>
+          <div style="padding:12px">
+            <p>Goal: install ShellGPT in an isolated Python virtual environment, then choose one of two backends: (A) OpenAI API key, or (B) local <span class="kbd">Ollama</span> for an offline-friendly setup.</p>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab2a" class="lab">
+        <details>
+          <summary><strong>Install via Virtual Env</strong> <span class="badge">Fix “externally-managed-environment”</span></summary>
+          <div style="padding:12px">
+            <div class="step"><strong>Create & activate venv</strong>
+              <div class="code"><button class="copy" data-copy>Copy</button><pre>$ python3 -m venv shellgpt-env
+$ source shellgpt-env/bin/activate</pre></div>
+            </div>
+            <div class="step"><strong>Install ShellGPT</strong>
+              <div class="code"><button class="copy" data-copy>Copy</button><pre>(shellgpt-env) $ pip install shell-gpt</pre></div>
+            </div>
+            <p>If <span class="kbd">pip install shell-gpt</span> fails in the system Python with <em>externally-managed-environment</em>, the above venv resolves it.</p>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab2b" class="lab">
+        <details>
+          <summary><strong>Option A — OpenAI API Key</strong> <span class="badge">Cloud</span></summary>
+          <div style="padding:12px">
+            <ol>
+              <li>Get an API key from your provider account.</li>
+              <li>Export it in your shell (temporary):
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>(shellgpt-env) $ export OPENAI_API_KEY="YOUR_KEY"</pre></div>
+              </li>
+              <li>Or add to your shell rc for persistence:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ echo 'export OPENAI_API_KEY="YOUR_KEY"' >> ~/.bashrc && source ~/.bashrc</pre></div>
+              </li>
+              <li>Test help:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>(shellgpt-env) $ sgpt --help</pre></div>
+              </li>
+            </ol>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab2c" class="lab">
+        <details>
+          <summary><strong>Option B — Ollama Backend</strong> <span class="badge">Local</span></summary>
+          <div style="padding:12px">
+            <ol>
+              <li>Install Ollama:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ curl https://ollama.ai/install.sh | sh</pre></div>
+              </li>
+              <li>Pull a model (example):
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ ollama pull mistral:7b-instruct</pre></div>
+              </li>
+              <li>Start API server:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ ollama serve</pre></div>
+              </li>
+              <li>Enable ShellGPT with LiteLLM bridge:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>(shellgpt-env) $ pip install "shell-gpt[litellm]"</pre></div>
+              </li>
+              <li>Run with Ollama backend:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>(shellgpt-env) $ sgpt --model ollama/mistral:7b-instruct "Who are you?"</pre></div>
+                <div class="callout"><strong>Tip:</strong> First run may still prompt for an OpenAI key. Provide any non-empty placeholder to proceed, then edit config.</div>
+              </li>
+              <li>Configure defaults in <span class="kbd">~/.config/shell_gpt/.sgptrc</span>:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>DEFAULT_MODEL=ollama/mistral:7b-instruct
+OPENAI_USE_FUNCTIONS=false
+USE_LITELLM=true</pre></div>
+              </li>
+              <li>Try quick commands:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>(shellgpt-env) $ sgpt "show logged in users"
+(shellgpt-env) $ sgpt -s "Show the cpu usage"</pre></div>
+              </li>
+            </ol>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab2d" class="lab">
+        <details>
+          <summary><strong>Troubleshooting & Tuning</strong> <span class="badge">Common errors</span></summary>
+          <div style="padding:12px" class="grid">
+            <div>
+              <div class="step"><strong>Streaming response error</strong>
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>ResponseNotRead: Attempted to access streaming response content ...</pre></div>
+                <div>✅ <em>Fix</em> — upgrade:</div>
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>(shellgpt-env) $ pip install --upgrade shell-gpt litellm</pre></div>
+              </div>
+            </div>
+            <div>
+              <div class="step"><strong>Model memory error</strong>
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>OllamaException: model requires more system memory ...</pre></div>
+                <div>✅ <em>Fix</em> — assign more RAM to the VM (e.g., 8192 MB) or pull a smaller model.</div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section id="lab3" class="lab">
+        <details>
+          <summary><strong>Appendix — Handy Commands & Checks</strong> <span class="badge">Reference</span></summary>
+          <div style="padding:12px">
+            <div class="grid">
+              <div>
+                <h3>OpenVAS</h3>
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ docker ps -a | grep openvas
+$ docker logs -f openvas
+$ docker exec -it openvas bash</pre></div>
+              </div>
+              <div>
+                <h3>ShellGPT</h3>
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ which sgpt
+$ sgpt --version
+$ cat ~/.config/shell_gpt/.sgptrc</pre></div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+    </main>
+  </div>
+
+  <footer style="padding:12px 20px;color:var(--muted);text-align:right">Local-only, secure UI. No external resources loaded.</footer>
+
+  <script>
+    (function(){
+      const body = document.body;
+      const q = s=>document.querySelector(s);
+      const qa = s=>Array.from(document.querySelectorAll(s));
+
+      // Theme toggle
+      q('#toggleTheme').addEventListener('click', ()=>{
+        body.setAttribute('data-theme', body.getAttribute('data-theme')==='light'?'dark':'light');
+      });
+
+      // Expand/Collapse all
+      q('#expandAll').addEventListener('click', ()=> qa('main details').forEach(d=>d.open=true));
+      q('#collapseAll').addEventListener('click', ()=> qa('main details').forEach(d=>d.open=false));
+
+      // Side navigation
+      q('#sideNav').addEventListener('click', (e)=>{
+        const btn = e.target.closest('button');
+        if(!btn) return;
+        const action = btn.getAttribute('data-action');
+        if(action==='expandOpenVAS'){
+          qa('#lab1, #lab1a, #lab1b, #lab1c, #lab1d, #lab1e, #lab1f').forEach(s=>{const d=s.querySelector('details');if(d) d.open=true});
+          qa('#lab2, #lab2a, #lab2b, #lab2c, #lab2d, #lab3').forEach(s=>{const d=s.querySelector('details');if(d) d.open=false});
+          return;
+        }
+        if(action==='expandShellGPT'){
+          qa('#lab2, #lab2a, #lab2b, #lab2c, #lab2d').forEach(s=>{const d=s.querySelector('details');if(d) d.open=true});
+          qa('#lab1, #lab1a, #lab1b, #lab1c, #lab1d, #lab1e, #lab1f, #lab3').forEach(s=>{const d=s.querySelector('details');if(d) d.open=false});
+          return;
+        }
+        const id = btn.getAttribute('data-target');
+        if(!id) return;
+        const el = q('#'+id); if(!el) return;
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+        const det = el.querySelector('details'); if(det) det.open = true;
+      });
+
+      // Copy buttons — safe text copy, no innerHTML from untrusted sources
+      document.addEventListener('click', (e)=>{
+        const b = e.target.closest('[data-copy]');
+        if(!b) return;
+        const pre = b.parentElement.querySelector('pre');
+        if(!pre) return;
+        const text = pre.textContent;
+        navigator.clipboard.writeText(text).then(()=>{
+          const old = b.textContent; b.textContent = 'Copied';
+          setTimeout(()=>{ b.textContent = 'Copy'; }, 900);
+        }).catch(()=>{});
+      });
+    })();
+  </script>
+</body>
+</html>

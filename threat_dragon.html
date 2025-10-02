@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course Labs — OWASP Threat Dragon</title>
+  <!-- Strict, local-only CSP; no external loads, no eval -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'none'">
+  <style>
+    :root{--bg:#0f1724;--panel:#0b1220;--text:#e6eef8;--muted:#9fb0c9;--accent:#89f0c3;--border:rgba(255,255,255,0.08)}
+    [data-theme="light"]{--bg:#f8fafc;--panel:#ffffff;--text:#0b1220;--muted:#4b5563;--accent:#0ea5a4;--border:rgba(0,0,0,0.12)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;line-height:1.5}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(255,255,255,0.04),transparent)}
+    h1{font-size:1.2rem;margin:0}
+    .muted{color:var(--muted)}
+    .wrap{display:grid;grid-template-columns:280px 1fr;gap:20px;padding:20px}
+    nav{background:var(--panel);padding:12px;border-radius:12px;border:1px solid var(--border);height:calc(100vh - 120px);overflow:auto;position:sticky;top:20px}
+    main{background:var(--panel);padding:20px;border-radius:12px;border:1px solid var(--border);min-height:60vh}
+    ul.nav{list-style:none;margin:8px 0 0 0;padding:0}
+    ul.nav li{margin-bottom:6px}
+    ul.nav button{width:100%;text-align:left;border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer}
+    .controls{display:flex;gap:8px}
+    button.ctrl{border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer}
+    section.lab{border:1px solid var(--border);border-radius:10px;margin-bottom:16px}
+    section.lab>details[open]>summary{border-bottom:1px solid var(--border)}
+    summary{list-style:none;padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+    .step{border:1px dashed var(--border);border-radius:10px;padding:12px;margin:10px 0}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:rgba(255,255,255,0.06);padding:0 6px;border-radius:6px;color:var(--text)}
+    .code{position:relative;margin:8px 0;border:1px solid var(--border);border-radius:8px;overflow:auto}
+    .code pre{margin:0;padding:12px;white-space:pre-wrap;word-break:break-word}
+    .copy{position:absolute;top:6px;right:6px;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:6px;padding:6px 8px;cursor:pointer}
+    .callout{border-left:4px solid var(--accent);background:rgba(137,240,195,0.08);padding:10px;border-radius:6px;margin:10px 0}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .badge{display:inline-block;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:12px}
+    figure{margin:12px 0;text-align:center}
+    figcaption{font-size:0.9rem}
+    @media (max-width:1000px){.wrap{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body data-theme="dark">
+  <header>
+    <div>
+      <h1>Course Labs — OWASP Threat Dragon</h1>
+      <div class="muted">Step-by-step install, setup, and hands-on modeling</div>
+    </div>
+    <div class="controls">
+      <button class="ctrl" id="toggleTheme" title="Toggle dark/light">Toggle theme</button>
+      <button class="ctrl" id="expandAll" title="Expand all labs">Expand all</button>
+      <button class="ctrl" id="collapseAll" title="Collapse all labs">Collapse all</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav id="sideNav" aria-label="Lab Navigation">
+      <div class="muted" style="margin-bottom:6px">Labs & Sections</div>
+      <ul class="nav" id="navList">
+        <li><button data-target="lab0">Overview & Safety</button></li>
+        <li><button data-target="lab1">Install on Kali (AppImage)</button></li>
+        <li><button data-target="lab2">Launch & First Run</button></li>
+        <li><button data-target="lab3">Explore the Interface</button></li>
+        <li><button data-target="lab4">Create a Simple DFD</button></li>
+        <li><button data-target="lab5">Generate Threats & Track Risks</button></li>
+        <li><button data-target="lab6">Save, Export, and Share</button></li>
+        <li><button data-target="lab7">Appendix — Tips & Checks</button></li>
+      </ul>
+    </nav>
+
+    <main id="content">
+      <!-- Overview -->
+      <section id="lab0" class="lab">
+        <details open>
+          <summary><strong>Overview & Safety</strong> <span class="badge">Read first</span></summary>
+          <div style="padding:12px">
+            <p>This interactive lab guides you through installing OWASP Threat Dragon on Kali Linux, launching the app, exploring the interface, and creating a basic threat model using a simple data-flow diagram (DFD). Steps are based on the provided handout.</p>
+            <div class="callout"><strong>Legal & Ethical Use:</strong> Only model and handle systems you are authorized to document. No scanning occurs in this lab; it is a design-time activity.</div>
+            <p class="muted">Target platform: Kali Linux • Artifact types: diagrams, threats, and risks.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- Install on Kali -->
+      <section id="lab1" class="lab">
+        <details>
+          <summary><strong>Install on Kali (AppImage)</strong> <span class="badge">Setup</span></summary>
+          <div style="padding:12px">
+            <ol>
+              <li>Open a browser in Kali and navigate to the releases page.</li>
+              <li>Download the latest <span class="kbd">.AppImage</span> for Threat Dragon.</li>
+              <li>Make the AppImage executable and run it:</li>
+            </ol>
+            <div class="code"><button class="copy" data-copy>Copy</button><pre>$ chmod +x ThreatDragon-*.AppImage
+$ ./ThreatDragon-*.AppImage</pre></div>
+            <div class="callout">If prompted by your desktop, allow execution for this file. You can also right‑click → Properties → Permissions → "Allow executing file as program".</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Launch & First Run -->
+      <section id="lab2" class="lab">
+        <details>
+          <summary><strong>Launch & First Run</strong> <span class="badge">Start</span></summary>
+          <div style="padding:12px">
+            <div class="step"><strong>Launch</strong> by double‑clicking the AppImage or running it from a terminal as above.</div>
+            <div class="step"><strong>First screen</strong>: choose to start a new model.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Explore the Interface -->
+      <section id="lab3" class="lab">
+        <details>
+          <summary><strong>Explore the Interface</strong> <span class="badge">Orientation</span></summary>
+          <div style="padding:12px" class="grid">
+            <div>
+              <ol>
+                <li>Find where you create <strong>DFD diagrams</strong>.</li>
+                <li>Locate the area where <strong>threats are generated</strong>.</li>
+                <li>Identify how <strong>risks are tracked</strong> within the model.</li>
+              </ol>
+              <div class="callout">Tip: Threat Dragon organizes elements into stencils (e.g., external entity, process, datastore). Connect elements with directed data flows.</div>
+            </div>
+            <div>
+              <figure>
+                <figcaption class="muted">Minimal DFD topology (example)</figcaption>
+                <svg viewBox="0 0 500 180" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">
+                  <defs>
+                    <marker id="arr" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+                      <path d="M0,0 L0,6 L9,3 z" fill="currentColor"/>
+                    </marker>
+                  </defs>
+                  <g fill="none" stroke="currentColor" stroke-width="1.3">
+                    <rect x="20" y="50" width="120" height="60" rx="8"/>
+                    <rect x="200" y="50" width="120" height="60" rx="8"/>
+                    <rect x="360" y="50" width="120" height="60" rx="8"/>
+                    <line x1="140" y1="80" x2="200" y2="80" marker-end="url(#arr)"/>
+                    <line x1="320" y1="80" x2="360" y2="80" marker-end="url(#arr)"/>
+                  </g>
+                  <g fill="currentColor" font-family="sans-serif" font-size="13">
+                    <text x="80" y="83" text-anchor="middle">User</text>
+                    <text x="260" y="83" text-anchor="middle">Web Server</text>
+                    <text x="420" y="83" text-anchor="middle">Database</text>
+                  </g>
+                </svg>
+              </figure>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Create a Simple DFD -->
+      <section id="lab4" class="lab">
+        <details>
+          <summary><strong>Create a Simple DFD</strong> <span class="badge">Hands‑on</span></summary>
+          <div style="padding:12px">
+            <ol>
+              <li>Add at least three components: <strong>User</strong>, <strong>Web Server</strong>, and <strong>Database</strong>.</li>
+              <li>Connect them with directed data flows: User → Web Server → Database.</li>
+              <li>Ensure flows represent how data moves between components.</li>
+            </ol>
+            <div class="callout">Optional: Add labels to data flows (e.g., "Login request", "Query"). Use consistent naming for clarity.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Generate Threats & Track Risks -->
+      <section id="lab5" class="lab">
+        <details>
+          <summary><strong>Generate Threats & Track Risks</strong> <span class="badge">Analysis</span></summary>
+          <div style="padding:12px">
+            <ol>
+              <li>With the diagram open, use the Threat generation feature to list applicable threats for your elements and flows.</li>
+              <li>Review the generated threats and record the <em>risk</em> or <em>severity</em> where supported.</li>
+              <li>Add notes on mitigations for each high‑risk item.</li>
+            </ol>
+            <div class="callout">Focus on STRIDE‑style thinking (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege) when reviewing threats.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Save / Export -->
+      <section id="lab6" class="lab">
+        <details>
+          <summary><strong>Save, Export, and Share</strong> <span class="badge">Artifacts</span></summary>
+          <div style="padding:12px">
+            <ul>
+              <li><strong>Save</strong> your model file (JSON‑based format) to your course folder.</li>
+              <li><strong>Export</strong> a diagram image (PNG/SVG) if the application supports export.</li>
+              <li><strong>Share</strong> your artifact with your instructor according to class submission rules.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- Appendix -->
+      <section id="lab7" class="lab">
+        <details>
+          <summary><strong>Appendix — Tips & Checks</strong> <span class="badge">Reference</span></summary>
+          <div style="padding:12px" class="grid">
+            <div>
+              <h3>Quick Checklist</h3>
+              <ul>
+                <li>Latest AppImage downloaded</li>
+                <li>AppImage marked executable</li>
+                <li>New model created</li>
+                <li>DFD contains User, Web Server, Database</li>
+                <li>Threats generated and reviewed</li>
+                <li>Risks tracked / severity noted</li>
+                <li>Model saved (and optionally exported)</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Troubleshooting</h3>
+              <div class="step"><strong>AppImage won’t run</strong>
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ chmod +x ThreatDragon-*.AppImage
+$ ./ThreatDragon-*.AppImage</pre></div>
+                <div>Right‑click → Properties → Permissions → Allow execution; ensure the file is not on a noexec mount.</div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+    </main>
+  </div>
+
+  <footer style="padding:12px 20px;color:var(--muted);text-align:right">Local‑only, secure UI. No external resources loaded.</footer>
+
+  <script>
+    (function(){
+      const body = document.body;
+      const q = s=>document.querySelector(s);
+      const qa = s=>Array.from(document.querySelectorAll(s));
+
+      // Theme toggle
+      q('#toggleTheme').addEventListener('click', ()=>{
+        body.setAttribute('data-theme', body.getAttribute('data-theme')==='light'?'dark':'light');
+      });
+
+      // Expand/Collapse all
+      q('#expandAll').addEventListener('click', ()=> qa('main details').forEach(d=>d.open=true));
+      q('#collapseAll').addEventListener('click', ()=> qa('main details').forEach(d=>d.open=false));
+
+      // Side navigation
+      q('#sideNav').addEventListener('click', (e)=>{
+        const btn = e.target.closest('button');
+        if(!btn) return;
+        const id = btn.getAttribute('data-target');
+        if(!id) return;
+        const el = q('#'+id); if(!el) return;
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+        const det = el.querySelector('details'); if(det) det.open = true;
+      });
+
+      // Copy buttons — safe text copy, no innerHTML from untrusted sources
+      document.addEventListener('click', (e)=>{
+        const b = e.target.closest('[data-copy]');
+        if(!b) return;
+        const pre = b.parentElement.querySelector('pre');
+        if(!pre) return;
+        const text = pre.textContent;
+        navigator.clipboard.writeText(text).then(()=>{
+          const old = b.textContent; b.textContent = 'Copied';
+          setTimeout(()=>{ b.textContent = 'Copy'; }, 900);
+        }).catch(()=>{});
+      });
+    })();
+  </script>
+</body>
+</html>

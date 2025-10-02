@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course Content — Threat Dragon</title>
+  <!-- Strict, local-only CSP; no external loads, no eval -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'none'">
+  <style>
+    :root{--bg:#0f1724;--panel:#0b1220;--text:#e6eef8;--muted:#9fb0c9;--accent:#89f0c3;--border:rgba(255,255,255,0.08)}
+    [data-theme="light"]{--bg:#f8fafc;--panel:#ffffff;--text:#0b1220;--muted:#4b5563;--accent:#0ea5a4;--border:rgba(0,0,0,0.12)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;line-height:1.5}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(255,255,255,0.04),transparent)}
+    h1{font-size:1.2rem;margin:0}
+    .muted{color:var(--muted)}
+    .wrap{display:grid;grid-template-columns:280px 1fr;gap:20px;padding:20px}
+    nav{background:var(--panel);padding:12px;border-radius:12px;border:1px solid var(--border);height:calc(100vh - 120px);overflow:auto;position:sticky;top:20px}
+    main{background:var(--panel);padding:20px;border-radius:12px;border:1px solid var(--border);min-height:60vh}
+    ul.nav{list-style:none;margin:8px 0 0 0;padding:0}
+    ul.nav li{margin-bottom:6px}
+    ul.nav button{width:100%;text-align:left;border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer}
+    .controls{display:flex;gap:8px}
+    button.ctrl{border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer}
+    section.chapter{border:1px solid var(--border);border-radius:10px;margin-bottom:16px}
+    section.chapter>details[open]>summary{border-bottom:1px solid var(--border)}
+    summary{list-style:none;padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .step{border:1px dashed var(--border);border-radius:10px;padding:12px;margin:10px 0}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:rgba(255,255,255,0.06);padding:0 6px;border-radius:6px;color:var(--text)}
+    .code{position:relative;margin:8px 0;border:1px solid var(--border);border-radius:8px;overflow:auto}
+    .code pre{margin:0;padding:12px;white-space:pre-wrap;word-break:break-word}
+    .copy{position:absolute;top:6px;right:6px;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:6px;padding:6px 8px;cursor:pointer}
+    .callout{border-left:4px solid var(--accent);background:rgba(137,240,195,0.08);padding:10px;border-radius:6px;margin:10px 0}
+    .badge{display:inline-block;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:12px}
+    figure{margin:12px 0;text-align:center}
+    figcaption{font-size:0.9rem}
+    @media (max-width:1000px){.wrap{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body data-theme="dark">
+  <header>
+    <div>
+      <h1>Course Content — OWASP Threat Dragon</h1>
+      <div class="muted">Introduction, Installation, Setup, and Practical Usage</div>
+    </div>
+    <div class="controls">
+      <button class="ctrl" id="toggleTheme" title="Toggle dark/light">Toggle theme</button>
+      <button class="ctrl" id="expandAll" title="Expand all sections">Expand all</button>
+      <button class="ctrl" id="collapseAll" title="Collapse all sections">Collapse all</button>
+      <input id="search" type="search" placeholder="Search topics" aria-label="Search" style="border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;width:220px" />
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav id="sideNav" aria-label="Navigation">
+      <div class="muted" style="margin-bottom:6px">Chapters</div>
+      <ul class="nav" id="navList">
+        <li><button data-target="ch0">I. Introduction to Threat Modeling</button></li>
+        <li><button data-target="ch1">II. Introducing Threat Dragon</button></li>
+        <li><button data-target="ch2">III. Installation & Setup</button></li>
+        <li><button data-target="ch3">IV. Using Threat Dragon: First Model</button></li>
+        <li><button data-target="ch4">V. Best Practices & Advanced</button></li>
+      </ul>
+      <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+      <div class="muted">Quick Links</div>
+      <ul class="nav">
+        <li><button data-target="ch2-desktop">Desktop Install</button></li>
+        <li><button data-target="ch2-web">Web App (Self-host)</button></li>
+        <li><button data-target="ch3-dfd">Build a DFD</button></li>
+        <li><button data-target="ch3-stride">STRIDE Threats</button></li>
+        <li><button data-target="ch3-report">Export & Report</button></li>
+      </ul>
+    </nav>
+
+    <main id="content">
+      <!-- Introduction -->
+      <section id="ch0" class="chapter">
+        <details open>
+          <summary><strong>I. Introduction to Threat Modeling</strong> <span class="badge">10 minutes</span></summary>
+          <div style="padding:12px">
+            <p><strong>What is Threat Modeling?</strong> A structured process of identifying, understanding, and mitigating potential security threats to an application or system. It analyzes architecture to find vulnerabilities and design countermeasures — a proactive approach to security.</p>
+            <div class="callout">Example: Before building an online banking app, a team models threats (e.g., credential theft, bypassing auth, DoS) to plan mitigations early.</div>
+            <h3>Why it matters</h3>
+            <ul>
+              <li><strong>Proactive Security:</strong> fix issues early, cheaper and easier.</li>
+              <li><strong>Risk Prioritization:</strong> focus on critical threats first.</li>
+              <li><strong>Improved Design:</strong> leads to more secure architectures.</li>
+              <li><strong>Compliance:</strong> supports GDPR, PCI DSS, etc.</li>
+            </ul>
+            <h3>Key Principles</h3>
+            <ul>
+              <li>Identify <strong>Assets</strong> (what to protect)</li>
+              <li>Identify <strong>Threats</strong> (what could go wrong)</li>
+              <li>Identify <strong>Vulnerabilities</strong> (how it could be exploited)</li>
+              <li><strong>Mitigate</strong> (prevent/reduce impact)</li>
+              <li><strong>Verify</strong> (test and review mitigations)</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- Introducing Threat Dragon -->
+      <section id="ch1" class="chapter">
+        <details>
+          <summary><strong>II. Introducing Threat Dragon</strong> <span class="badge">10 minutes</span></summary>
+          <div style="padding:12px">
+            <p><strong>What is it?</strong> A free, open-source, cross-platform OWASP tool for visual, interactive threat modeling with DFDs, STRIDE-based threat generation, risk tracking, reporting, and optional Git integration.</p>
+            <div class="grid">
+              <div>
+                <h3>Key Features</h3>
+                <ul>
+                  <li>Diagramming (DFDs)</li>
+                  <li>STRIDE threat suggestions</li>
+                  <li>Risk tracking & reporting</li>
+                  <li>Git integration for versioning</li>
+                </ul>
+              </div>
+              <div>
+                <h3>Why choose it</h3>
+                <ul>
+                  <li>Open source & free</li>
+                  <li>Visual & intuitive</li>
+                  <li>Automated threat generation</li>
+                  <li>OWASP-backed best practices</li>
+                </ul>
+              </div>
+            </div>
+            <div class="callout">Like a digital whiteboard that also flags potential security weak spots.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Installation & Setup -->
+      <section id="ch2" class="chapter">
+        <details>
+          <summary><strong>III. Installation & Setup</strong> <span class="badge">15 minutes</span></summary>
+          <div style="padding:12px">
+            <p>Threat Dragon can be used as a desktop app or hosted as a web application.</p>
+            <h3 id="ch2-desktop">Desktop Application (Windows/macOS/Linux)</h3>
+            <ol>
+              <li>Go to OWASP Threat Dragon releases (GitHub) and download the latest for your OS (<span class="kbd">.exe</span> / <span class="kbd">.dmg</span> / <span class="kbd">.AppImage</span> / <span class="kbd">.deb</span>).</li>
+              <li><strong>Windows:</strong> run the <span class="kbd">.exe</span> installer.</li>
+              <li><strong>macOS:</strong> open the <span class="kbd">.dmg</span> and drag the app into <span class="kbd">Applications</span>.</li>
+              <li><strong>Linux (.AppImage):</strong>
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ chmod +x ThreatDragon-*.AppImage
+$ ./ThreatDragon-*.AppImage</pre></div>
+              </li>
+              <li><strong>Linux (.deb):</strong>
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ sudo dpkg -i ThreatDragon-*.deb
+$ sudo apt-get -f install</pre></div>
+              </li>
+              <li>Launch the application from the OS menu (desktop version works locally; Git integration optional).</li>
+            </ol>
+            <h3 id="ch2-web">Web Application (Self-host overview)</h3>
+            <ol>
+              <li>Ensure <span class="kbd">Node.js</span>, <span class="kbd">npm</span>, and <span class="kbd">git</span> are installed.</li>
+              <li>Clone the repo:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ git clone https://github.com/OWASP/Threat-Dragon.git
+$ cd Threat-Dragon</pre></div>
+              </li>
+              <li>Install & build:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ npm install
+$ npm run build</pre></div>
+              </li>
+              <li>Start dev server:
+                <div class="code"><button class="copy" data-copy>Copy</button><pre>$ npm start  # then browse http://localhost:8080</pre></div>
+              </li>
+              <li>For production: use reverse proxy (Nginx/Apache), enable HTTPS, consider Dockerization.</li>
+            </ol>
+            <h3>Optional: Git Integration</h3>
+            <p>Use <span class="kbd">File → Open from Git</span> or <span class="kbd">Save to Git</span> within the app. Provide the repo URL and credentials to enable collaboration and version control.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- Using Threat Dragon -->
+      <section id="ch3" class="chapter">
+        <details>
+          <summary><strong>IV. Using Threat Dragon: Creating Your First Threat Model</strong> <span class="badge">10+ minutes</span></summary>
+          <div style="padding:12px">
+            <h3>Workflow Overview</h3>
+            <ol>
+              <li>Create a New Threat Model</li>
+              <li id="ch3-dfd">Draw the Data Flow Diagram (DFD)</li>
+              <li id="ch3-stride">Generate STRIDE-based threats</li>
+              <li>Mitigate & document</li>
+              <li id="ch3-report">Review & report</li>
+            </ol>
+            <div class="grid">
+              <div>
+                <h4>Build a DFD (components)</h4>
+                <ul>
+                  <li><strong>Process</strong> (e.g., Web Server, Auth Service)</li>
+                  <li><strong>External Interactor</strong> (e.g., User, Payment Gateway)</li>
+                  <li><strong>Data Store</strong> (e.g., Database, File System)</li>
+                  <li><strong>Data Flow</strong> (arrows between components)</li>
+                  <li><strong>Trust Boundary</strong> (dashed line between zones)</li>
+                </ul>
+                <div class="callout">Drag elements from the stencil, connect with flows, double‑click to edit properties.</div>
+              </div>
+              <div>
+                <figure>
+                  <figcaption class="muted">Example DFD (User → Web App → DB)</figcaption>
+                  <svg viewBox="0 0 520 180" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">
+                    <defs>
+                      <marker id="arr" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="currentColor"/></marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.3">
+                      <rect x="20" y="50" width="140" height="60" rx="8"/>
+                      <rect x="200" y="50" width="140" height="60" rx="8"/>
+                      <rect x="380" y="50" width="120" height="60" rx="8"/>
+                      <line x1="160" y1="80" x2="200" y2="80" marker-end="url(#arr)"/>
+                      <line x1="340" y1="80" x2="380" y2="80" marker-end="url(#arr)"/>
+                    </g>
+                    <g fill="currentColor" font-family="sans-serif" font-size="13">
+                      <text x="90" y="83" text-anchor="middle">User</text>
+                      <text x="270" y="83" text-anchor="middle">Web App</text>
+                      <text x="440" y="83" text-anchor="middle">Database</text>
+                    </g>
+                  </svg>
+                </figure>
+              </div>
+            </div>
+            <h4>Generate STRIDE Threats</h4>
+            <ul>
+              <li><strong>S</strong>poofing</li>
+              <li><strong>T</strong>ampering</li>
+              <li><strong>R</strong>epudiation</li>
+              <li><strong>I</strong>nformation Disclosure</li>
+              <li><strong>D</strong>enial of Service</li>
+              <li><strong>E</strong>levation of Privilege</li>
+            </ul>
+            <div class="callout">Select a component or flow in Threat Dragon to see suggested threats; add/edit/delete as needed.</div>
+            <h4>Mitigate & Document</h4>
+            <ul>
+              <li>Choose a strategy: <em>Eliminate</em>, <em>Reduce</em>, <em>Transfer</em>, or <em>Accept</em>.</li>
+              <li>Add mitigation details (e.g., parameterized queries, encryption, access controls).</li>
+              <li>Assign severity, owner, and status (Open/Mitigated/Accepted).</li>
+            </ul>
+            <h4>Review & Export</h4>
+            <ul>
+              <li>Walk through DFD and threats with team.</li>
+              <li>Export: JSON (raw), PDF/Markdown (reports) if available in your build.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- Best Practices -->
+      <section id="ch4" class="chapter">
+        <details>
+          <summary><strong>V. Best Practices & Advanced Concepts</strong> <span class="badge">5 minutes</span></summary>
+          <div style="padding:12px">
+            <ul>
+              <li><strong>Integrate with CI/CD:</strong> keep models current as code changes.</li>
+              <li><strong>Continuous Modeling:</strong> revisit models as systems evolve.</li>
+              <li><strong>Beyond STRIDE:</strong> Attack Trees, LINDDUN for privacy.</li>
+              <li><strong>Collaboration:</strong> involve devs, architects, and security.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+    </main>
+  </div>
+
+  <footer style="padding:12px 20px;color:var(--muted);text-align:right">Local‑only, secure UI. No external resources loaded.</footer>
+
+  <script>
+    (function(){
+      const body = document.body;
+      const q = s=>document.querySelector(s);
+      const qa = s=>Array.from(document.querySelectorAll(s));
+
+      // Theme toggle
+      q('#toggleTheme').addEventListener('click', ()=>{
+        body.setAttribute('data-theme', body.getAttribute('data-theme')==='light'?'dark':'light');
+      });
+
+      // Expand/Collapse all
+      q('#expandAll').addEventListener('click', ()=> qa('main details').forEach(d=>d.open=true));
+      q('#collapseAll').addEventListener('click', ()=> qa('main details').forEach(d=>d.open=false));
+
+      // Side navigation
+      q('#sideNav').addEventListener('click', (e)=>{
+        const btn = e.target.closest('button');
+        if(!btn) return;
+        const id = btn.getAttribute('data-target');
+        if(!id) return;
+        const el = q('#'+id); if(!el) return;
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+        const det = el.querySelector('details'); if(det) det.open = true;
+      });
+
+      // Search filter
+      q('#search').addEventListener('input', (e)=>{
+        const term = (e.target.value||'').trim().toLowerCase();
+        qa('main section').forEach(sec=>{
+          const txt = sec.textContent.toLowerCase();
+          sec.style.display = !term || txt.includes(term) ? 'block' : 'none';
+        });
+      });
+
+      // Copy buttons
+      document.addEventListener('click', (e)=>{
+        const b = e.target.closest('[data-copy]');
+        if(!b) return;
+        const pre = b.parentElement.querySelector('pre');
+        if(!pre) return;
+        const text = pre.textContent;
+        navigator.clipboard.writeText(text).then(()=>{
+          const old = b.textContent; b.textContent = 'Copied';
+          setTimeout(()=>{ b.textContent = old || 'Copy'; }, 900);
+        }).catch(()=>{});
+      });
+    })();
+  </script>
+</body>
+</html>

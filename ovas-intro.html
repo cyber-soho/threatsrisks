@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide to GVM & OpenVAS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The application is structured as a single-page app with a fixed sidebar for navigation, allowing users to non-linearly explore the content. This is more user-friendly for learning and reference than a simple long-scroll document. The content is broken into thematic sections: Introduction, Architecture, Installation, Workflow, Ethics, and Future. This structure was chosen to transform the static lecture notes into an explorable, self-paced learning module. Key interactions include clickable diagrams (Architecture, Workflow) and comparison layouts (Installation) to make complex information more digestible. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: GVM components -> Goal: Organize -> Viz/Presentation: Interactive Diagram (HTML/CSS) -> Interaction: Click on a component to see its description. Justification: Visually shows relationships between components, more engaging than a list. Library/Method: Vanilla JS, Tailwind CSS.
+        - Report Info: Installation Methods -> Goal: Compare -> Viz/Presentation: 3-column card layout -> Interaction: N/A. Justification: Allows for easy side-by-side comparison of pros and cons. Library/Method: Tailwind CSS Grid.
+        - Report Info: Scan Workflow -> Goal: Show a Process -> Viz/Presentation: 3-step interactive timeline -> Interaction: Click a step to view details. Justification: Guides the user through the process sequentially, reinforcing the steps. Library/Method: Vanilla JS, Tailwind CSS.
+        - Report Info: Ethical Rules -> Goal: Emphasize -> Viz/Presentation: Large, icon-driven cards -> Interaction: Hover effects. Justification: Makes critical information stand out. Library/Method: Tailwind CSS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active {
+            background-color: #0d9488;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .section-content {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .interactive-diagram-item, .workflow-step {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .interactive-diagram-item:hover, .workflow-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .interactive-diagram-item.active {
+             border-color: #0d9488;
+             box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.3);
+        }
+        .workflow-step.active {
+            background-color: #0d9488;
+            color: white;
+        }
+        .workflow-step.active .step-circle {
+            background-color: white;
+            color: #0d9488;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-800">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white shadow-md hidden lg:block">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-teal-700">GVM / OpenVAS</h1>
+                <p class="text-sm text-slate-500">Interactive Guide</p>
+            </div>
+            <nav id="desktop-nav" class="flex flex-col p-4 space-y-2">
+                <a href="#introduction" class="nav-link active rounded-md px-4 py-2 text-slate-700 hover:bg-teal-50">Introduction</a>
+                <a href="#architecture" class="nav-link rounded-md px-4 py-2 text-slate-700 hover:bg-teal-50">Architecture</a>
+                <a href="#installation" class="nav-link rounded-md px-4 py-2 text-slate-700 hover:bg-teal-50">Installation</a>
+                <a href="#workflow" class="nav-link rounded-md px-4 py-2 text-slate-700 hover:bg-teal-50">Workflow</a>
+                <a href="#ethics" class="nav-link rounded-md px-4 py-2 text-slate-700 hover:bg-teal-50">Ethics</a>
+                <a href="#future" class="nav-link rounded-md px-4 py-2 text-slate-700 hover:bg-teal-50">The Future</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            <div class="lg:hidden mb-6">
+                 <select id="mobile-nav" class="w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500">
+                    <option value="#introduction">Introduction</option>
+                    <option value="#architecture">Architecture</option>
+                    <option value="#installation">Installation</option>
+                    <option value="#workflow">Workflow</option>
+                    <option value="#ethics">Ethics</option>
+                    <option value="#future">The Future</option>
+                </select>
+            </div>
+
+            <!-- Introduction Section -->
+            <section id="introduction" class="section-content">
+                <h2 class="text-3xl font-bold mb-4 text-slate-900">The 'Why' and 'What'</h2>
+                <p class="text-slate-600 mb-8">Understanding the origin and purpose of Greenbone Vulnerability Management (GVM) and OpenVAS.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-3 text-teal-700">What is GVM/OpenVAS?</h3>
+                        <p class="text-slate-600 mb-4">Greenbone Vulnerability Management (GVM) is a comprehensive framework of tools designed to perform vulnerability scanning and management. It's one of the most powerful and widely used open-source security solutions in the world.</p>
+                        <p class="text-slate-600">Think of it as a security guard for your network. It doesn't stop attacks, but it proactively checks every door, window, and access point for weaknesses and reports them so you can fix them *before* someone breaks in.</p>
+                        <div class="mt-4 p-3 bg-teal-50 text-teal-800 rounded-lg">
+                            <strong>Key Takeaway:</strong> GVM finds security holes; you are responsible for patching them.
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-3 text-teal-700">The Origin Story</h3>
+                         <ul class="space-y-4 border-l-2 border-teal-200 pl-4">
+                            <li>
+                                <h4 class="font-semibold">Roots in Nessus</h4>
+                                <p class="text-slate-600 text-sm">The project has its roots in another famous scanner called Nessus.</p>
+                            </li>
+                             <li>
+                                <h4 class="font-semibold">The Fork (2005)</h4>
+                                <p class="text-slate-600 text-sm">Until 2005, Nessus was open-source. When it transitioned to a proprietary license, developers forked the last open-source version to create OpenVAS.</p>
+                            </li>
+                             <li>
+                                <h4 class="font-semibold">The Framework (2025)</h4>
+                                <p class="text-slate-600 text-sm">Today, "OpenVAS" refers to the scanner component within the larger GVM framework. Think of OpenVAS as the engine and GVM as the entire car.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                 <div class="mt-8 bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold mb-3 text-teal-700">The Core Purpose: Proactive Security</h3>
+                    <p class="text-slate-600 mb-4">The main goal is to shift from a reactive ("We've been hacked!") to a proactive ("Let's find and fix our weaknesses") security posture.</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="p-3 bg-slate-50 rounded-md">
+                            <span class="text-2xl">🔍</span>
+                            <p class="font-semibold mt-1">Identify</p>
+                            <p class="text-xs text-slate-500">Find outdated software, misconfigurations, etc.</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-md">
+                            <span class="text-2xl">📊</span>
+                            <p class="font-semibold mt-1">Prioritize</p>
+                            <p class="text-xs text-slate-500">Use CVSS scores to rank risks from critical to low.</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-md">
+                            <span class="text-2xl">🛠️</span>
+                            <p class="font-semibold mt-1">Remediate</p>
+                            <p class="text-xs text-slate-500">Provide detailed reports on how to fix issues.</p>
+                        </div>
+                         <div class="p-3 bg-slate-50 rounded-md">
+                            <span class="text-2xl">📜</span>
+                            <p class="font-semibold mt-1">Comply</p>
+                            <p class="text-xs text-slate-500">Meet regulatory requirements like PCI-DSS & HIPAA.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Architecture Section -->
+            <section id="architecture" class="section-content hidden">
+                <h2 class="text-3xl font-bold mb-4 text-slate-900">How It Works: GVM Architecture</h2>
+                <p class="text-slate-600 mb-8">GVM is composed of several key components working together. Click on a component below to learn more about its role.</p>
+
+                <div class="w-full max-w-4xl mx-auto">
+                    <div id="architecture-diagram" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div data-target="gsa-info" class="interactive-diagram-item p-6 bg-white rounded-lg shadow border-2 border-transparent">
+                            <h4 class="font-bold text-lg text-teal-700">🌐 Greenbone Security Assistant (GSA)</h4>
+                            <p class="text-sm text-slate-500">The Web Interface</p>
+                        </div>
+                        <div data-target="gvmd-info" class="interactive-diagram-item p-6 bg-white rounded-lg shadow border-2 border-transparent">
+                            <h4 class="font-bold text-lg text-teal-700">🧠 Greenbone Vulnerability Manager (gvmd)</h4>
+                            <p class="text-sm text-slate-500">The Central Service</p>
+                        </div>
+                        <div data-target="openvas-info" class="interactive-diagram-item p-6 bg-white rounded-lg shadow border-2 border-transparent">
+                            <h4 class="font-bold text-lg text-teal-700">⚙️ OpenVAS Scanner</h4>
+                            <p class="text-sm text-slate-500">The Scan Engine</p>
+                        </div>
+                        <div data-target="feeds-info" class="interactive-diagram-item p-6 bg-white rounded-lg shadow border-2 border-transparent">
+                            <h4 class="font-bold text-lg text-teal-700">📦 The Feeds</h4>
+                            <p class="text-sm text-slate-500">Threat Intelligence Data</p>
+                        </div>
+                    </div>
+    
+                    <div id="architecture-info" class="bg-white p-6 rounded-lg shadow min-h-[150px]">
+                        <div id="gsa-info" class="info-panel">
+                            <h3 class="font-bold text-xl mb-2">Greenbone Security Assistant (GSA)</h3>
+                            <p class="text-slate-600">This is the web-based user interface. It's where you configure scans, view reports, and manage the system. You'll spend most of your time here.</p>
+                        </div>
+                         <div id="gvmd-info" class="info-panel hidden">
+                            <h3 class="font-bold text-xl mb-2">Greenbone Vulnerability Manager (gvmd)</h3>
+                            <p class="text-slate-600">The "brain" of the operation. It's a central service that controls the scanner, stores configurations, and manages all the vulnerability data in a database.</p>
+                        </div>
+                         <div id="openvas-info" class="info-panel hidden">
+                            <h3 class="font-bold text-xl mb-2">OpenVAS Scanner</h3>
+                            <p class="text-slate-600">The "engine." This is the component that takes instructions from gvmd and runs the actual Network Vulnerability Tests (NVTs) against the target systems.</p>
+                        </div>
+                         <div id="feeds-info" class="info-panel hidden">
+                            <h3 class="font-bold text-xl mb-2">The Feeds</h3>
+                            <p class="text-slate-600">This is the lifeblood of GVM. It's a massive, constantly updated collection of NVTs, security advisories, and threat intelligence. Without up-to-date feeds, your scanner is blind to new threats.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Installation Section -->
+            <section id="installation" class="section-content hidden">
+                 <h2 class="text-3xl font-bold mb-4 text-slate-900">Installation and Setup</h2>
+                <p class="text-slate-600 mb-8">There are several ways to get GVM up and running. Choose the path that best fits your needs and technical comfort level.</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-3 text-teal-700">1. Appliance Method</h3>
+                        <p class="text-sm text-slate-500 mb-4">A pre-built virtual machine (Greenbone Community Edition). Easiest for beginners.</p>
+                        <h4 class="font-semibold text-slate-800">Pros:</h4>
+                        <ul class="list-disc list-inside text-slate-600 text-sm mb-3">
+                            <li>Fastest and easiest setup</li>
+                            <li>Almost no manual configuration</li>
+                        </ul>
+                         <h4 class="font-semibold text-slate-800">Cons:</h4>
+                        <ul class="list-disc list-inside text-slate-600 text-sm">
+                            <li>Less flexible, "black box"</li>
+                        </ul>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-3 text-teal-700">2. Package Manager</h3>
+                        <p class="text-sm text-slate-500 mb-4">Installing via your Linux distro's package manager (e.g., `apt install gvm`).</p>
+                        <h4 class="font-semibold text-slate-800">Pros:</h4>
+                        <ul class="list-disc list-inside text-slate-600 text-sm mb-3">
+                            <li>Integrates well with host OS</li>
+                        </ul>
+                         <h4 class="font-semibold text-slate-800">Cons:</h4>
+                        <ul class="list-disc list-inside text-slate-600 text-sm">
+                            <li>Can have dependency issues</li>
+                            <li>Requires manual setup</li>
+                        </ul>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-3 text-teal-700">3. Docker Method</h3>
+                        <p class="text-sm text-slate-500 mb-4">Running GVM as a set of isolated Docker containers. Modern and flexible.</p>
+                        <h4 class="font-semibold text-slate-800">Pros:</h4>
+                        <ul class="list-disc list-inside text-slate-600 text-sm mb-3">
+                            <li>Excellent isolation</li>
+                            <li>Easy to update and portable</li>
+                        </ul>
+                         <h4 class="font-semibold text-slate-800">Cons:</h4>
+                        <ul class="list-disc list-inside text-slate-600 text-sm">
+                            <li>Requires basic Docker knowledge</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-6 rounded-lg shadow">
+                    <h3 class="font-bold text-lg">Critical First Step: Feed Synchronization</h3>
+                    <p class="mt-2">No matter how you install it, you MUST synchronize the feeds first. This process downloads the entire library of known vulnerabilities. It can take several hours and consumes significant disk space (10-20 GB). The scanner is useless until this is complete.</p>
+                </div>
+            </section>
+
+            <!-- Workflow Section -->
+            <section id="workflow" class="section-content hidden">
+                <h2 class="text-3xl font-bold mb-4 text-slate-900">Putting It to Work: The Scan Workflow</h2>
+                <p class="text-slate-600 mb-8">A typical vulnerability scan follows a clear, three-step process. Click each step to see the details.</p>
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Steps Navigator -->
+                    <div class="lg:w-1/3">
+                        <div id="workflow-steps" class="space-y-4">
+                            <div data-target="step1-info" class="workflow-step active flex items-center p-4 bg-white rounded-lg shadow">
+                                <div class="step-circle flex-shrink-0 w-10 h-10 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-lg">1</div>
+                                <span class="ml-4 font-semibold text-lg">Define Target</span>
+                            </div>
+                            <div data-target="step2-info" class="workflow-step flex items-center p-4 bg-white rounded-lg shadow">
+                                <div class="step-circle flex-shrink-0 w-10 h-10 bg-slate-200 text-slate-700 rounded-full flex items-center justify-center font-bold text-lg">2</div>
+                                <span class="ml-4 font-semibold text-lg">Create Task</span>
+                            </div>
+                            <div data-target="step3-info" class="workflow-step flex items-center p-4 bg-white rounded-lg shadow">
+                                <div class="step-circle flex-shrink-0 w-10 h-10 bg-slate-200 text-slate-700 rounded-full flex items-center justify-center font-bold text-lg">3</div>
+                                <span class="ml-4 font-semibold text-lg">Analyze Report</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Steps Content -->
+                    <div class="lg:w-2/3">
+                        <div id="workflow-info" class="bg-white p-6 rounded-lg shadow min-h-[400px]">
+                            <div id="step1-info" class="workflow-panel">
+                                <h3 class="text-2xl font-bold mb-3">Step 1: Define Your Target (What to scan?)</h3>
+                                <p class="text-slate-600 mb-4">In the GSA web interface, the first step is to tell GVM what you want to scan. A target can be a single IP address (<code>192.168.1.50</code>), a whole subnet (<code>192.168.1.0/24</code>), or a list of hostnames.</p>
+                                <h4 class="font-semibold text-lg mt-4 mb-2">Authenticated vs. Unauthenticated Scans</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="p-4 bg-slate-50 rounded-lg">
+                                        <h5 class="font-bold">Unauthenticated (Black Box)</h5>
+                                        <p class="text-sm text-slate-600">Scans from an external attacker's perspective. Only sees public services. Less accurate.</p>
+                                    </div>
+                                     <div class="p-4 bg-teal-50 rounded-lg">
+                                        <h5 class="font-bold">Authenticated (White Box)</h5>
+                                        <p class="text-sm text-slate-600">Logs into systems with provided credentials to find internal issues. Exponentially more accurate and valuable.</p>
+                                    </div>
+                                </div>
+                            </div>
+                             <div id="step2-info" class="workflow-panel hidden">
+                                <h3 class="text-2xl font-bold mb-3">Step 2: Create and Launch a Scan Task (How to scan?)</h3>
+                                <p class="text-slate-600 mb-4">A Task ties a Target (the "what") to a Scan Configuration (the "how"). Scan Configurations are templates that define the intensity of the scan.</p>
+                                <ul class="space-y-2">
+                                    <li><strong class="text-teal-700">Discovery:</strong> A quick scan to find online hosts and open ports.</li>
+                                    <li><strong class="text-teal-700">Full and Fast:</strong> The most common choice. A deep, comprehensive, and safe analysis.</li>
+                                    <li><strong class="text-teal-700">Full and Fast Ultimate:</strong> Even more thorough, but includes potentially disruptive tests. Use with caution!</li>
+                                </ul>
+                            </div>
+                             <div id="step3-info" class="workflow-panel hidden">
+                                <h3 class="text-2xl font-bold mb-3">Step 3: Analyze the Report (What did you find?)</h3>
+                                <p class="text-slate-600 mb-4">The final report lists all found vulnerabilities, sorted by severity using the Common Vulnerability Scoring System (CVSS), a scale from 0 to 10.</p>
+                                <div class="w-full bg-gray-200 rounded-full h-6 flex overflow-hidden">
+                                    <div class="flex items-center justify-center h-full bg-green-500" style="width: 40%"><span class="text-xs font-semibold text-white">Low</span></div>
+                                    <div class="flex items-center justify-center h-full bg-yellow-500" style="width: 30%"><span class="text-xs font-semibold text-white">Med</span></div>
+                                    <div class="flex items-center justify-center h-full bg-orange-500" style="width: 20%"><span class="text-xs font-semibold text-white">High</span></div>
+                                    <div class="flex items-center justify-center h-full bg-red-600" style="width: 10%"><span class="text-xs font-semibold text-white">Crit</span></div>
+                                </div>
+                                <p class="text-slate-600 mt-4">Each finding includes a summary, a detailed solution on how to fix it, and links to official references like CVE identifiers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ethics Section -->
+            <section id="ethics" class="section-content hidden">
+                <h2 class="text-3xl font-bold mb-4 text-slate-900">The Human Element: Ethics and Responsibility</h2>
+                <p class="text-slate-600 mb-8">A vulnerability scanner is a powerful tool. Using it correctly and ethically is not just a best practice—it's a requirement.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow text-center border-t-4 border-red-500">
+                         <span class="text-5xl">⚖️</span>
+                        <h3 class="text-2xl font-bold my-3">Get Permission!</h3>
+                        <p class="text-slate-600">Using a scanner on a network you don't have explicit, written permission for is illegal. Permission is the only difference between a security assessment and a criminal act.</p>
+                    </div>
+                     <div class="bg-white p-8 rounded-lg shadow text-center border-t-4 border-yellow-500">
+                         <span class="text-5xl">🛡️</span>
+                        <h3 class="text-2xl font-bold my-3">Do No Harm</h3>
+                        <p class="text-slate-600">Aggressive scans can crash fragile systems. Always notify system owners, scan during maintenance windows, and start with less intensive scans on critical infrastructure.</p>
+                    </div>
+                     <div class="bg-white p-8 rounded-lg shadow text-center border-t-4 border-blue-500">
+                         <span class="text-5xl">🔒</span>
+                        <h3 class="text-2xl font-bold my-3">Data Confidentiality</h3>
+                        <p class="text-slate-600">A vulnerability report is a roadmap of a network's weaknesses. Secure the GVM server and strictly control access to reports on a need-to-know basis.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Future Section -->
+            <section id="future" class="section-content hidden">
+                 <h2 class="text-3xl font-bold mb-4 text-slate-900">Conclusion & Future Outlook (by late 2025)</h2>
+                <p class="text-slate-600 mb-8">Vulnerability management is constantly evolving. Here are the key trends shaping the future of GVM and the industry.</p>
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-lg shadow flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-teal-100 text-teal-700 rounded-lg flex items-center justify-center text-2xl">🤖</div>
+                        <div>
+                            <h3 class="text-xl font-semibold">AI-Powered Prioritization</h3>
+                            <p class="text-slate-600 mt-1">The future is about finding the vulnerabilities that matter most. Expect more AI/ML integration to prioritize threats based on real-world exploitability and asset criticality. This is Risk-Based Vulnerability Management.</p>
+                        </div>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-teal-100 text-teal-700 rounded-lg flex items-center justify-center text-2xl">☁️</div>
+                        <div>
+                            <h3 class="text-xl font-semibold">Cloud & Container Security</h3>
+                            <p class="text-slate-600 mt-1">As infrastructure moves to AWS, Azure, and Kubernetes, GVM will continue to enhance its capabilities to scan these dynamic, ephemeral environments where assets are constantly changing.</p>
+                        </div>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-teal-100 text-teal-700 rounded-lg flex items-center justify-center text-2xl">⚡️</div>
+                        <div>
+                            <h3 class="text-xl font-semibold">Automation and SOAR Integration</h3>
+                            <p class="text-slate-600 mt-1">GVM is becoming a key piece in a larger automated security puzzle (SOAR). The future workflow: detect a flaw -> create a ticket -> deploy a patch -> re-scan to verify. All with minimal human intervention.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.section-content');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileNav = document.getElementById('mobile-nav');
+
+            function showSection(hash) {
+                const targetHash = hash || '#introduction';
+                
+                sections.forEach(section => {
+                    if ('#' + section.id === targetHash) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === targetHash) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+                
+                if (mobileNav.value !== targetHash) {
+                    mobileNav.value = targetHash;
+                }
+            }
+
+            function setupNav(navElement) {
+                 navElement.addEventListener('click', (e) => {
+                    if(e.target.tagName === 'A') {
+                        e.preventDefault();
+                        const targetHash = e.target.getAttribute('href');
+                        showSection(targetHash);
+                        try {
+                            window.location.hash = targetHash;
+                        } catch (err) {
+                            console.warn('Could not set window hash.', err);
+                        }
+                    }
+                });
+            }
+
+            setupNav(document.getElementById('desktop-nav'));
+
+            mobileNav.addEventListener('change', (e) => {
+                showSection(e.target.value);
+                try {
+                    window.location.hash = e.target.value;
+                } catch (err) {
+                    console.warn('Could not set window hash.', err);
+                }
+            });
+
+            const architectureDiagram = document.getElementById('architecture-diagram');
+            const infoPanels = document.querySelectorAll('#architecture-info .info-panel');
+            const diagramItems = document.querySelectorAll('.interactive-diagram-item');
+
+            architectureDiagram.addEventListener('click', (e) => {
+                const targetItem = e.target.closest('.interactive-diagram-item');
+                if (!targetItem) return;
+                
+                const targetId = targetItem.dataset.target;
+
+                diagramItems.forEach(item => item.classList.remove('active'));
+                targetItem.classList.add('active');
+
+                infoPanels.forEach(panel => {
+                    if (panel.id === targetId) {
+                        panel.classList.remove('hidden');
+                    } else {
+                        panel.classList.add('hidden');
+                    }
+                });
+            });
+            
+            const workflowSteps = document.getElementById('workflow-steps');
+            const workflowPanels = document.querySelectorAll('#workflow-info .workflow-panel');
+            
+            workflowSteps.addEventListener('click', (e) => {
+                const targetStep = e.target.closest('.workflow-step');
+                if (!targetStep) return;
+
+                const targetId = targetStep.dataset.target;
+
+                document.querySelectorAll('.workflow-step').forEach(step => step.classList.remove('active'));
+                targetStep.classList.add('active');
+                
+                workflowPanels.forEach(panel => {
+                     if (panel.id === targetId) {
+                        panel.classList.remove('hidden');
+                    } else {
+                        panel.classList.add('hidden');
+                    }
+                });
+            });
+
+
+            showSection(window.location.hash);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
