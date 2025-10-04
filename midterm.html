@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Cybersecurity Study Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Cool Slate -->
+    <!-- Application Structure Plan: The application is structured as a tabbed, single-page application (SPA) to provide a non-linear, user-friendly study experience. This dashboard-style layout allows users to easily switch between a high-level overview, detailed course notes, practical case studies, and an interactive Q&A section. This design was chosen over a simple long-scroll page to prevent information overload and empower users to focus on the specific areas they need to review, facilitating a more efficient and targeted learning process. The key interactions include tab-based navigation, expandable accordions for notes, and filterable, flippable flashcards for active recall. -->
+    <!-- Visualization & Content Choices: 
+        - Dashboard Overview: Report Info (Q&A question distribution) -> Goal (Provide an engaging entry point) -> Viz (Chart.js Doughnut Chart) -> Interaction (Hover to see details) -> Justification (Visually breaks down the review content's focus) -> Library (Chart.js/Canvas).
+        - Core Concepts Review: Report Info (Detailed chapter notes) -> Goal (Present dense text in a digestible format) -> Presentation (HTML/CSS Accordion) -> Interaction (Click to expand/collapse sections) -> Justification (Prevents a "wall of text" and allows users to focus on one chapter at a time) -> Library/Method (Vanilla JS + Tailwind CSS).
+        - Case Studies: Report Info (10 scenario-based problems) -> Goal (Allow focused study of practical applications) -> Presentation (Expandable list) -> Interaction (Click to reveal case details) -> Justification (Keeps the interface clean while making all cases easily accessible) -> Library/Method (Vanilla JS + Tailwind CSS).
+        - Q&A Flashcards: Report Info (100 questions and answers) -> Goal (Facilitate active learning and self-testing) -> Presentation (Interactive card grid) -> Interaction (Click to "flip" card, filter by chapter) -> Justification (Transforms a static list into a powerful, engaging study tool that reinforces learning) -> Library/Method (Vanilla JS + Tailwind CSS).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            border-color: #0d9488;
+            color: #0d9488;
+            font-weight: 600;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .flashcard {
+            background-color: transparent;
+            perspective: 1000px;
+            min-height: 200px;
+        }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border-radius: 0.5rem;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            background-color: white;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background-color: #f0fdfa;
+        }
+        .case-study-content {
+            display: none;
+        }
+        code {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        blockquote {
+            border-left: 4px solid #9ca3af;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="min-h-screen bg-gray-100 text-gray-800">
+        <header class="bg-white shadow-md sticky top-0 z-10">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <h1 class="text-2xl font-bold text-teal-700">Cybersecurity Midterm Review</h1>
+                </div>
+                <nav class="border-b border-gray-200">
+                    <ul class="flex -mb-px" id="tabs">
+                        <li><a href="#" class="tab-button active inline-block p-4 border-b-2 border-transparent rounded-t-lg" data-tab="dashboard">Dashboard</a></li>
+                        <li><a href="#" class="tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg" data-tab="review">Course Review</a></li>
+                        <li><a href="#" class="tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg" data-tab="case-studies">Case Studies</a></li>
+                        <li><a href="#" class="tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg" data-tab="qa">Q&A Flashcards</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+            <div id="dashboard" class="tab-content active">
+                <h2 class="text-3xl font-bold mb-6 text-gray-700">Welcome to Your Study Hub</h2>
+                <p class="mb-8 text-lg text-gray-600">This interactive guide is designed to help you master the key concepts for your midterm exam. Use the tabs above to navigate between the course review, case studies, and interactive flashcards. Good luck!</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-4 text-teal-700">Q&A Topic Distribution</h3>
+                        <p class="text-gray-600 mb-4">The 100 review questions are spread across five core chapters. This chart shows the breakdown, helping you see which topics are most emphasized in the review material.</p>
+                        <div class="chart-container relative h-80 w-full max-w-md mx-auto">
+                            <canvas id="qaChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow flex flex-col justify-center">
+                        <h3 class="text-xl font-semibold mb-4 text-teal-700">How to Use This Guide</h3>
+                        <ul class="space-y-4 text-gray-600">
+                            <li class="flex items-start">
+                                <span class="text-teal-500 font-bold mr-3">1.</span>
+                                <div><strong class="font-semibold text-gray-700">Course Review:</strong> Get a detailed refresher on all chapters. Click on a chapter title to expand its content.</div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-teal-500 font-bold mr-3">2.</span>
+                                <div><strong class="font-semibold text-gray-700">Case Studies:</strong> Apply your knowledge. Read through real-world scenarios and think about the best course of action.</div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-teal-500 font-bold mr-3">3.</span>
+                                <div><strong class="font-semibold text-gray-700">Q&A Flashcards:</strong> Test yourself! Filter questions by chapter, then click on a card to flip it and reveal the answer. This is great for active recall.</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="review" class="tab-content">
+                <h2 class="text-3xl font-bold mb-6 text-gray-700">Part 1: Comprehensive Course Review</h2>
+                <div class="space-y-4" id="accordion-container"></div>
+            </div>
+
+            <div id="case-studies" class="tab-content">
+                <h2 class="text-3xl font-bold mb-6 text-gray-700">Part 2: Case Studies</h2>
+                <div class="space-y-4" id="case-studies-container"></div>
+            </div>
+
+            <div id="qa" class="tab-content">
+                <h2 class="text-3xl font-bold mb-6 text-gray-700">Part 3: Final Review Q&A</h2>
+                <div class="mb-6 flex flex-wrap gap-2" id="qa-filters">
+                    <button class="filter-btn bg-teal-600 text-white py-2 px-4 rounded-lg shadow hover:bg-teal-700 transition" data-filter="all">Show All</button>
+                </div>
+                <div class="flashcard-grid" id="qa-container"></div>
+            </div>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const reviewContent = {
+        "Chapter 1: Threats, Actors, and Risk Management": `
+            <h4 class="font-semibold text-lg mb-2">1.1. Understanding Threats and Threat Actors</h4>
+            <ul class="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Internal Threats:</strong> Originate from within an organization.
+                    <ul class="list-circle pl-5">
+                        <li><strong>Malicious Insiders:</strong> Intentionally cause harm. <em>Example: A fired admin plants a logic bomb.</em></li>
+                        <li><strong>Negligent Insiders:</strong> Unintentionally cause breaches. <em>Example: Using a weak password like "Password123".</em></li>
+                        <li><strong>Compromised Insiders:</strong> Accounts taken over by an external attacker. <em>Example: Stolen credentials used to send internal phishing emails.</em></li>
+                    </ul>
+                </li>
+                <li><strong>External Threats:</strong> Originate from outside the organization. Includes Malware, Phishing, DDoS Attacks, and Advanced Persistent Threats (APTs).</li>
+                <li><strong>Threat Actor Profiling:</strong> Analyzing characteristics, motivations, and Tactics, Techniques, and Procedures {TTPs} of threat actors.</li>
+            </ul>
+            <h4 class="font-semibold text-lg mb-2">1.2. Risk Management Principles</h4>
+            <ul class="list-disc pl-5 space-y-2">
+                <li><strong>Risk Factors:</strong> Technical, Operational, Human, and Environmental conditions that could lead to negative impact.</li>
+                <li><strong>Risk Assessment:</strong> Identifying, analyzing, and evaluating risk by assessing Probability and Severity/Impact.</li>
+                <li><strong>Risk Scoring:</strong> Assigning a value to risk. Common methods include the Qualitative Risk Matrix and the Common Vulnerability Scoring System {CVSS}. More info at <a href="https://www.first.org/cvss/" target="_blank" class="text-teal-600 hover:underline">FIRST.org</a>.</li>
+            </ul>
+        `,
+        "Chapter 2: Information Gathering and Analysis (OSINT)": `
+            <ul class="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Open Source Intelligence {OSINT}:</strong> The practice of collecting and analyzing publicly and legally available information.</li>
+                <li><strong>Key Principles:</strong> Legality, Accuracy, Objectivity, and Timeliness.</li>
+                <li><strong>Common OSINT Tools and CLI Commands:</strong>
+                    <ul class="list-circle pl-5 mt-2">
+                        <li><strong>Recon-ng:</strong> A modular framework. Key commands: <code>workspaces create &lt;name&gt;</code>, <code>marketplace install &lt;module&gt;</code>, <code>modules load &lt;module&gt;</code>, <code>run</code>.</li>
+                        <li><strong>SpiderFoot:</strong> Automated footprinting. Start with <code>spiderfoot -l 127.0.0.1:5001</code>.</li>
+                        <li><strong>theHarvester:</strong> Gathers emails, subdomains, etc. Use <code>theharvester -d &lt;domain&gt; -b &lt;source&gt;</code>.</li>
+                    </ul>
+                </li>
+                 <li><strong>Threat-Dragon:</strong> An <a href="https://owasp.org/" target="_blank" class="text-teal-600 hover:underline">OWASP</a> tool for threat modeling using frameworks like STRIDE.</li>
+            </ul>
+        `,
+        "Chapter 3: Access Control and Identity Management": `
+            <ul class="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Role-Based Access Control {RBAC}:</strong> Restricting access based on user roles. Enforces the <strong>Principle of Least Privilege</strong>.</li>
+                <li><strong>FreeIPA (Identity, Policy, and Audit):</strong> An open-source identity management system for Linux/Unix.
+                    <ul class="list-circle pl-5 mt-2">
+                        <li><strong>Core Components:</strong> Centralized Authentication (Kerberos), Authorization, DNS, Certificate Authority.</li>
+                        <li><strong>Technical CLI Commands:</strong> <code>ipa user-add</code>, <code>ipa group-add</code>, <code>ipa group-add-member</code>, <code>ipa hbacrule-add</code>, <code>ipa sudorule-add</code>.</li>
+                    </ul>
+                </li>
+            </ul>
+            <h4 class="font-semibold text-lg mb-2">Technical Question Example:</h4>
+            <blockquote>Using FreeIPA, how would you create a rule to allow users in the <code>sysadmins</code> group to log in to all hosts in the <code>production-servers</code> hostgroup?
+            <br><strong>Answer:</strong><br>
+            1. <code>ipa hbacrule-add allow_sysadmin_to_prod</code><br>
+            2. <code>ipa hbacrule-add-user --groups=sysadmins allow_sysadmin_to_prod</code><br>
+            3. <code>ipa hbacrule-add-host --hostgroups=production-servers allow_sysadmin_to_prod</code><br>
+            4. <code>ipa hbacrule-add-service --hbacsvcs=sshd allow_sysadmin_to_prod</code>
+            </blockquote>
+        `,
+        "Chapter 4: Asset Management and System Monitoring": `
+             <ul class="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>Information Assets:</strong> Resources of value (Hardware, Software, Data, Service Assets).</li>
+                <li><strong>GLPI:</strong> Open-source IT Asset Management {ITAM} and help desk system for tracking asset lifecycles.</li>
+                <li><strong>OSSEC:</strong> A host-based intrusion detection system {HIDS} for log analysis, file integrity checking, and rootkit detection.
+                    <ul class="list-circle pl-5 mt-2">
+                        <li><strong>Architecture:</strong> A central manager receives data from agents on monitored systems.</li>
+                        <li><strong>CLI Commands (Server):</strong> <code>/var/ossec/bin/ossec-control restart</code>, <code>/var/ossec/bin/manage_agents</code>, <code>tail -f /var/ossec/logs/alerts/alerts.log</code>.</li>
+                    </ul>
+                </li>
+            </ul>
+        `,
+        "Chapter 5: Vulnerability Scanning and AI Tools": `
+            <ul class="list-disc pl-5 space-y-2 mb-4">
+                <li><strong>OpenVAS:</strong> A full-featured vulnerability scanner, part of the Greenbone Vulnerability Management {GVM} framework.</li>
+                <li><strong>ShellGPT:</strong> An AI-powered CLI tool to generate shell commands from natural language.
+                    <ul class="list-circle pl-5 mt-2">
+                        <li><strong>CLI Commands:</strong> <code>sgpt --shell "&lt;request&gt;"</code>, <code>sgpt --chat &lt;session_name&gt;</code>.</li>
+                    </ul>
+                </li>
+            </ul>
+             <h4 class="font-semibold text-lg mb-2">Technical Question Example:</h4>
+             <blockquote>You need to find all files modified in the last 24 hours in your current directory and compress them into a tarball, but you can't remember the exact <code>find</code> command syntax. How could ShellGPT help?
+             <br><strong>Answer:</strong> You would use the command: <code>sgpt --shell "find all files in the current directory modified in the last day and create a tar archive from them"</code></blockquote>
+        `
+    };
+
+    const caseStudies = [
+        { title: "The Phishing Attack", content: "A small financial services company discovers that an employee in the accounting department clicked on a phishing email. The employee's machine is now acting suspiciously. What are the immediate steps the IT security team should take? Which tools and principles from the course would be most relevant in the investigation that follows?" },
+        { title: "The New E-Commerce Platform", content: "A startup is about to launch a new e-commerce website. Before going live, they need to conduct a thorough security assessment. Using the STRIDE model, identify potential threats for a system involving a user, a web server, and a database. Which tool would you use to diagram this model?" },
+        { title: "The Disgruntled Developer", content: "A software developer was recently let go from a tech company on bad terms. The security team is concerned he might try to retaliate. What type of threat does this individual represent? What proactive monitoring measures, using a tool like OSSEC, should be implemented on the company's code repositories and production servers?" },
+        { title: "Cloud Migration and Access Control", content: "A company is migrating its internal file server to a cloud storage solution. They need to replicate their existing department-based access permissions. How would you design an RBAC structure in a system like FreeIPA to manage access for 'Marketing,' 'Sales,' and 'Engineering' teams to their respective cloud folders?" },
+        { title: "Uncovering a Competitor's Footprint", content: "A marketing team wants to understand the online presence of a new competitor. They need to identify associated domains, IP addresses, and publicly available employee information for market analysis. Which OSINT tools would be most effective for this passive reconnaissance, and what is a key ethical consideration?" },
+        { title: "Managing Software Licenses", content: "A growing company with 200 employees is struggling to track its software licenses for various applications, leading to overspending and non-compliance. Which type of system should they implement, and how would it help them manage their software assets effectively throughout their lifecycle?" },
+        { title: "Vulnerability Prioritization", content: "An automated scan with OpenVAS on a public-facing web server reveals 5 critical, 20 high, and 50 medium-severity vulnerabilities. With a small security team, it's impossible to fix everything at once. What methodology or scoring system should they use to prioritize their remediation efforts, and why?" },
+        { title: "The Mysterious Data Spike", content: "Network monitoring tools show an unusual spike in outbound data traffic from a database server every night at 2 AM. There is no scheduled job at this time. What kind of threat could this indicate? How would you use OSSEC's log analysis and file integrity checking features to investigate?" },
+        { title: "Securing IoT Devices", content: "A manufacturing company is deploying thousands of new IoT sensors on its factory floor. These devices have limited processing power but are connected to the corporate network. What are the primary risks associated with these devices, and how can principles like network segmentation and asset management with GLPI help mitigate them?" },
+        { title: "The Ransomware Outbreak", content: "A hospital's network has been hit by a ransomware attack, encrypting patient records and critical systems. The attackers are demanding a large payment. This is an external threat, but what internal vulnerabilities (e.g., human, operational) likely contributed to the success of this attack?" },
+    ];
+
+    const qaPairs = [
+        { chapter: 1, q: "What is the primary difference between a malicious insider and a negligent insider?", a: "A malicious insider intends to cause harm, while a negligent insider causes harm unintentionally through carelessness or lack of awareness." },
+        { chapter: 1, q: "What does the 'P' in APT stand for, and what does it imply about the nature of the attack?", a: "Persistent. It implies the attack is a long-term campaign, where the attacker aims to maintain access to the target's network undetected for an extended period." },
+        { chapter: 1, q: "A company's website is flooded with traffic, making it inaccessible. What type of attack is this?", a: "A Denial-of-Service (DoS) or Distributed Denial-of-Service (DDoS) attack." },
+        { chapter: 1, q: "What are the two primary components used to calculate a basic risk score?", a: "Probability (or Likelihood) and Impact (or Severity)." },
+        { chapter: 1, q: "Why is 'Asset Inventory and Valuation' a critical first step in risk management?", a: "Because you cannot protect what you don't know you have. Identifying and valuing assets helps prioritize security efforts on what is most important to the organization." },
+        { chapter: 1, q: "What is the main purpose of the CVSS framework?", a: "To provide a standardized, open framework for communicating the characteristics and severity of software vulnerabilities." },
+        { chapter: 1, q: "An attacker uses a fake login page that looks like a real banking site to steal credentials. What is this technique called?", a: "Phishing." },
+        { chapter: 1, q: "Give an example of a 'Human Risk Factor'.", a: "An employee clicking on a malicious link, a disgruntled employee deleting files, or an administrator making a configuration error due to lack of training." },
+        { chapter: 1, q: "What is the motivation behind 'Hacktivism'?", a: "To promote a political or social cause." },
+        { chapter: 1, q: "What is the primary goal of threat actor profiling?", a: "To understand the characteristics, motivations, capabilities, and behaviors of adversaries to improve proactive defense and incident response." },
+        { chapter: 1, q: "According to a standard risk matrix, what is the risk level of an event with a 'High' probability and 'Low' impact?", a: "Medium." },
+        { chapter: 1, q: "A company suffers a data breach and its stock price drops. This is an example of what kind of impact?", a: "Reputational and Financial impact." },
+        { chapter: 1, q: "What is a 'Supply Chain Attack'?", a: "An attack that targets vulnerabilities in an organization's supply chain (e.g., vendors, suppliers) to gain access to the organization's network." },
+        { chapter: 1, q: "How does a 'logic bomb' work?", a: "It is a piece of malicious code intentionally inserted into a software system that will set off a malicious function when specified conditions are met." },
+        { chapter: 1, q: "What is the difference between a virus and a worm?", a: "A virus requires a host program to spread, whereas a worm is a standalone program that can replicate and spread independently over a network." },
+        { chapter: 2, q: "What does OSINT stand for?", a: "Open Source Intelligence." },
+        { chapter: 2, q: "What is the purpose of the `recon-ng` command `workspaces create my_project`?", a: "To create a new, isolated database environment named `my_project` to store the findings for a specific investigation." },
+        { chapter: 2, q: "Which OSINT tool is best suited for automated, broad-spectrum footprinting of a target?", a: "SpiderFoot." },
+        { chapter: 2, q: "What is the primary purpose of the STRIDE model in threat modeling?", a: "To provide a framework for identifying and categorizing different types of security threats (Spoofing, Tampering, Repudiation, etc.)." },
+        { chapter: 2, q: "In the context of OSINT, what is 'Attribution'?", a: "The process of identifying the source or origin of an activity or event, such as a cyberattack." },
+        { chapter: 2, q: "What is a key ethical consideration when performing OSINT?", a: "Ensuring that all data collection is legal, respects privacy regulations (like GDPR), and avoids any actions that could be considered intrusive or harassing." },
+        { chapter: 2, q: "In Recon-ng, what command would you use to see available modules for domain enumeration?", a: "`modules search domains-`" },
+        { chapter: 2, q: "A DFD shows `(User) -> [Web Server] -> (Database)`. What does this represent?", a: "A simple Data Flow Diagram (DFD) showing how data moves from a user, through a web server, to a database." },
+        { chapter: 2, q: "What is 'Social Media Intelligence (SOCMINT)'?", a: "A subset of OSINT focused on gathering information from social media platforms." },
+        { chapter: 2, q: "What is the purpose of using advanced search operators like `site:gov` in a search engine?", a: "To limit the search results to a specific domain, in this case, only websites ending in `.gov`." },
+        { chapter: 2, q: "In Recon-ng, after loading a module, what command do you use to see its required options?", a: "`info` or `options list`." },
+        { chapter: 2, q: "Which tool is specifically designed for gathering email addresses and subdomains related to a domain?", a: "theHarvester." },
+        { chapter: 2, q: "What does a 'passive' scan in SpiderFoot mean?", a: "It means the tool will gather information without directly interacting with the target's servers, relying on third-party sources to avoid detection." },
+        { chapter: 2, q: "Why is data correlation a crucial step in OSINT analysis?", a: "It helps to identify relationships and patterns between different pieces of information, turning raw data into actionable intelligence." },
+        { chapter: 2, q: "In Threat-Dragon, what does a 'trust boundary' (dotted line) signify in a diagram?", a: "It represents a point where data crosses from a trusted to an untrusted environment (or vice-versa), which is often a point of high risk." },
+        { chapter: 3, q: "What is the core principle of RBAC?", a: "Access permissions are assigned to roles, not directly to individual users." },
+        { chapter: 3, q: "What is the 'Principle of Least Privilege'?", a: "Users should be granted only the minimum permissions necessary to perform their job duties." },
+        { chapter: 3, q: "In a Linux file system, what permission does the number '7' represent in `chmod 755`?", a: "Read (4) + Write (2) + Execute (1) = 7. It represents full permissions." },
+        { chapter: 3, q: "What service does FreeIPA use for centralized authentication?", a: "Kerberos." },
+        { chapter: 3, q: "What is the FreeIPA CLI command to add a new user named 'jdoe'?", a: "`ipa user-add jdoe --first=John --last=Doe`" },
+        { chapter: 3, q: "What is the purpose of an 'Access Control List (ACL)'?", a: "To provide a more granular way to define permissions for specific users or groups on a resource, beyond standard owner/group/other permissions." },
+        { chapter: 3, q: "In FreeIPA, what does an 'HBAC rule' control?", a: "Host-Based Access Control. It controls which users can access which hosts and what services they can use." },
+        { chapter: 3, q: "If Bob is assigned the 'Server Admin' role which has the 'Manage Servers' privilege, what happens?", a: "Bob will inherit the 'Manage Servers' privilege." },
+        { chapter: 3, q: "Why is centralized permission management (like FreeIPA) superior to managing permissions on each individual machine?", a: "It simplifies administration, ensures consistency, improves security, and reduces the risk of configuration errors." },
+        { chapter: 3, q: "What is the purpose of `sudo` rules in FreeIPA?", a: "To centrally manage which users or groups can execute specific commands with elevated (root) privileges on managed systems." },
+        { chapter: 3, q: "What are the three basic types of access control models?", a: "Discretionary Access Control (DAC), Mandatory Access Control (MAC), and Role-Based Access Control (RBAC)." },
+        { chapter: 3, q: "What does the `ipa group-add-member` command do?", a: "It adds one or more users to a specified group in FreeIPA." },
+        { chapter: 3, q: "In Windows file permissions, what does 'Full Control' allow a user to do that 'Modify' does not?", a: "'Full Control' allows the user to change permissions and take ownership of the file or folder." },
+        { chapter: 3, q: "What is Single Sign-On (SSO)?", a: "A system that allows a user to log in once with a single ID and password to gain access to multiple applications and systems." },
+        { chapter: 3, q: "What is the FreeIPA equivalent of a 'Domain Controller' in Microsoft Active Directory?", a: "An IPA Server." },
+        { chapter: 4, q: "What is an 'Information Asset'?", a: "Anything of value to an organization, including hardware, software, data, and services." },
+        { chapter: 4, q: "What is the primary function of GLPI?", a: "To provide IT Asset Management (ITAM) and help desk services, allowing organizations to track their IT inventory and manage support tickets." },
+        { chapter: 4, q: "What does HIDS stand for in OSSEC?", a: "Host-based Intrusion Detection System." },
+        { chapter: 4, q: "What is the purpose of the OSSEC agent?", a: "It is installed on a client machine to monitor its activity (logs, file changes) and report back to the central OSSEC manager." },
+        { chapter: 4, q: "What does the OSSEC component `syscheck` do?", a: "It performs file integrity checking by monitoring files for changes, additions, or deletions." },
+        { chapter: 4, q: "On an OSSEC server, which log file would you monitor to see real-time alerts?", a: "`/var/ossec/logs/alerts/alerts.log`" },
+        { chapter: 4, q: "What is the OSSEC CLI command to list all agents and their status?", a: "`/var/ossec/bin/agent_control -l`" },
+        { chapter: 4, q: "How does GLPI help with software license management?", a: "It allows an organization to track the number of licenses owned, which users or machines they are assigned to, and their expiration dates, helping to ensure compliance and avoid overspending." },
+        { chapter: 4, q: "What does the `Agent -> Manager -> Alert` diagram illustrate?", a: "The basic architecture of OSSEC, where an agent on a client machine sends log and event data to a central manager, which then analyzes the data and generates alerts." },
+        { chapter: 4, q: "Give an example of a 'Service Asset'.", a: "A subscription to a cloud service like Microsoft 365 (SaaS), internet access from an ISP, or a maintenance contract with a hardware vendor." },
+        { chapter: 4, q: "What is the role of `logcollector` in OSSEC?", a: "It is the process on the agent that reads system and application logs and forwards them to the manager for analysis." },
+        { chapter: 4, q: "In GLPI, what does the asset 'lifecycle' refer to?", a: "The entire process from an asset's acquisition or purchase to its final disposal or retirement." },
+        { chapter: 4, q: "What kind of alert might OSSEC's file integrity checking generate?", a: "An alert that a critical system file, like `/etc/passwd`, has been modified." },
+        { chapter: 4, q: "Besides tracking assets, what is another major feature of GLPI?", a: "A help desk ticketing system for managing user support requests." },
+        { chapter: 4, q: "Why is monitoring `auth.log` on a Linux server important for security?", a: "It contains authentication and authorization logs, including successful and failed login attempts, which can indicate brute-force attacks or unauthorized access." },
+        { chapter: 5, q: "What is the primary purpose of OpenVAS?", a: "To scan networks and servers for known vulnerabilities." },
+        { chapter: 5, q: "What is a 'vulnerability'?", a: "A weakness in a system, application, or process that could be exploited by a threat." },
+        { chapter: 5, q: "What is the main benefit of using ShellGPT?", a: "It allows users to generate complex shell commands using natural language, improving productivity and reducing the need to memorize syntax." },
+        { chapter: 5, q: "In OpenVAS, what is a 'Target'?", a: "The IP address, hostname, or range of IPs that you want to scan for vulnerabilities." },
+        { chapter: 5, q: "What command would you use to ask ShellGPT to produce a command for recursively finding all files named `config.xml`?", a: "`sgpt --shell \"recursively find all files named config.xml\"`" },
+        { chapter: 5, q: "What is the difference between a vulnerability scan and a penetration test?", a: "A vulnerability scan is an automated process that identifies potential weaknesses. A penetration test is a more in-depth, often manual, process where a security professional actively tries to exploit those weaknesses." },
+        { chapter: 5, q: "What is a 'false positive' in the context of a vulnerability scan?", a: "When the scanner reports a vulnerability that does not actually exist." },
+        { chapter: 5, q: "In the context of ShellGPT, what is `Ollama`?", a: "An open-source framework that allows you to run large language models locally, which can be used as a backend for ShellGPT instead of relying on paid services like OpenAI." },
+        { chapter: 5, q: "Why is it important to keep the vulnerability database (like the one used by OpenVAS) up to date?", a: "To ensure the scanner can detect the latest discovered vulnerabilities. New vulnerabilities are found daily." },
+        { chapter: 5, q: "What command would you use to initiate a chat session named `sysadmin_tasks` with ShellGPT?", a: "`sgpt --chat sysadmin_tasks`" },
+        { chapter: "Mixed", q: "(Ch 3 & 4) How can OSSEC and FreeIPA be used together to enhance security?", a: "FreeIPA can manage centralized authentication and access control (who can log in where). OSSEC can monitor the logs generated by these systems (e.g., SSH logs) to detect suspicious activity, such as brute-force login attempts against accounts managed by FreeIPA." },
+        { chapter: "Mixed", q: "(Ch 2 & 5) You run an OpenVAS scan and find a critical vulnerability in a public web server's Apache version. What OSINT technique could an attacker use to find servers like yours?", a: "An attacker could use a search engine for internet-connected devices like Shodan to search for servers running that specific vulnerable version of Apache." },
+        { chapter: "Mixed", q: "(Ch 1 & 3) How does implementing the 'Principle of Least Privilege' help mitigate the risk of both malicious and negligent internal threats?", a: "It limits the amount of damage an insider can cause. A malicious insider with limited access can only compromise a small part of the system, and a negligent insider's mistake will have a smaller blast radius." },
+        { chapter: "Mixed", q: "(Ch 2 & 4) You are using GLPI to manage your hardware assets. You discover several unauthorized devices on your network. Which OSINT tool could help you gather more information about these unknown devices based on their IP addresses?", a: "Tools like SpiderFoot or Recon-ng could be used to investigate the IP addresses to find associated hostnames, open ports, or other identifying information." },
+        { chapter: "Mixed", q: "(Ch 1 & 5) A vulnerability scan shows a medium-risk SQL Injection flaw. What type of threat actor motivation is most likely to exploit this?", a: "Financial Gain, as SQL Injection is commonly used to steal sensitive data like credit card numbers or customer information from databases." },
+        { chapter: "Mixed", q: "What is the command to extract an OSSEC agent key for agent ID `001` on the server?", a: "On the OSSEC server, run `/var/ossec/bin/manage_agents` and choose the '(E)xtract' option, then provide the agent ID `001`." },
+        { chapter: "Mixed", q: "You need to create a `sudo` rule in FreeIPA allowing the `devops` group to restart the `httpd` service. What would the command look like?", a: "`ipa sudorule-add restart_httpd --cmd=\"/bin/systemctl restart httpd\"` followed by `ipa sudorule-add-user --groups=devops restart_httpd`." },
+        { chapter: "Mixed", q: "What does this command do: `nikto -h https://example.com`?", a: "It runs the Nikto web server scanner against `https://example.com` to check for common vulnerabilities, misconfigurations, and outdated software." },
+        { chapter: "Mixed", q: "What is the purpose of the `ossec-analysisd` process?", a: "It is the analysis daemon on the OSSEC manager that processes the logs and events received from agents, correlates them with rules, and generates alerts." },
+        { chapter: "Mixed", q: "In Recon-ng, what is the significance of the `SOURCE` option in many modules?", a: "It specifies the input for the module, which can be a single value (like a domain), a path to a file, or a query to the workspace database." },
+        { chapter: "Mixed", q: "If an attacker on System A attempts a brute-force SSH attack against System B, and both have OSSEC agents, which component generates the final alert?", a: "The OSSEC Manager, after receiving logs of the failed login attempts from the OSSEC Agent on System B." },
+        { chapter: "Mixed", q: "What is a primary benefit of using a tool like Threat-Dragon early in the software development lifecycle?", a: "It helps developers think about security proactively ('shifting left'), allowing them to identify and mitigate potential threats in the design phase before code is even written." },
+        { chapter: "Mixed", q: "What is the difference between `spiderfoot` and `recon-ng` in terms of user interaction?", a: "`spiderfoot` is highly automated and typically run via a web interface, whereas `recon-ng` is a command-line framework that provides more granular, manual control through its modular system." },
+        { chapter: "Mixed", q: "How would you use ShellGPT to show the current CPU and memory usage of your system in a human-readable format?", a: "`sgpt --shell \"show cpu and memory usage\"` which might suggest commands like `top`, `htop`, or `free -h`." },
+        { chapter: "Mixed", q: "In GLPI, why is it important to track an asset's 'status' (e.g., in production, in storage, retired)?", a: "It provides an accurate inventory, helps in planning for replacements, and ensures that retired assets are properly disposed of to prevent data leakage." },
+        { chapter: "Mixed", q: "What is the default port for the OSSEC manager to listen for agent communication?", a: "UDP port 1514." },
+        { chapter: "Mixed", q: "In FreeIPA, if you delete a user, are their permissions automatically revoked?", a: "Yes. Since permissions are tied to the user identity (often through role and group memberships), deleting the user removes their ability to authenticate and thus revokes all associated access." },
+        { chapter: "Mixed", q: "What information is contained in the `/var/ossec/etc/ossec.conf` file?", a: "The main configuration for OSSEC, including which logs to monitor, rule definitions, email alert settings, and agent connection details." },
+        { chapter: "Mixed", q: "You are using `recon-ng` and want to find subdomains of `example.com` using the HackerTarget API. What is the module you would likely use?", a: "`recon/domains-hosts/hackertarget`." },
+        { chapter: "Mixed", q: "After running an OpenVAS scan, the report shows a vulnerability is 'Log' severity. How should you treat this?", a: "It is a low-priority issue. It should be documented but addressed only after all critical, high, and medium severity vulnerabilities have been remediated." },
+        { chapter: "Mixed", q: "Why is it recommended to integrate OSSEC with a SIEM like the ELK Stack?", a: "To provide powerful visualization, searching, and dashboarding capabilities for the alerts generated by OSSEC, making it easier to analyze security events and identify trends." },
+        { chapter: "Mixed", q: "A user is assigned to two roles in an RBAC system. Role A grants read access to `/data`. Role B grants write access to `/data`. What is the user's effective permission?", a: "The user will have both read and write access, as permissions in most RBAC systems are additive." },
+        { chapter: "Mixed", q: "What is the command to start the SpiderFoot web UI on port 8080?", a: "`spiderfoot -l 127.0.0.1:8080`" },
+        { chapter: "Mixed", q: "How does OSSEC detect a rootkit?", a: "Through its `rootcheck` component, which looks for signatures of known rootkits and scans for system anomalies." },
+        { chapter: "Mixed", q: "What is the key difference between a threat and a vulnerability?", a: "A vulnerability is a weakness. A threat is an actor or event that can exploit that weakness. (e.g., The vulnerability is an unlocked door; the threat is a burglar)." },
+        { chapter: "Mixed", q: "In FreeIPA, what is the purpose of the `admin` user that is created during installation?", a: "It is the initial superuser account with full administrative privileges over the entire FreeIPA domain." },
+        { chapter: "Mixed", q: "You see multiple 'Rule: 5712 - SSHD brute force...' alerts in your OSSEC log. What is happening?", a: "An attacker is repeatedly and rapidly trying different passwords to guess an SSH login, indicating a brute-force attack is in progress." },
+        { chapter: "Mixed", q: "Why is it risky to run OpenVAS with the `--privileged` flag in a Docker container?", a: "It gives the container extensive access to the host system's resources and devices, which can be a security risk if the container itself is compromised." },
+        { chapter: "Mixed", q: "What does the `db insert domains` command do in Recon-ng?", a: "It manually adds a new domain entry into the `domains` table of the current workspace's database." },
+        { chapter: "Mixed", q: "How does 'Information Assets' relate to the CIA Triad {Confidentiality, Integrity, Availability}?", a: "The goal of cybersecurity is to protect information assets by ensuring their Confidentiality (preventing unauthorized disclosure), Integrity (preventing unauthorized modification), and Availability (ensuring they are accessible when needed)." }
+    ];
+
+    const tabs = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', e => {
+            e.preventDefault();
+            const target = tab.getAttribute('data-tab');
+
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === target) {
+                    content.classList.add('active');
+                }
+            });
+        });
+    });
+
+    const accordionContainer = document.getElementById('accordion-container');
+    Object.keys(reviewContent).forEach(title => {
+        const item = document.createElement('div');
+        item.className = 'bg-white rounded-lg shadow';
+        item.innerHTML = `
+            <button class="accordion-header w-full text-left p-4 font-semibold text-lg text-gray-700 hover:bg-gray-50 flex justify-between items-center">
+                <span>${title}</span>
+                <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div class="accordion-content">
+                <div class="p-4 border-t border-gray-200 text-gray-600">${reviewContent[title]}</div>
+            </div>
+        `;
+        accordionContainer.appendChild(item);
+    });
+    
+    accordionContainer.addEventListener('click', function(e) {
+        const header = e.target.closest('.accordion-header');
+        if (header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('svg');
+            
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                document.querySelectorAll('.accordion-header svg').forEach(i => i.classList.remove('rotate-180'));
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.classList.add('rotate-180');
+            }
+        }
+    });
+
+    const caseStudiesContainer = document.getElementById('case-studies-container');
+    caseStudies.forEach(cs => {
+        const item = document.createElement('div');
+        item.className = 'bg-white rounded-lg shadow';
+        item.innerHTML = `
+            <button class="case-study-header w-full text-left p-4 font-semibold text-lg text-gray-700 hover:bg-gray-50 flex justify-between items-center">
+                <span>${cs.title}</span>
+                <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div class="case-study-content">
+                <p class="p-4 border-t border-gray-200 text-gray-600">${cs.content}</p>
+            </div>
+        `;
+        caseStudiesContainer.appendChild(item);
+        item.querySelector('.case-study-header').addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            const icon = this.querySelector('svg');
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+            icon.classList.toggle('rotate-180');
+        });
+    });
+
+    const qaContainer = document.getElementById('qa-container');
+    const qaFilters = document.getElementById('qa-filters');
+    const chapters = [...new Set(qaPairs.map(item => item.chapter))].sort();
+
+    chapters.forEach(chapter => {
+        if(chapter === "Mixed") return;
+        const button = document.createElement('button');
+        button.className = 'filter-btn bg-white text-gray-700 py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition';
+        button.textContent = `Chapter ${chapter}`;
+        button.dataset.filter = chapter;
+        qaFilters.appendChild(button);
+    });
+    const mixedBtn = document.createElement('button');
+    mixedBtn.className = 'filter-btn bg-white text-gray-700 py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition';
+    mixedBtn.textContent = `Mixed Chapters`;
+    mixedBtn.dataset.filter = "Mixed";
+    qaFilters.appendChild(mixedBtn);
+
+
+    function renderFlashcards(filter = 'all') {
+        qaContainer.innerHTML = '';
+        const filteredPairs = filter === 'all' ? qaPairs : qaPairs.filter(p => p.chapter == filter);
+        filteredPairs.forEach(pair => {
+            const card = document.createElement('div');
+            card.className = 'flashcard cursor-pointer';
+            card.innerHTML = `
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <span class="text-xs text-gray-400 absolute top-2 right-2">Chapter ${pair.chapter}</span>
+                        <p class="text-center font-semibold">${pair.q}</p>
+                    </div>
+                    <div class="flashcard-back">
+                         <p class="text-center text-gray-700">${pair.a}</p>
+                    </div>
+                </div>
+            `;
+            card.addEventListener('click', () => {
+                card.classList.toggle('flipped');
+            });
+            qaContainer.appendChild(card);
+        });
+    }
+
+    qaFilters.addEventListener('click', e => {
+        if (e.target.classList.contains('filter-btn')) {
+            const filter = e.target.dataset.filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-teal-600', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            e.target.classList.add('bg-teal-600', 'text-white');
+            e.target.classList.remove('bg-white', 'text-gray-700');
+            renderFlashcards(filter);
+        }
+    });
+
+    const qaCounts = qaPairs.reduce((acc, curr) => {
+        const chapter = `Chapter ${curr.chapter}`;
+        acc[chapter] = (acc[chapter] || 0) + 1;
+        return acc;
+    }, {});
+    
+    const ctx = document.getElementById('qaChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(qaCounts),
+            datasets: [{
+                label: '# of Questions',
+                data: Object.values(qaCounts),
+                backgroundColor: [
+                    'rgba(13, 148, 136, 0.7)',
+                    'rgba(15, 118, 110, 0.7)',
+                    'rgba(17, 94, 89, 0.7)',
+                    'rgba(6, 78, 79, 0.7)',
+                    'rgba(107, 114, 128, 0.7)',
+                    'rgba(55, 65, 81, 0.7)',
+                ],
+                borderColor: [
+                    'rgba(13, 148, 136, 1)',
+                    'rgba(15, 118, 110, 1)',
+                    'rgba(17, 94, 89, 1)',
+                    'rgba(6, 78, 79, 1)',
+                    'rgba(107, 114, 128, 1)',
+                    'rgba(55, 65, 81, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: false,
+                    text: 'Q&A Distribution by Chapter'
+                }
+            }
+        }
+    });
+
+    renderFlashcards();
+});
+</script>
+
+</body>
+</html>
+
+
+
+
