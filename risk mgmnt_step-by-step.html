@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 
+      Content Security Policy (CSP):
+      This is a security feature that helps prevent Cross-Site Scripting (XSS) and other injection attacks.
+      - 'default-src' 'self'': By default, only allow resources from the same origin.
+      - 'script-src' 'self' 'unsafe-inline' https://cdn.tailwindcss.com: Allows scripts from the same origin, inline scripts (for our interactivity), and the Tailwind CSS CDN.
+      - 'style-src' 'self' 'unsafe-inline' https://cdn.tailwindcss.com: Allows styles from the same origin, inline styles, and the Tailwind CSS CDN.
+      - 'img-src' 'self' data:: Allows images from the same origin and data URIs (for our embedded SVG diagrams).
+      This policy is a first line of defense. Since this page does not process any user input, the primary risk of XSS is significantly reduced.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data:; object-src 'none';">
+    <title>Cybersecurity Risk Management Course</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .active-nav {
+            background-color: #3b82f6;
+            color: white;
+        }
+        /* Simple transition for accordions */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="flex">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 min-h-screen bg-gray-800 text-white p-6 fixed top-0 left-0">
+            <h2 class="text-2xl font-bold mb-6">Course Sections</h2>
+            <nav id="sidebar-nav">
+                <ul class="space-y-3">
+                    <li><a href="#part1" class="block py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">Part 1: Intro</a></li>
+                    <li><a href="#part2" class="block py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">Part 2: Frameworks</a></li>
+                    <li><a href="#part3" class="block py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">Part 3: Process in Action</a></li>
+                    <li><a href="#part4" class="block py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">Part 4: Defense & Monitoring</a></li>
+                    <li><a href="#part5" class="block py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">Part 5: Conclusion</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 p-6 md:p-10 flex-1">
+            <header class="bg-white p-8 rounded-2xl shadow-lg mb-10 border border-gray-200">
+                <h1 class="text-4xl font-bold text-blue-600 mb-2">Lecture: Cybersecurity Risk Management</h1>
+                <p class="text-lg text-gray-600"><strong>Course:</strong> College Attestation Program of Cybersecurity - Prevention and Intervention</p>
+                <p class="mt-4 text-gray-700"><strong>Objective:</strong> To provide a foundational understanding of what cybersecurity risk is, how it's managed using structured frameworks, and how to develop effective mitigation strategies for novice college students.</p>
+            </header>
+
+            <!-- Section 1 -->
+            <section id="part1" class="mb-12 scroll-mt-20">
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 pb-4 border-b-2 border-blue-500">Part 1: Introduction to Risk Management (15 Minutes)</h2>
+                    <div class="prose max-w-none">
+                        <h3 class="font-semibold text-xl text-gray-800">Instructor Notes</h3>
+                        <p>Start by defining a Risk Management Framework (RMF). Use the "secure house blueprint" analogy to make it relatable. Explain that frameworks provide a consistent, structured way to manage risks, ensuring no major threats are overlooked. This helps organizations make smart decisions about where to spend money on security and comply with laws.</p>
+                    </div>
+                    <div class="mt-6 space-y-4">
+                        <h3 class="font-semibold text-xl text-gray-800">Guiding Questions</h3>
+                        <!-- Accordion Q1 -->
+                        <div class="accordion-item bg-gray-50 rounded-lg border">
+                            <button class="accordion-header w-full text-left p-4 font-semibold text-blue-700 flex justify-between items-center">
+                                <span>In your own words, what is the main purpose of a risk management framework?</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="p-4 pt-0 text-gray-700">The main purpose is to have a structured plan. It makes sure you don't miss anything important and that everyone in the company is on the same page. Just buying antivirus software ignores other risks, like employees falling for phishing scams or a fire in the server room.</p>
+                            </div>
+                        </div>
+                        <!-- Accordion Q2 -->
+                        <div class="accordion-item bg-gray-50 rounded-lg border">
+                             <button class="accordion-header w-full text-left p-4 font-semibold text-blue-700 flex justify-between items-center">
+                                <span>What problems might a company have if it tries to do cybersecurity without a framework?</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="p-4 pt-0 text-gray-700">They might waste money on the wrong things, different departments might focus on different risks while leaving huge gaps elsewhere, and they might fail to protect their most important data, leading to a major breach.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="part2" class="mb-12 scroll-mt-20">
+                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 pb-4 border-b-2 border-blue-500">Part 2: Exploring Key Frameworks (40 Minutes)</h2>
+                    
+                    <!-- NIST RMF -->
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-semibold mb-3">NIST RMF (National Institute of Standards and Technology)</h3>
+                        <p class="mb-4">A very detailed, step-by-step "recipe" used heavily by the U.S. government. It provides a comprehensive and repeatable process for managing cybersecurity risks.</p>
+                        <!-- NIST Diagram -->
+                        <div class="my-6 p-4 bg-blue-50 rounded-lg flex justify-center items-center">
+                             <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIj48dGl0bGU+TklTVCBSMUYgU3RlcHMgRGlhZ3JhbTwvdGl0bGU+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMjAwIiByPSIxOTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzMxODJjZSIgc3Ryb2tlLXdpZHRoPSIzIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMjAwIiByPSIxNDAiIGZpbGw9IiNlYmY4ZmYiIHN0cm9rZT0iI2JlZTJmMyIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iMjAwIiB5PSIyMDUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzI1ODVjNyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TklTVCBSMUY8L3RleHQ+PCEtLSBTdGVwcyAtLT48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyMDAsIDIwMCkiPjxkZWZzPjxwYXRoIGlkPSJjdXJ2ZWRQYXRoIiBkPSJNIDAsLTE2NSBBIDE2NSwxNjUgMCAxLDEgMC4wMSwtMTY1Ii8+PC9kZWZzPjwhLS0gQ2F0ZWdvcml6ZSAtLT48ZyB0cmFuc2Zvcm09InJvdGF0ZSgwKSI+PHRleHQgeD0iMCIgeT0iLTUwIiB0ZXh0LWFycm93LW5hdmlnYXRpb249ImNlbnRlciIgZmlsbD0iIzI1ODVjNyI+PHRzcGFuIHg9IjAiIGR5PSItMTI1IiBmb250LXdlaWdodD0iYm9sZCI+MS4gQ2F0ZWdvcml6ZTwvdHNwYW4+PC90ZXh0PjwvZz48IS0tIFNlbGVjdCAtLT48ZyB0cmFuc2Zvcm09InJvdGF0ZSg2MCkiPjx0ZXh0IHg9IjAiIHk9Ii01MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzI1ODVjNyI+PHRzcGFuIHg9IjAiIGR5PSItMTI1IiBmb250LXdlaWdodD0iYm9sZCI+Mi4gU2VsZWN0PC90c3Bhbj48L3RleHQ+PC9nPjwhLS0gSW1wbGVtZW50IC0tPjxnIHRyYW5zZm9ybT0icm90YXRlKDEyMCkiPjx0ZXh0IHg9IjAiIHk9Ii01MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzI1ODVjNyI+PHRzcGFuIHg9IjAiIGR5PSItMTI1IiBmb250LXdlaWdodD0iYm9sZCI+My4gSW1wbGVtZW50PC90c3Bhbj48L3RleHQ+PC9nPjwhLS0gQXNzZXNzIC0tPjxnIHRyYW5zZm9ybT0icm90YXRlKDE4MCkiPjx0ZXh0IHg9IjAiIHk9Ii01MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzI1ODVjNyI+PHRzcGFuIHg9IjAiIGR5PSItMTI1IiBmb250LXdlaWdodD0iYm9sZCI+NC4gQXNzZXNzPC90c3Bhbj48L3RleHQ+PC9nPjwhLS0gQXV0aG9yaXplIC0tPjxnIHRyYW5zZm9ybT0icm90YXRlKDI0MCkiPjx0ZXh0IHg9IjAiIHk9Ii01MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzI1ODVjNyI+PHRzcGFuIHg9IjAiIGR5PSItMTI1IiBmb250LXdlaWdodD0iYm9sZCI+NS4gQXV0aG9yaXplPC90c3Bhbj48L3RleHQ+PC9nPjwhLS0gTW9uaXRvciAtLT48ZyB0cmFuc2Zvcm09InJvdGF0ZSgzMDApIj48dGV4dCB4PSIwIiB5PSItNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMyNTg1YWM3Ij48dHNwYW4geD0iMCIgZHk9Ii0xMjUiIGZvbnQtd2VpZ2h0PSJib2xkIj42LiBNb25pdG9yPC90c3Bhbj48L3RleHQ+PC9nPjwhLS0gQXJyb3dzIC0tPjxkZWZzPjxtYXJrZXIgaWQ9ImFycm93aGVhZCIgbWFya2VyV2lkdGg9IjEwIiBtYXJrZXJIZWlnaHQ9IjciIHJlZlg9IjUiIHJlZlk9IjMuNSIgb3JpZW50PSJhdXRvIj48cG9seWdvbiBwb2ludHM9IjAgMCAxMCAzLjUgMCA3IiBmaWxsPSIjMjU4NWM3Ii8+PC9tYXJrZXI+PC9kZWZzPjxwYXRoIGQ9Ik0gNTAsLTE1NSBBIDE2MCwxNjAgMCAwLDEgMTQwLC0xMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzI1ODVjNyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93aGVhZCkiLz48cGF0aCBkPSJNIDE1NSwtNTAgQSAxNjAsMTYwIDAgMCwxIDE1NSw1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU4NWM3IiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3doZWFkKSIvPjxwYXRoIGQ9Ik0gMTQwLDEwMCBBIDE2MCwxNjAgMCAwLDEgNTAsMTU1IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTg1YzciIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvd2hlYWQpIi8+PHBhdGggZD0iTSAtNTAsMTU1IEEgMTYwLDE2MCAwIDAsMSAtMTQwLDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU4NWM3IiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3doZWFkKSIvPjxwYXRoIGQ9Ik0gLTE1NSw1MCBBIDE2MCwxNjAgMCAwLDEgLTE1NSwtNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzI1ODVjNyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93aGVhZCkiLz48cGF0aCBkPSJNIC0xNDAsLTEwMCBBIDE2MCwxNjAgMCAwLDEgLTUwLC0xNTUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzI1ODVjNyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93aGVhZCkiLz48L2c+PC9zdmc+" alt="NIST RMF Cycle Diagram" class="w-full max-w-sm mx-auto">
+                        </div>
+                        <a href="https://csrc.nist.gov/projects/risk-management-framework-rmf" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Learn more on the official NIST website &rarr;</a>
+                    </div>
+
+                     <!-- ISO 31000 -->
+                    <div class="my-8">
+                        <h3 class="text-2xl font-semibold mb-3">ISO 31000 (International Organization for Standardization)</h3>
+                        <p>A general, high-level guide for managing <em>any</em> kind of risk (not just cybersecurity). It's used by multinational corporations and focuses on principles and processes rather than specific controls. A key principle is "continual improvement."</p>
+                         <a href="https://www.iso.org/iso-31000-risk-management.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Learn more on the official ISO website &rarr;</a>
+                    </div>
+                    
+                     <!-- FAIR -->
+                    <div class="my-8">
+                        <h3 class="text-2xl font-semibold mb-3">FAIR (Factor Analysis of Information Risk)</h3>
+                        <p class="mb-4">The "financial" framework. Its goal is to put a dollar value on risk, helping to justify security spending to executives in business terms.</p>
+                        <!-- FAIR Diagram -->
+                        <div class="my-6 p-6 bg-green-50 rounded-lg text-center">
+                           <p class="text-2xl font-mono text-green-800">
+                                <span class="font-bold">ALE</span> (Annualized Loss Expectancy) 
+                                <span class="text-gray-500 mx-2">=</span>
+                                <span class="font-bold">LEF</span> (Loss Event Frequency) 
+                                <span class="text-red-500 mx-2">x</span>
+                                <span class="font-bold">PLM</span> (Probable Loss Magnitude)
+                           </p>
+                           <p class="mt-2 text-gray-600">Risk = How often it happens  <strong>x</strong>  How much it costs</p>
+                        </div>
+                         <a href="https://www.fairinstitute.org/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Learn more on the official FAIR Institute website &rarr;</a>
+                    </div>
+                    
+                    <div class="mt-6 space-y-4">
+                        <h3 class="font-semibold text-xl text-gray-800">Guiding Questions</h3>
+                        <div class="accordion-item bg-gray-50 rounded-lg border">
+                             <button class="accordion-header w-full text-left p-4 font-semibold text-blue-700 flex justify-between items-center">
+                                <span>Using NIST RMF for a hospital's patient record system, what impact level would you categorize it as? Why?</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="p-4 pt-0 text-gray-700"><strong>High impact</strong>. A breach of patient records would have severe consequences for patient privacy (confidentiality), could lead to incorrect medical treatment if data is changed (integrity), and would be a disaster if doctors couldn't access it (availability).</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item bg-gray-50 rounded-lg border">
+                             <button class="accordion-header w-full text-left p-4 font-semibold text-blue-700 flex justify-between items-center">
+                                <span>If a global shipping company uses ISO 31000, what non-cybersecurity risks might they manage?</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="p-4 pt-0 text-gray-700">They might manage risks like pirate attacks, fuel price spikes, port closures due to weather, or supply chain disruptions.</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item bg-gray-50 rounded-lg border">
+                             <button class="accordion-header w-full text-left p-4 font-semibold text-blue-700 flex justify-between items-center">
+                                <span>How does FAIR help decide on a $50,000 security system if the ALE from phishing is $200,000?</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="p-4 pt-0 text-gray-700">It allows them to make a financial case. They can argue that spending $50,000 is worthwhile if it can significantly reduce that $200,000 annual risk, showing a clear return on investment (ROI).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="part3" class="mb-12 scroll-mt-20">
+                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 pb-4 border-b-2 border-blue-500">Part 3: The Risk Management Process in Action (45 Minutes)</h2>
+                    
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-semibold mb-3">Risk Treatment Options</h3>
+                        <p class="mb-4">After identifying and analyzing a risk, you must decide how to respond. There are four main strategies.</p>
+                        <!-- Treatment Diagram -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                            <div class="p-6 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
+                                <h4 class="font-bold text-lg text-green-800">Accept</h4>
+                                <p class="text-green-700">Do nothing. Acknowledge the risk, but the cost to fix outweighs the potential damage.</p>
+                            </div>
+                            <div class="p-6 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                                <h4 class="font-bold text-lg text-red-800">Avoid</h4>
+                                <p class="text-red-700">Eliminate the risk entirely by stopping the activity that causes it (e.g., shutting down a server).</p>
+                            </div>
+                             <div class="p-6 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                                <h4 class="font-bold text-lg text-blue-800">Mitigate</h4>
+                                <p class="text-blue-700">Reduce the risk. Implement controls to lower its likelihood or impact. (Most common)</p>
+                            </div>
+                             <div class="p-6 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+                                <h4 class="font-bold text-lg text-yellow-800">Transfer</h4>
+                                <p class="text-yellow-700">Share the risk. Shift the financial burden to a third party, like through cyber insurance.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-100 p-6 rounded-xl border">
+                        <h4 class="font-semibold text-lg">Interactive Scenario</h4>
+                        <p class="mt-2 text-gray-800">"Our small e-commerce company has an old, unpatched web server running a non-essential marketing blog. There's a <strong>high likelihood</strong> it could be hacked, but the <strong>impact would be low</strong> (no customer data). The cost to fix is $15,000. What should we do?"</p>
+                    </div>
+
+                     <div class="mt-6 space-y-4">
+                        <h3 class="font-semibold text-xl text-gray-800">Guiding Questions</h3>
+                        <div class="accordion-item bg-gray-50 rounded-lg border">
+                             <button class="accordion-header w-full text-left p-4 font-semibold text-blue-700 flex justify-between items-center">
+                                <span>What is one method you would use to identify potential security risks at our college?</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="p-4 pt-0 text-gray-700">I could run a <strong>vulnerability scan</strong> on the college website, organize a <strong>brainstorming session</strong> with the IT staff, or review <strong>historical data</strong> from other colleges that have been attacked.</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item bg-gray-50 rounded-lg border">
+                             <button class="accordion-header w-full text-left p-4 font-semibold text-blue-700 flex justify-between items-center">
+                                <span>For the blog server scenario, which risk treatment option is best for a small company? Justify it.</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="p-4 pt-0 text-gray-700"><strong>Accept:</strong> A good choice because the impact is low and the cost to fix is high. The company can officially acknowledge the risk and spend its limited funds on protecting more critical systems. <br><br> <strong>Avoid:</strong> Also a great choice. If the blog isn't essential to the business, simply turning off the server eliminates the risk entirely for free.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+             <!-- Section 4 -->
+            <section id="part4" class="mb-12 scroll-mt-20">
+                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 pb-4 border-b-2 border-blue-500">Part 4: Building a Defense: Mitigation & Monitoring (15 Minutes)</h2>
+                    
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-semibold mb-3">Designing Controls (Safeguards)</h3>
+                        <p class="mb-4">To mitigate risk, we implement controls. These fall into three categories.</p>
+                        <!-- Controls Diagram -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-6 text-center">
+                           <div class="p-6 bg-gray-100 rounded-xl">
+                               <div class="text-4xl mb-3">💻</div>
+                               <h4 class="font-bold text-lg text-gray-800">Technical</h4>
+                               <p class="text-gray-600">Implemented via hardware/software. <br><em>(e.g., Firewalls, Encryption, MFA)</em></p>
+                           </div>
+                           <div class="p-6 bg-gray-100 rounded-xl">
+                               <div class="text-4xl mb-3">📝</div>
+                               <h4 class="font-bold text-lg text-gray-800">Administrative</h4>
+                               <p class="text-gray-600">Policies, procedures, and training. <br><em>(e.g., Security Policies, Training)</em></p>
+                           </div>
+                           <div class="p-6 bg-gray-100 rounded-xl">
+                               <div class="text-4xl mb-3">🔒</div>
+                               <h4 class="font-bold text-lg text-gray-800">Physical</h4>
+                               <p class="text-gray-600">Tangible measures to protect assets. <br><em>(e.g., Locked Doors, Cameras)</em></p>
+                           </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 space-y-4">
+                        <h3 class="font-semibold text-xl text-gray-800">Guiding Questions</h3>
+                        <div class="accordion-item bg-gray-50 rounded-lg border">
+                             <button class="accordion-header w-full text-left p-4 font-semibold text-blue-700 flex justify-between items-center">
+                                <span>To mitigate lost laptops, give one example of a technical, administrative, and physical control.</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <ul class="list-disc list-inside p-4 pt-0 text-gray-700 space-y-2">
+                                    <li><strong>Technical:</strong> Full-disk <strong>encryption</strong> so data is unreadable if stolen.</li>
+                                    <li><strong>Administrative:</strong> A <strong>security policy</strong> requiring employees to never leave laptops unattended.</li>
+                                    <li><strong>Physical:</strong> Using <strong>cable locks</strong> to secure laptops to desks.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="accordion-item bg-gray-50 rounded-lg border">
+                             <button class="accordion-header w-full text-left p-4 font-semibold text-blue-700 flex justify-between items-center">
+                                <span>Why is the "Monitor" step in NIST so important? Why not just set up defenses and be done?</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="p-4 pt-0 text-gray-700">It's important because the threat landscape is constantly changing. New viruses are created daily, and new vulnerabilities are discovered. Monitoring ensures defenses stay effective against new and evolving threats.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 5 -->
+            <section id="part5" class="mb-12 scroll-mt-20">
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 pb-4 border-b-2 border-blue-500">Part 5: Conclusion & Q&A (5 Minutes)</h2>
+                    <div class="prose max-w-none">
+                        <h3 class="font-semibold text-xl text-gray-800">Key Takeaways</h3>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li>Risk management is a continuous, structured process.</li>
+                            <li>Frameworks like NIST, ISO 31000, and FAIR provide that structure.</li>
+                            <li>The process involves identifying, analyzing, evaluating, and treating risks.</li>
+                            <li>Treatment isn't just about fixing things; it can also mean accepting, avoiding, or transferring risk.</li>
+                        </ul>
+                    </div>
+                     <div class="mt-8 text-center text-gray-500">
+                        <p>End of Lecture. Open for Q&A.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+    // This script is self-contained and adheres to the CSP.
+    // It adds interactivity for the accordions and sidebar navigation.
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Accordion functionality
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+        accordionHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const svg = header.querySelector('svg');
+
+                // Toggle visibility
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    svg.style.transform = 'rotate(0deg)';
+                } else {
+                    // Close other accordions in the same parent
+                    const parent = header.closest('.space-y-4');
+                    parent.querySelectorAll('.accordion-item').forEach(item => {
+                        item.querySelector('.accordion-content').style.maxHeight = null;
+                        item.querySelector('svg').style.transform = 'rotate(0deg)';
+                    });
+                    
+                    // Open the clicked one
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    svg.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+
+        // Active navigation on scroll functionality
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('#sidebar-nav a');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active-nav');
+                        if (link.getAttribute('href').substring(1) === entry.target.id) {
+                            link.classList.add('active-nav');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: '-30% 0px -70% 0px' }); // Trigger when section is in the middle of the viewport
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    });
+</script>
+
+</body>
+</html>
+
+
+

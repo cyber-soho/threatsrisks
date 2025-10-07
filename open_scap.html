@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenSCAP Lab – Interactive Course Guide</title>
+  <!-- Security hardening: strict CSP with no external sources, no plugins, no iframes -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests">
+  <style>
+    :root{
+      --bg: #0b1020; --fg: #e9eef6; --muted:#a8b3c7; --card:#111831; --accent:#64b5f6; --ok:#43a047; --warn:#f9a825; --bad:#e53935;
+      --code-bg:#0a0f1f; --border:#1d2645; --link:#90caf9; --shadow: 0 10px 30px rgba(0,0,0,.25)
+    }
+    .light{ --bg:#f7f9fc; --fg:#0d1726; --muted:#53627a; --card:#ffffff; --accent:#2962ff; --ok:#2e7d32; --warn:#f57f17; --bad:#c62828; --code-bg:#f1f4f9; --border:#e3e8f0; --link:#1a73e8; --shadow: 0 10px 30px rgba(0,0,0,.08)}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial}
+    a{color:var(--link);text-decoration:none}
+    a:hover{text-decoration:underline}
+    code,kbd,pre{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
+    .wrap{display:grid;grid-template-columns: 320px 1fr;min-height:100%}
+    .sidebar{position:sticky;top:0;align-self:start;height:100dvh;overflow:auto;padding:14px;background:linear-gradient(180deg,var(--card),transparent);border-right:1px solid var(--border)}
+    .brand{display:flex;align-items:center;gap:10px;margin:4px 6px 12px}
+    .brand .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 20px var(--accent)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:10px 6px 16px}
+    .btn{border:1px solid var(--border);background:var(--card);color:var(--fg);padding:6px 10px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow)}
+    .btn:hover{filter:brightness(1.05)}
+    .btn:active{transform:translateY(1px)}
+    .search{margin:8px 6px 14px}
+    .search input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--fg)}
+    .toc h3{margin:10px 6px;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+    .toc a{display:block;padding:8px 10px;border-radius:10px;margin:4px 6px}
+    .toc a.active{background:var(--card)}
+    main{padding:28px;max-width:1100px}
+    .hero{background:radial-gradient(1200px 500px at 30% -10%, rgba(100,181,246,.15), transparent),radial-gradient(1200px 500px at 90% 0, rgba(41,98,255,.15), transparent);border:1px solid var(--border);border-radius:20px;padding:24px 22px;margin-bottom:22px}
+    h1{font-size:32px;letter-spacing:.2px;margin:0 0 4px}
+    .subtitle{color:var(--muted);margin:0 0 10px}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+    .chip{font-size:12px;border:1px solid var(--border);padding:4px 8px;border-radius:999px;color:var(--muted)}
+    .section{border:1px solid var(--border);border-radius:18px;background:var(--card);box-shadow:var(--shadow);margin:18px 0}
+    .section header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;cursor:pointer}
+    .section h2{font-size:20px;margin:0}
+    .caret{transition:.2s transform}
+    .section[aria-expanded="true"] .caret{transform:rotate(90deg)}
+    .content{padding:0 18px 18px;display:none}
+    .section[aria-expanded="true"] .content{display:block}
+    .notice{border-left:4px solid var(--warn);background:linear-gradient(90deg, rgba(249,168,37,.12), transparent);padding:10px 12px;border-radius:10px;margin:12px 0}
+    .ok{border-left-color:var(--ok);background:linear-gradient(90deg, rgba(67,160,71,.12), transparent)}
+    .bad{border-left-color:var(--bad);background:linear-gradient(90deg, rgba(229,57,53,.12), transparent)}
+    .grid{display:grid;gap:14px}
+    .grid.cols-2{grid-template-columns: repeat(2, minmax(0,1fr))}
+    .grid.cols-3{grid-template-columns: repeat(3, minmax(0,1fr))}
+    @media (max-width: 1100px){ .wrap{grid-template-columns: 1fr} .sidebar{position:relative;height:auto} .grid.cols-2,.grid.cols-3{grid-template-columns:1fr} }
+    .card{border:1px solid var(--border);border-radius:14px;padding:12px;background:var(--card)}
+    .kbd{display:inline-block;border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:0 6px;background:var(--code-bg)}
+    pre{background:var(--code-bg);padding:12px;border-radius:12px;overflow:auto;border:1px solid var(--border)}
+    .mini{font-size:13px;color:var(--muted)}
+    .svg-wrap{display:flex;gap:12px;justify-content:center;align-items:center;padding:8px 0}
+    .foot{margin-top:28px;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body class="light">
+<div class="wrap">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="dot"></div><strong>OpenSCAP Lab</strong></div>
+    <div class="toolbar">
+      <button class="btn" id="themeBtn" title="Toggle theme">Theme</button>
+      <button class="btn" id="expandBtn" title="Expand all">Expand all</button>
+      <button class="btn" id="collapseBtn" title="Collapse all">Collapse all</button>
+      <button class="btn" id="printBtn" title="Print">Print</button>
+    </div>
+    <div class="search"><input id="tocFilter" placeholder="Filter sections…" aria-label="Filter contents"/></div>
+    <nav class="toc" id="toc">
+      <h3>Contents</h3>
+      <div id="tocLinks"></div>
+      <h3>Instructor Tools</h3>
+      <a href="#checklist">Readiness Checklist</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+      <a href="#appendix">Appendix (Commands & Links)</a>
+    </nav>
+  </aside>
+  <main>
+    <section class="hero">
+      <h1>OpenSCAP Security Compliance Lab</h1>
+      <p class="subtitle">Hands‑on lab to evaluate, report, and interpret security compliance using SCAP content. Includes environment selection guidance, safe‑use rules, and free/open‑source alternatives.</p>
+      <div class="chips">
+        <span class="chip">Windows Server 2022 + SCC</span>
+        <span class="chip">SCAP / XCCDF / STIG Viewer</span>
+        <span class="chip">VM snapshots & host‑only networks</span>
+        <span class="chip">No author names or credentials are displayed</span>
+      </div>
+    </section>
+
+    <!-- 1. Safe Use & Lab Ethics -->
+    <section class="section" id="ethics" aria-expanded="true">
+      <header role="button" tabindex="0"><h2>1) Safety, Ethics, and Scope</h2><span class="caret">▶</span></header>
+      <div class="content">
+        <div class="notice bad"><strong>Legal warning:</strong> Run security tools only on systems you own or have explicit written permission to test. Never test random public systems or school/employer networks. Prefer isolated lab VMs and approved learning platforms.</div>
+        <div class="grid cols-2">
+          <div class="card"><h3>Do this</h3><ul>
+            <li>Use <em>local VMs</em> with <strong>host‑only</strong> or <strong>NAT</strong> networking.</li>
+            <li>Create a <strong>snapshot</strong> before each major step.</li>
+            <li>Keep the VM <strong>offline</strong> while importing content and preparing the lab, unless downloads are required.</li>
+            <li>Read the lab’s <strong>Rules of Engagement</strong> and stick to them.</li>
+          </ul></div>
+          <div class="card"><h3>Do <em>not</em> do this</h3><ul>
+            <li>Scan arbitrary public sites or corporate networks.</li>
+            <li>Run denial‑of‑service scans or intrusive payloads.</li>
+            <li>Exfiltrate real user data or alter production systems.</li>
+          </ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Choose Your Lab Environment -->
+    <section class="section" id="environment">
+      <header role="button" tabindex="0"><h2>2) Choose & Prepare the Environment (Why and How)</h2><span class="caret">▶</span></header>
+      <div class="content">
+        <p>Pick an environment that is <strong>controlled, repeatable, and isolated</strong>. The options below align with common teaching/lab constraints and ensure students can complete the exercise without trouble.</p>
+        <div class="grid cols-3">
+          <div class="card"><h3>Option A: Local VM (recommended)</h3><ul>
+            <li>Hypervisor: VirtualBox, VMware Workstation Player, or Hyper‑V.</li>
+            <li>Networking: <strong>Host‑only</strong> (preferred) or NAT.</li>
+            <li>Use snapshots for easy rollback.</li>
+          </ul></div>
+          <div class="card"><h3>Option B: Bare‑metal spare PC</h3><ul>
+            <li>Install Windows Server 2022 or a supported Linux distro directly.</li>
+            <li>Keep it off production networks.</li>
+          </ul></div>
+          <div class="card"><h3>Option C: Cloud VM (advanced)</h3><ul>
+            <li>Use a private VPC, strict security groups, and ephemeral instances.</li>
+            <li>Ensure costs and egress are controlled.</li>
+          </ul></div>
+        </div>
+
+        <h3 id="env-steps">Step‑by‑step: Local VM setup</h3>
+        <ol>
+          <li><strong>Create a new VM</strong> (Windows Server 2022 for this lab’s primary flow). Allocate ≥2 vCPU, 4–8 GB RAM, 40+ GB disk.</li>
+          <li><strong>Networking</strong>: choose <em>Host‑only</em> to keep scans inside your machine; add NAT temporarily for downloads, then revert to Host‑only.</li>
+          <li><strong>OS install</strong>: perform a standard installation, create a local admin account, and apply the latest updates.</li>
+          <li><strong>Prepare folders</strong>: create <code>C:\OpenSCAP\</code> with subfolders <code>Content</code>, <code>OpenSCAP_Report</code>, <code>STIG_Viewer</code>.</li>
+          <li><strong>Snapshot</strong> the clean state (e.g., <em>WS2022‑clean</em>).</li>
+        </ol>
+
+        <div class="svg-wrap" aria-hidden="true">
+          <svg width="600" height="120" viewBox="0 0 600 120" role="img" aria-label="Lab network schematic">
+            <defs>
+              <linearGradient id="g" x1="0" x2="1">
+                <stop offset="0" stop-color="#64b5f6" stop-opacity="0.5"/>
+                <stop offset="1" stop-color="#2962ff" stop-opacity="0.2"/>
+              </linearGradient>
+            </defs>
+            <rect x="10" y="20" width="180" height="80" rx="12" fill="url(#g)" stroke="#6ea8fe"/>
+            <text x="20" y="50" fill="currentColor">Host Laptop</text>
+            <text x="20" y="70" fill="currentColor" font-size="12">VirtualBox / VMware</text>
+            <rect x="230" y="20" width="160" height="80" rx="12" fill="url(#g)" stroke="#6ea8fe"/>
+            <text x="240" y="50" fill="currentColor">VM: Windows</text>
+            <text x="240" y="70" fill="currentColor" font-size="12">Server 2022</text>
+            <rect x="430" y="20" width="160" height="80" rx="12" fill="url(#g)" stroke="#6ea8fe"/>
+            <text x="440" y="50" fill="currentColor">(Optional) Linux VM</text>
+            <text x="440" y="70" fill="currentColor" font-size="12">for CLI oscap</text>
+            <line x1="200" y1="60" x2="230" y2="60" stroke="#6ea8fe" stroke-width="2"/>
+            <line x1="390" y1="60" x2="430" y2="60" stroke="#6ea8fe" stroke-width="2"/>
+            <text x="250" y="100" fill="currentColor" font-size="12">Host‑only or NAT (temporary)</text>
+          </svg>
+        </div>
+
+        <div class="notice ok"><strong>Tip:</strong> If bandwidth is restricted, download needed installers on the host and attach a shared folder to the VM (read‑only).</div>
+      </div>
+    </section>
+
+    <!-- 3. Lab Procedure: OpenSCAP on Windows (SCC + STIG Viewer) -->
+    <section class="section" id="lab">
+      <header role="button" tabindex="0"><h2>3) Lab Procedure: Assess Windows Server 2022 with SCC + STIG Viewer</h2><span class="caret">▶</span></header>
+      <div class="content">
+        <p>This guided flow uses DISA SCAP content with <em>Security Content Checker (SCC)</em> to produce XCCDF results and then reviews findings in STIG Viewer. All artifacts are kept under <code>C:\OpenSCAP\</code>.</p>
+        <h3>3.1 Download prerequisites</h3>
+        <ol>
+          <li>Install Microsoft Visual C++ 2015–2019 Redistributable (x86) in the VM.</li>
+          <li>Create folders: <code>C:\OpenSCAP\Content</code>, <code>C:\OpenSCAP\OpenSCAP_Report</code>, <code>C:\OpenSCAP\STIG_Viewer</code>.</li>
+          <li>Download the following into <code>Content</code>:
+            <ul>
+              <li>OpenSCAP for Windows (MSI installer).</li>
+              <li>DISA SCAP Benchmark for Windows Server 2022 (ZIP).</li>
+              <li>SCC for Windows (ZIP bundle).</li>
+              <li>STIG Viewer for Windows (ZIP).</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h3>3.2 Install & configure SCC</h3>
+        <ol>
+          <li>Unzip the SCC Windows bundle to <code>C:\OpenSCAP\SCC</code>.</li>
+          <li>Right‑click <em>SCC</em> and <strong>Run as administrator</strong>.</li>
+          <li>In the left pane, under <em>Content → Windows</em>, <strong>Delete All</strong> (to avoid stale content).</li>
+          <li>Click <strong>Install</strong> under <em>Content</em> → <strong>Select Contents to Install…</strong> and choose the Windows Server 2022 STIG SCAP XML from your extracted benchmark folder.</li>
+          <li>Open <em>Options → Show Options → Output Options</em> and set results directory to <code>C:\OpenSCAP\OpenSCAP_Report</code>. Ensure HTML generation is enabled.</li>
+        </ol>
+
+        <h3>3.3 Run the scan</h3>
+        <ol>
+          <li>Click <strong>Start Scan</strong>. Wait for completion.</li>
+          <li>Right‑click the completed session → <strong>Open Summary Viewer in default browser</strong>.</li>
+          <li>Export <strong>HTML</strong> results. Verify High / Medium / Low findings are visible.</li>
+        </ol>
+
+        <h3>3.4 Review in STIG Viewer</h3>
+        <ol>
+          <li>Unzip STIG Viewer to <code>C:\OpenSCAP\STIG_Viewer</code> and run <em>STIG Viewer 3.exe</em>.</li>
+          <li><strong>Load Benchmark</strong>: open the <em>Windows Server 2022</em> STIG XML.</li>
+          <li><strong>Create Checklist</strong>: <em>Rule List Settings</em> → <em>Create checklist from STIG</em>.</li>
+          <li><strong>Import XCCDF</strong>: <em>Import → Import XCCDF/CMRS Results</em> and select the XCCDF file from <code>OpenSCAP_Report\Sessions\&lt;timestamp&gt;\Results\SCAP\XML</code>.</li>
+          <li>Toggle views for <strong>CAT I/II/III</strong> to inspect severity categories and note remediation items.</li>
+          <li><strong>Save Checklist</strong> to <code>C:\OpenSCAP\STIG_Viewer\STIG_Checklist</code>.</li>
+        </ol>
+
+        <div class="notice"><strong>Deliverables:</strong> Exported HTML report, STIG Checklist file, and a brief remediation plan addressing top CAT I items.</div>
+      </div>
+    </section>
+
+    <!-- 4. (Optional) Linux CLI with oscap -->
+    <section class="section" id="linux">
+      <header role="button" tabindex="0"><h2>4) (Optional) Linux Path: Using <code>oscap</code> CLI</h2><span class="caret">▶</span></header>
+      <div class="content">
+        <p>If you add a Linux VM (e.g., Fedora/RHEL/AlmaLinux/Debian), you can evaluate SCAP content via CLI. Ensure the VM is isolated and that you use distribution‑appropriate SCAP content.</p>
+        <div class="grid cols-2">
+          <div>
+            <h3>Install</h3>
+            <pre><code># Fedora/RHEL/AlmaLinux
+sudo dnf install -y openscap-scanner scap-security-guide
+
+# Debian/Ubuntu
+sudo apt update && sudo apt install -y libopenscap8 scap-security-guide
+</code></pre>
+          </div>
+          <div>
+            <h3>Evaluate (example)</h3>
+            <pre><code># List available profiles
+oscap info /usr/share/xml/scap/ssg/content/ssg-*.xml | less
+
+# Evaluate a chosen profile (example: RHEL 9 CIS profile)
+sudo oscap xccdf eval \
+  --profile xccdf_org.ssgproject.content_profile_cis \
+  --results-arf results-arf.xml \
+  --report report.html \
+  /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml
+</code></pre>
+          </div>
+        </div>
+        <div class="notice ok"><strong>Tip:</strong> Always match SCAP content to your exact OS version and edition.</div>
+      </div>
+    </section>
+
+    <!-- 5. Free & Open‑Source Alternatives -->
+    <section class="section" id="alternatives">
+      <header role="button" tabindex="0"><h2>5) Free & Open‑Source Alternatives (Tools & Lab Platforms)</h2><span class="caret">▶</span></header>
+      <div class="content">
+        <p>Below are commonly used free/open tools that can complement or substitute parts of this workflow, plus safe lab platforms for practice.</p>
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Compliance & Configuration</h3>
+            <ul>
+              <li><strong>SCAP Workbench</strong> (desktop companion for OpenSCAP; craft and run scans locally).</li>
+              <li><strong>Chef InSpec</strong> (policy as code; human‑readable compliance tests).</li>
+              <li><strong>Wazuh</strong> (fork of OSSEC; compliance & file integrity monitoring with agent/manager model).</li>
+              <li><strong>Lynis</strong> (host hardening audits on Unix‑like systems).</li>
+              <li><strong>osquery</strong> (query system state with SQL; great for posture analytics).</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Vuln Scanning & Hardening (Supplemental)</h3>
+            <ul>
+              <li><strong>OpenVAS / Greenbone</strong> (network vulnerability scanning).</li>
+              <li><strong>kube‑bench</strong> (CIS Kubernetes checks) & <strong>kube‑hunter</strong> (K8s attack surface discovery).</li>
+              <li><strong>OSQuery + Fleet</strong> (fleet management for queries and policies).</li>
+              <li><strong>CIS‑CAT Lite</strong> (limited free benchmark assessment from Center for Internet Security).</li>
+            </ul>
+          </div>
+        </div>
+        <h3>Safe Lab Environments (to finish the exercise)</h3>
+        <ul>
+          <li><strong>Local VMs</strong>: Windows Server 2022 for SCC/SCAP; optional Linux VM for <code>oscap</code>.</li>
+          <li><strong>Integrated platforms</strong>: OWASP Security Dojo (packaged training VM with tools and targets).</li>
+          <li><strong>Vulnerable targets</strong> for extended practice: DVWA, OWASP Juice Shop, Metasploitable (run only inside your lab).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. Why this environment? (Dedicated section referencing platform choices) -->
+    <section class="section" id="platform-rationale">
+      <header role="button" tabindex="0"><h2>6) Environment Rationale & Student‑Proofing</h2><span class="caret">▶</span></header>
+      <div class="content">
+        <p>The selected environments reduce risk and confusion while maximizing reproducibility:</p>
+        <ul>
+          <li><strong>Host‑only networking</strong> prevents accidental scanning of public networks.</li>
+          <li><strong>Snapshots</strong> let students recover instantly from mistakes.</li>
+          <li><strong>Pre‑created folders</strong> in <code>C:\OpenSCAP\</code> ensure consistent paths for outputs and imports.</li>
+          <li><strong>Checklists and exports</strong> standardize grading and peer review.</li>
+        </ul>
+        <div class="notice"><strong>Instructor note:</strong> Provide a base image with prerequisites cached (VC++ runtime, SCC, STIG Viewer) to survive poor connectivity.</div>
+      </div>
+    </section>
+
+    <!-- 7. Readiness Checklist -->
+    <section class="section" id="checklist">
+      <header role="button" tabindex="0"><h2>7) Readiness Checklist</h2><span class="caret">▶</span></header>
+      <div class="content">
+        <ul>
+          <li>VM created, updated, and snapshotted.</li>
+          <li>VC++ runtime installed; SCC and STIG Viewer extracted.</li>
+          <li>DISA SCAP benchmark for the correct OS version on disk.</li>
+          <li>Results directory set to <code>C:\OpenSCAP\OpenSCAP_Report</code>.</li>
+          <li>Students briefed on ethics, scope, and deliverables.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 8. Troubleshooting -->
+    <section class="section" id="troubleshooting">
+      <header role="button" tabindex="0"><h2>8) Troubleshooting</h2><span class="caret">▶</span></header>
+      <div class="content">
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>SCC doesn’t load content</h3>
+            <ul>
+              <li>Confirm you imported the <em>Windows Server 2022</em> STIG SCAP XML, not a 2019 or 2016 file.</li>
+              <li>Delete old content under <em>Content → Windows</em> and re‑install.</li>
+              <li>Run SCC as Administrator.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>No HTML report</h3>
+            <ul>
+              <li>Options → Output Options → enable HTML output.</li>
+              <li>Ensure results path = <code>C:\OpenSCAP\OpenSCAP_Report</code>.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>STIG Viewer won’t import XCCDF</h3>
+            <ul>
+              <li>Point to the <code>...\Results\SCAP\XML</code> folder from the scan session.</li>
+              <li>Load the matching benchmark first, then import results.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>General issues</h3>
+            <ul>
+              <li>Try a fresh VM snapshot.</li>
+              <li>Temporarily enable NAT for downloads; revert to Host‑only.</li>
+              <li>Ensure Windows Defender or third‑party AV isn’t blocking execution.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Appendix: Links & Commands -->
+    <section class="section" id="appendix">
+      <header role="button" tabindex="0"><h2>9) Appendix: Handy Links & Paths</h2><span class="caret">▶</span></header>
+      <div class="content">
+        <h3>Paths</h3>
+        <ul>
+          <li>Reports: <code>C:\OpenSCAP\OpenSCAP_Report</code></li>
+          <li>STIG Viewer checklists: <code>C:\OpenSCAP\STIG_Viewer\STIG_Checklist</code></li>
+          <li>XCCDF results: <code>...\OpenSCAP_Report\Sessions\&lt;timestamp&gt;\Results\SCAP\XML</code></li>
+        </ul>
+        <h3>Suggested artifacts to submit</h3>
+        <ul>
+          <li>HTML summary report.</li>
+          <li>STIG checklist export.</li>
+          <li>One‑page remediation plan for top CAT I findings.</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="foot">© Course Lab Guide – No personal author names or credentials are disclosed in this file.</p>
+  </main>
+</div>
+
+<script>
+  "use strict";
+  // Minimal, defensive JS. No user-provided HTML is injected without sanitization.
+  (function(){
+    const q = (sel, el=document) => el.querySelector(sel);
+    const qa = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+    // Build TOC automatically from sections
+    const tocLinks = q('#tocLinks');
+    const sections = qa('main .section');
+    sections.forEach(sec => {
+      const a = document.createElement('a');
+      a.href = '#' + sec.id;
+      a.textContent = sec.querySelector('h2')?.textContent || sec.id;
+      tocLinks.appendChild(a);
+    });
+
+    // Sidebar link highlighting
+    function highlightTOC(){
+      let y = window.scrollY + 120;
+      let current = sections[0];
+      sections.forEach(s => { if(s.offsetTop <= y) current = s; });
+      qa('.toc a').forEach(a=>a.classList.toggle('active', a.getAttribute('href')==='#'+current.id));
+    }
+    document.addEventListener('scroll', highlightTOC, {passive:true});
+    highlightTOC();
+
+    // Accordion behavior with keyboard support
+    sections.forEach(sec => {
+      const header = sec.querySelector('header');
+      header.addEventListener('click', () => sec.setAttribute('aria-expanded', sec.getAttribute('aria-expanded')!=="true"));
+      header.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); header.click(); }});
+    });
+
+    // Toolbar actions
+    q('#expandBtn').addEventListener('click', ()=> sections.forEach(s=> s.setAttribute('aria-expanded','true')));
+    q('#collapseBtn').addEventListener('click', ()=> sections.forEach(s=> s.setAttribute('aria-expanded','false')));
+    q('#printBtn').addEventListener('click', ()=> window.print());
+    q('#themeBtn').addEventListener('click', ()=> document.body.classList.toggle('light'));
+
+    // Filter sections in TOC
+    const filter = q('#tocFilter');
+    filter.addEventListener('input', ()=>{
+      const term = filter.value.toLowerCase().trim();
+      qa('#toc a').forEach(a=>{
+        const ok = a.textContent.toLowerCase().includes(term);
+        a.style.display = ok ? '' : 'none';
+      });
+    });
+  })();
+</script>
+</body>
+</html>

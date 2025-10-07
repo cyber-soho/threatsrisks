@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Scriptless, canvas-safe CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors *; upgrade-insecure-requests" />
+  <title>Cybersecurity Risk Management — Interactive Course Content (No‑JS)</title>
+  <meta name="description" content="Interactive, secure, single-file course content for Cybersecurity Risk Management. No JavaScript required: CSS-only theme and bulk expand/collapse." />
+  <style>
+    /* ========== THEME VARIABLES (default: light) ========== */
+    :root {
+      --bg: #f7fbff; --panel: #ffffff; --text: #0b1017; --muted: #3f5069;
+      --accent: #0a84ff; --accent2: #16a34a; --border: #d6e3f3;
+      --shadow: 0 10px 30px rgba(16, 38, 76, .12);
+      --danger: #c9184a; --warn: #b45309; --ok: #157f4e;
+    }
+    /* Dark variables activated when theme toggle is ON */
+    body:has(#themeToggle:checked) {
+      --bg: #0b1017; --panel: #121a25; --text: #e9eef5; --muted: #a9b3c3;
+      --accent: #5ac8fa; --accent2: #7ef29a; --border: #223044;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --danger: #ff6b6b; --warn: #ffb020; --ok: #21c17a;
+    }
+
+    html, body { height: 100%; }
+    body { margin: 0; font: 16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial; background: var(--bg); color: var(--text); }
+
+    .app { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+    @media (max-width: 900px) { .app { grid-template-columns: 1fr; } }
+
+    aside { background: var(--panel); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; overflow:auto; }
+    header.topbar { position: sticky; top: 0; z-index: 5; background: var(--panel); display: flex; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .title { font-weight: 700; }
+
+    .controls { margin-left: auto; display:flex; gap:8px; flex-wrap: wrap; }
+    .btn, .toggle { display:inline-flex; align-items:center; gap:8px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); background: transparent; color: var(--text); text-decoration: none; cursor: pointer; }
+    .btn:hover, .toggle:hover { border-color: var(--accent); }
+    .toggle input { display:none; }
+    .toggle .dot { width:10px; height:10px; border-radius:50%; border:1px solid var(--border); }
+    /* Visual state hints */
+    body:has(#themeToggle:checked) .toggle[for="themeToggle"] .dot { background: var(--accent); border-color: var(--accent); }
+    body:has(#expandAll:checked) .toggle[for="expandAll"],
+    body:has(#collapseAll:checked) .toggle[for="collapseAll"] { background: linear-gradient(135deg, var(--accent), var(--accent2)); color:#051016; border:none; }
+
+    nav ul { list-style: none; padding: 12px; margin: 0; display: grid; gap: 6px; }
+    nav a { display: block; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; color: var(--text); text-decoration: none; }
+    nav a:hover, nav a:focus { outline: none; border-color: var(--accent); }
+
+    main { padding: 24px; }
+    .hero { background: radial-gradient(1000px 400px at 20% -20%, rgba(90,200,250,.15), transparent), radial-gradient(800px 300px at 80% -10%, rgba(126,242,154,.14), transparent); border: 1px solid var(--border); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .hero h1 { margin: 0 0 6px; font-size: 28px; }
+    .hero p { margin: 0; color: var(--muted); }
+
+    details.section { border: 1px solid var(--border); border-radius: 16px; padding: 0; overflow: hidden; background: var(--panel); box-shadow: var(--shadow); }
+    details.section + details.section { margin-top: 16px; }
+    summary { list-style: none; cursor: pointer; padding: 14px 16px; font-weight: 700; background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.03)); }
+    summary::-webkit-details-marker { display: none; }
+
+    /* Default content visibility (no JS) */
+    .content { display: none; padding: 0 16px 16px; }
+    details[open] > .content { display: block; }
+
+    /* CSS-only Expand/Collapse All controls using radios */
+    .modeRadios { position: absolute; left: -9999px; }
+    body:has(#expandAll:checked) details.section > .content { display:block !important; }
+    body:has(#collapseAll:checked) details.section > .content { display:none !important; }
+
+    .diagram { background: var(--bg); border:1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .caption { color: var(--muted); font-size: 12px; margin-top: 6px; }
+    .footer { margin-top: 24px; color: var(--muted); font-size: 13px; }
+
+    /* Print-friendly: always expand all, hide nav */
+    @media print {
+      aside { display:none; }
+      main { padding: 0; }
+      .content { display:block !important; }
+    }
+
+    /* :target overlay for Print instructions */
+    #printpanel { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 70%, black); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition: opacity .2s ease; }
+    #printpanel:target { opacity:1; pointer-events:auto; }
+    .panel { max-width: 560px; background: var(--panel); border:1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+    .panel h3 { margin-top: 0; }
+    .panel .actions { display:flex; justify-content:flex-end; gap:8px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside>
+      <header class="topbar" aria-label="Toolbar">
+        <div class="title">Course Navigator</div>
+        <div class="controls">
+          <!-- Theme toggle (checkbox) -->
+          <label class="toggle" for="themeToggle" title="Toggle theme" role="button"><span class="dot" aria-hidden="true"></span> Theme</label>
+          <!-- Bulk expand/collapse (radio group) -->
+          <label class="toggle" for="expandAll" title="Show all content" role="button">Expand All</label>
+          <label class="toggle" for="collapseAll" title="Hide all content" role="button">Collapse All</label>
+          <a class="btn" href="#printpanel" title="Print or Save as PDF" role="button">Print</a>
+        </div>
+      </header>
+      <!-- Hidden inputs driving CSS-only behavior -->
+      <input id="themeToggle" type="checkbox" class="modeRadios" />
+      <input id="expandAll" type="radio" name="bulk" class="modeRadios" />
+      <input id="collapseAll" type="radio" name="bulk" class="modeRadios" />
+      <input id="normalMode" type="radio" name="bulk" class="modeRadios" checked />
+
+      <nav aria-label="Chapters">
+        <ul>
+          <li><a href="#intro">Intro & Outcomes</a></li>
+          <li><a href="#rmf">I. Risk Management Frameworks</a></li>
+          <li><a href="#apply">II. Applying Frameworks</a></li>
+          <li><a href="#mitigation">III. Mitigation Plans</a></li>
+          <li><a href="#references">Key References</a></li>
+          <li><a href="#glossary">Glossary</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main>
+      <section id="intro" class="hero" tabindex="0">
+        <h1>Cybersecurity Risk Management</h1>
+        <p><strong>Topic:</strong> Risk Management Frameworks, Application, and Mitigation &middot; <strong>Course:</strong> College Attestation Program of Cybersecurity — Prevention and Intervention</p>
+        <p>This document uses <em>no JavaScript</em>. Theme switching and bulk expand/collapse are powered by modern CSS only, ensuring full compatibility in restricted environments.</p>
+      </section>
+
+      <!-- SECTION I -->
+      <details class="section" id="rmf" open>
+        <summary>I. Risk Management Frameworks (NIST, ISO 31000, FAIR)</summary>
+        <div class="content">
+          <h2>A. Introduction to Risk Management Frameworks</h2>
+          <p><strong>Definition:</strong> A risk management framework (RMF) is a structured set of guidelines, processes, and standards to identify, assess, manage, and monitor risks.</p>
+          <div class="diagram"><p><strong>Analogy:</strong> Secure your house: identify threats, estimate likelihood/impact, apply appropriate controls.</p></div>
+
+          <h2>B. NIST RMF</h2>
+          <div class="diagram">
+            <svg viewBox="0 0 900 160" width="100%" height="160" role="img" aria-label="NIST RMF six-step flow">
+              <defs><linearGradient id="g1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5ac8fa"/><stop offset="1" stop-color="#7ef29a"/></linearGradient></defs>
+              <g font-family="system-ui, sans-serif" font-size="12" fill="currentColor">
+                <rect x="10" y="40" width="130" height="60" rx="12" stroke="#223044" fill="url(#g1)"/>
+                <text x="75" y="75" text-anchor="middle" fill="#051016">Categorize</text>
+                <path d="M140,70 L180,70" stroke="#a9b3c3" />
+                <rect x="180" y="40" width="130" height="60" rx="12" stroke="#223044" fill="url(#g1)"/>
+                <text x="245" y="75" text-anchor="middle" fill="#051016">Select</text>
+                <path d="M310,70 L350,70" stroke="#a9b3c3" />
+                <rect x="350" y="40" width="130" height="60" rx="12" stroke="#223044" fill="url(#g1)"/>
+                <text x="415" y="75" text-anchor="middle" fill="#051016">Implement</text>
+                <path d="M480,70 L520,70" stroke="#a9b3c3" />
+                <rect x="520" y="40" width="130" height="60" rx="12" stroke="#223044" fill="url(#g1)"/>
+                <text x="585" y="75" text-anchor="middle" fill="#051016">Assess</text>
+                <path d="M650,70 L690,70" stroke="#a9b3c3" />
+                <rect x="690" y="40" width="130" height="60" rx="12" stroke="#223044" fill="url(#g1)"/>
+                <text x="755" y="65" text-anchor="middle" fill="#051016">Authorize</text>
+                <text x="755" y="85" text-anchor="middle" fill="#051016">&amp; Operate</text>
+              </g>
+            </svg>
+            <div class="caption">NIST RMF: Categorize → Select → Implement → Assess → Authorize → Monitor</div>
+          </div>
+          <p><strong>Useful link:</strong> <a href="https://csrc.nist.gov/projects/risk-management" target="_blank" rel="noopener noreferrer">NIST Risk Management (CSRC)</a></p>
+
+          <h2>C. ISO 31000</h2>
+          <div class="diagram" aria-label="ISO 31000 cyclical diagram">
+            <svg viewBox="0 0 300 300" width="100%" height="220" role="img" aria-label="ISO 31000 cycle">
+              <defs><linearGradient id="g2" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#7ef29a"/><stop offset="1" stop-color="#5ac8fa"/></linearGradient></defs>
+              <circle cx="150" cy="150" r="95" fill="none" stroke="url(#g2)" stroke-width="18"/>
+              <text x="150" y="155" text-anchor="middle" font-size="14" fill="currentColor">Continual Improvement</text>
+            </svg>
+            <div class="caption">Principles + Framework + Process with continual improvement.</div>
+          </div>
+          <p><strong>Useful link:</strong> <a href="https://www.iso.org/iso-31000-risk-management.html" target="_blank" rel="noopener noreferrer">ISO 31000 Overview</a></p>
+
+          <h2>D. FAIR</h2>
+          <div class="diagram">
+            <svg viewBox="0 0 760 180" width="100%" height="180" role="img" aria-label="FAIR risk quantification">
+              <defs><linearGradient id="g3" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5ac8fa"/><stop offset="1" stop-color="#7ef29a"/></linearGradient></defs>
+              <g font-family="system-ui, sans-serif" font-size="12" fill="currentColor">
+                <rect x="20" y="50" width="180" height="60" rx="12" fill="url(#g3)" stroke="#223044"/>
+                <text x="110" y="70" text-anchor="middle" fill="#051016">Loss Event Frequency</text>
+                <text x="110" y="88" text-anchor="middle" fill="#051016">(LEF)</text>
+                <text x="110" y="106" text-anchor="middle" fill="#051016">/year</text>
+                <text x="210" y="80">×</text>
+                <rect x="240" y="50" width="180" height="60" rx="12" fill="url(#g3)" stroke="#223044"/>
+                <text x="330" y="70" text-anchor="middle" fill="#051016">Probable Loss</text>
+                <text x="330" y="88" text-anchor="middle" fill="#051016">Magnitude (PLM)</text>
+                <text x="330" y="106" text-anchor="middle" fill="#051016">$</text>
+                <text x="430" y="80">=</text>
+                <rect x="460" y="50" width="260" height="60" rx="12" fill="url(#g3)" stroke="#223044"/>
+                <text x="590" y="78" text-anchor="middle" fill="#051016">Annualized Loss Expectancy (ALE)</text>
+              </g>
+            </svg>
+            <div class="caption">FAIR: ALE = LEF × PLM — communicate risk in monetary terms.</div>
+          </div>
+          <p><strong>Useful link:</strong> <a href="https://www.fairinstitute.org/" target="_blank" rel="noopener noreferrer">FAIR Institute</a></p>
+        </div>
+      </details>
+
+      <!-- SECTION II -->
+      <details class="section" id="apply">
+        <summary>II. Applying Risk Management Frameworks</summary>
+        <div class="content">
+          <h2>A. Risk Identification</h2>
+          <ul>
+            <li>Workshops & Brainstorming</li>
+            <li>NIST-based checklists</li>
+            <li>Threat intel & historical incidents</li>
+            <li>Vulnerability scans & pen tests</li>
+          </ul>
+          <h2>B. Risk Analysis</h2>
+          <div class="diagram" aria-label="Risk heatmap">
+            <svg viewBox="0 0 420 220" width="100%" height="220" role="img" aria-label="Likelihood vs Impact heatmap">
+              <g font-family="system-ui, sans-serif" font-size="12" fill="currentColor">
+                <rect x="60" y="20" width="300" height="150" fill="none" stroke="#223044"/>
+                <rect x="60" y="20" width="100" height="50" fill="#c8f2d6"/>
+                <rect x="160" y="20" width="100" height="50" fill="#fff2b3"/>
+                <rect x="260" y="20" width="100" height="50" fill="#ffcccc"/>
+                <rect x="60" y="70" width="100" height="50" fill="#b9ebc9"/>
+                <rect x="160" y="70" width="100" height="50" fill="#ffd480"/>
+                <rect x="260" y="70" width="100" height="50" fill="#ffb3b3"/>
+                <rect x="60" y="120" width="100" height="50" fill="#a6e3bb"/>
+                <rect x="160" y="120" width="100" height="50" fill="#ffbf66"/>
+                <rect x="260" y="120" width="100" height="50" fill="#ff9999"/>
+                <text x="210" y="200" text-anchor="middle">Impact →</text>
+                <text x="18" y="95" transform="rotate(-90, 18, 95)">Likelihood →</text>
+                <text x="110" y="45" text-anchor="middle">Low</text>
+                <text x="210" y="45" text-anchor="middle">Medium</text>
+                <text x="310" y="45" text-anchor="middle">High</text>
+              </g>
+            </svg>
+            <div class="caption">Qualitative heatmap for triage; consider FAIR for quantification.</div>
+          </div>
+          <h2>C. Risk Evaluation</h2>
+          <p>Compare analysis to acceptance criteria; decide to accept, mitigate, avoid, or transfer.</p>
+          <h2>D. Risk Treatment</h2>
+          <ul>
+            <li><strong>Mitigate:</strong> Technical (MFA, EDR), administrative (policies, training), physical (locks, guards).</li>
+            <li><strong>Transfer:</strong> Insurance, outsourcing.</li>
+            <li><strong>Avoid:</strong> Stop risky activity.</li>
+            <li><strong>Accept:</strong> If cost > benefit or risk is low.</li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- SECTION III -->
+      <details class="section" id="mitigation">
+        <summary>III. Developing Risk Mitigation Plans</summary>
+        <div class="content">
+          <h2>A. Prioritization</h2>
+          <ul><li>Risk level (likelihood × impact)</li><li>Cost/effort</li><li>Regulations</li><li>Business criticality</li></ul>
+          <h2>B. Designing Controls</h2>
+          <div class="diagram" aria-label="PDCA loop">
+            <svg viewBox="0 0 540 120" width="100%" height="120" role="img" aria-label="Plan, Do, Check, Act loop">
+              <defs><linearGradient id="g4" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5ac8fa"/><stop offset="1" stop-color="#7ef29a"/></linearGradient></defs>
+              <g font-family="system-ui, sans-serif" font-size="12" fill="currentColor">
+                <rect x="20" y="30" width="110" height="60" rx="12" fill="url(#g4)" stroke="#223044"/>
+                <text x="75" y="65" text-anchor="middle" fill="#051016">Plan</text>
+                <path d="M130,60 L170,60" stroke="#a9b3c3" />
+                <rect x="170" y="30" width="110" height="60" rx="12" fill="url(#g4)" stroke="#223044"/>
+                <text x="225" y="65" text-anchor="middle" fill="#051016">Do</text>
+                <path d="M280,60 L320,60" stroke="#a9b3c3" />
+                <rect x="320" y="30" width="110" height="60" rx="12" fill="url(#g4)" stroke="#223044"/>
+                <text x="375" y="65" text-anchor="middle" fill="#051016">Check</text>
+                <path d="M430,60 L470,60" stroke="#a9b3c3" />
+                <rect x="470" y="30" width="110" height="60" rx="12" fill="url(#g4)" stroke="#223044"/>
+                <text x="525" y="65" text-anchor="middle" fill="#051016">Act</text>
+              </g>
+            </svg>
+            <div class="caption">Iterate with PDCA for continual improvement.</div>
+          </div>
+          <h2>C. Monitoring & Review</h2>
+          <ul><li>SIEM & alerts</li><li>Audits & assessments</li><li>Vuln management</li><li>Threat tracking</li><li>KPIs: incidents, MTTD, MTTR</li></ul>
+          <h2>D. Reporting & Communication</h2>
+          <p>Tailor to stakeholders; emphasize risk posture and business impact.</p>
+        </div>
+      </details>
+
+      <details class="section" id="references">
+        <summary>Key References & Helpful Links</summary>
+        <div class="content">
+          <ul>
+            <li><a href="https://csrc.nist.gov/projects/risk-management" target="_blank" rel="noopener noreferrer">NIST Risk Management (CSRC)</a></li>
+            <li><a href="https://www.iso.org/iso-31000-risk-management.html" target="_blank" rel="noopener noreferrer">ISO 31000 Overview (ISO)</a></li>
+            <li><a href="https://www.fairinstitute.org/" target="_blank" rel="noopener noreferrer">FAIR Institute</a></li>
+            <li><a href="https://www.first.org/" target="_blank" rel="noopener noreferrer">FIRST.org (Incident Response)</a></li>
+            <li><a href="https://attack.mitre.org/" target="_blank" rel="noopener noreferrer">MITRE ATT&CK</a></li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="section" id="glossary">
+        <summary>Glossary</summary>
+        <div class="content">
+          <dl>
+            <dt>RMF</dt><dd>Risk Management Framework.</dd>
+            <dt>ISO 31000</dt><dd>International standard for risk management.</dd>
+            <dt>FAIR</dt><dd>Factor Analysis of Information Risk.</dd>
+            <dt>ALE</dt><dd>Annualized Loss Expectancy.</dd>
+            <dt>SIEM</dt><dd>Security Information and Event Management.</dd>
+            <dt>MFA</dt><dd>Multi-Factor Authentication.</dd>
+          </dl>
+        </div>
+      </details>
+
+      <div class="footer" role="contentinfo">
+        <p><strong>Security:</strong> No JavaScript, no third-party assets, hardened CSP, semantic HTML. All sections print expanded.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Print instruction overlay (CSS :target) -->
+  <div id="printpanel" aria-modal="true" role="dialog">
+    <div class="panel">
+      <h3>Print or Save as PDF</h3>
+      <p>Use <strong>Ctrl + P</strong> (Windows/Linux) or <strong>⌘ + P</strong> (macOS). This page is optimized for printing: all sections expand automatically.</p>
+      <div class="actions">
+        <a class="toggle" href="#">Close</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
