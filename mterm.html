@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Cybersecurity Midterm Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: The application is structured as a two-panel layout for intuitive navigation, ideal for a study tool. A persistent sidebar on the left lists all questions and the evaluation grid, acting as a table of contents. The main content area on the right displays the selected item. This design was chosen to allow users to easily switch between questions without losing their place, promoting non-linear exploration. For each question, the 'Useful Tip' and 'Correct Answer' are hidden by default behind interactive buttons. This encourages active recall, as users must consciously decide to reveal the information, which is more effective for learning than passively reading a linear document. This structure directly supports the user goal of studying and reviewing exam content efficiently. -->
+    <!-- Visualization & Content Choices: The source report is text-heavy, consisting of questions, answers, and explanations. Therefore, traditional data charts are not suitable. Instead, the focus is on information architecture and interactive text presentation.
+- Report Info: Question/Answer/Tip text -> Goal: Organize/Inform -> Presentation: Styled text blocks in cards -> Interaction: Toggle visibility on click -> Justification: Hiding answers by default aids self-assessment.
+- Report Info: Risk Matrix (Q1 Tip) -> Goal: Organize -> Presentation: HTML `<table>` -> Interaction: Static view -> Justification: A table is the clearest way to show this matrix logic.
+- Report Info: RBAC Diagram (Q3 Tip) -> Goal: Organize -> Presentation: HTML/Tailwind diagram -> Interaction: Static view -> Justification: A simple visual flow clarifies the concept without needing complex libraries.
+- Report Info: Framework Comparison (Q6 Tip) -> Goal: Compare -> Presentation: HTML `<table>` -> Interaction: Static view -> Justification: A side-by-side table is optimal for comparison.
+- All hyperlinks are preserved as standard `<a>` tags for external reference. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-btn.active {
+            background-color: #0d9488;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .content-toggle {
+            transition: all 0.3s ease-in-out;
+        }
+        #password-modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800">
+    <div id="app" class="flex flex-col md:flex-row min-h-screen">
+        <aside id="sidebar" class="w-full md:w-64 lg:w-72 bg-white p-4 md:p-6 shadow-lg flex-shrink-0 flex flex-col">
+            <h1 class="text-2xl font-bold text-teal-700 mb-6">Midterm Exam</h1>
+            <nav id="navigation" class="space-y-2 flex-grow"></nav>
+            <div class="mt-6 border-t pt-4">
+                <h2 class="text-lg font-semibold mb-3">Submit Your Answers</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label for="student-name" class="block text-sm font-medium text-stone-700">Student Name</label>
+                        <input type="text" id="student-name" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm" placeholder="John Doe">
+                    </div>
+                    <div>
+                        <label for="student-id" class="block text-sm font-medium text-stone-700">Student ID</label>
+                        <input type="text" id="student-id" class="mt-1 block w-full px-3 py-2 bg-white border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm" placeholder="2345678">
+                    </div>
+                    <button id="submit-all-answers" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
+                        Submit All Answers to Instructor
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main id="main-content" class="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto">
+        </main>
+    </div>
+    
+    <div id="password-modal-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div id="password-modal" class="bg-white p-8 rounded-lg shadow-xl w-full max-w-sm">
+            <h3 class="text-xl font-bold mb-4">Password Required</h3>
+            <p class="text-stone-600 mb-4">Please enter the password to view the correct answers.</p>
+            <input type="password" id="password-input" class="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <p id="password-error" class="text-red-500 text-sm mt-2 hidden">Incorrect password. Please try again.</p>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="password-cancel" class="px-4 py-2 bg-stone-200 text-stone-800 rounded-md hover:bg-stone-300">Cancel</button>
+                <button id="password-submit" class="px-4 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700">Submit</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const protectedAnswers = [
+            { id: 0, answer: `a) A likely threat actor is an <strong>Advanced Persistent Threat (APT)</strong> group or a sophisticated <strong>financially motivated cybercriminal group</strong>.<br><ul><li class="ml-4 list-disc"><strong>Motivations:</strong> For an APT, the motivation would likely be <strong>espionage</strong>—to steal sensitive corporate data, intellectual property, or gain long-term access for future operations. For a cybercriminal group, the motivation is <strong>financial gain</strong>, achieved by stealing credentials to access financial systems or deploy ransomware.</li><li class="ml-4 list-disc"><strong>Level of Sophistication:</strong> The sophistication is <strong>high</strong>. Crafting targeted emails that use internal project names and company-specific language indicates significant prior reconnaissance (OSINT) and a deep understanding of the target, which is characteristic of APTs and advanced cybercrime groups, not script kiddies or common hacktivists.</li></ul><br>b) <strong>Qualitative risk assessment</strong> is a process of identifying, analyzing, and evaluating risks using non-numerical, descriptive scales. It relies on expert judgment to rate the <strong>probability</strong> (likelihood) of a threat occurring and the <strong>impact</strong> (severity or consequence) if it does. Common scales include Low, Medium, and High.<br><br>c) <strong>Qualitative Risk Assessment for Phishing Attack:</strong><ul><li class="ml-4 list-disc"><strong>Probability: High</strong>. Justification: The scenario describes <em>sophisticated</em> and <em>targeted</em> phishing attempts. These have a much higher success rate than generic spam. Without advanced email filtering and continuous employee training, the likelihood of an employee being tricked is high.</li><li class="ml-4 list-disc"><strong>Impact: High</strong>. Justification: If an employee's credentials are stolen, the impact on a financial services company would be severe. It could lead to unauthorized access to sensitive customer financial data, internal systems, and trade secrets. This can result in significant <strong>financial loss</strong> (theft, fines), <strong>reputational damage</strong> (loss of customer trust), and <strong>legal/compliance impact</strong> (regulatory penalties).</li><li class="ml-4 list-disc"><strong>Overall Risk Level:</strong> A High Probability and High Impact threat results in a <strong>Critical</strong> or <strong>High</strong> overall risk, requiring immediate mitigation.</li></ul>` },
+            { id: 1, answer: `a) The primary purpose of using <strong>workspaces</strong> in Recon-ng is to <strong>keep the results of different reconnaissance engagements separate and organized</strong>. It acts like a project folder, ensuring that the data (domains, hosts, contacts) gathered for one target does not mix with data from another.<br><br>b) The sequence of commands would be:<br><ol class="list-decimal ml-6 space-y-1"><li><strong>Create Workspace:</strong> <code class="bg-stone-200 p-1 rounded text-sm">workspaces create sans_recon</code></li><li><strong>Add Domain:</strong> <code class="bg-stone-200 p-1 rounded text-sm">db insert domains</code> (then enter \`isc.sans.edu\` at the prompt)</li><li><strong>Install Module:</strong> <code class="bg-stone-200 p-1 rounded text-sm">marketplace install recon/domains-hosts/hackertarget</code></li><li><strong>Load Module:</strong> <code class="bg-stone-200 p-1 rounded text-sm">modules load recon/domains-hosts/hackertarget</code></li><li><strong>Run Module:</strong> <code class="bg-stone-200 p-1 rounded text-sm">run</code></li></ol><br>c) <strong>Recon-ng (CLI) Advantage:</strong> Its main advantage is <strong>granularity, control, and scriptability</strong>. It allows a tester to methodically choose specific modules, chain them together, and automate the reconnaissance process through scripts. It is ideal for targeted, deep-dive investigations where precise control is needed.<br><strong>SpiderFoot (GUI) Advantage:</strong> Its main advantage is <strong>ease of use, speed for broad scans, and visualization</strong>. It automates queries across hundreds of data sources with a few clicks and presents the results in a graphical interface, making it easy to see relationships between data points without deep command-line knowledge. It is ideal for initial, wide-ranging footprinting.` },
+            { id: 2, answer: `a) <strong>Role-Based Access Control (RBAC)</strong> is a security model that restricts system access to authorized users based on their role within an organization.<br><ul><li class="ml-4 list-disc"><strong>Users:</strong> Individuals who need to access the system (e.g., employees).</li><li class="ml-4 list-disc"><strong>Roles:</strong> Job functions that group users (e.g., "Developer").</li><li class="ml-4 list-disc"><strong>Permissions/Objects:</strong> The actions users can perform (e.g., "read," "write") on protected resources, or objects (e.g., a file, a server, an application). In RBAC, permissions are assigned to roles, and users inherit permissions by being assigned to a role.</li></ul><br>b) <strong>RBAC Model:</strong><ul><li class="ml-4 list-disc"><strong>Role: System Administrator</strong><ul class="list-circle ml-6"><li>Permission 1: Full control over all servers (read, write, execute).</li><li>Permission 2: Ability to create/delete user accounts and assign roles.</li></ul></li><li class="ml-4 list-disc"><strong>Role: Developer</strong><ul class="list-circle ml-6"><li>Permission 1: Read/Write access to specific development servers.</li><li>Permission 2: Permission to execute specific development tools (e.g., compilers, container management).</li></ul></li><li class="ml-4 list-disc"><strong>Role: Sales Agent</strong><ul class="list-circle ml-6"><li>Permission 1: Read/Write access to the CRM application.</li><li>Permission 2: Read-only access to the company's product documentation folder.</li></ul></li></ul><br>c) <strong>FreeIPA</strong> centralizes identity management. Instead of configuring user permissions on each server individually, a System Administrator would configure them once in FreeIPA.<br><ol class="list-decimal ml-6"><li>The admin would create user groups in FreeIPA corresponding to the roles (e.g., \`developers_grp\`, \`sales_grp\`).</li><li>They would assign users to these groups.</li><li>They would use FreeIPA's <strong>Host-Based Access Control (HBAC)</strong> to define which groups can access which servers. For example, \`developers_grp\` can log into \`dev-server-*.startup.com\`.</li><li>They would define sudo rules to grant specific privileged commands.</li></ol><br><strong>Example Sudo Rule for Developers:</strong><br>In FreeIPA, a sudo rule could be created to allow any member of the \`developers_grp\` to run the \`yum update\` and \`docker\` commands on any host in the \`dev_servers\` host group, without needing the root password. This grants them the privileges they need for their job without giving them full root access.` },
+            { id: 3, answer: `a) <strong>Asset Classification:</strong><ul><li class="ml-4 list-disc"><strong>Hardware Asset:</strong> A physical web server hosting the company's e-commerce site.</li><li class="ml-4 list-disc"><strong>Software Asset:</strong> The license for the database management system (e.g., Microsoft SQL Server) that stores customer information.</li><li class="ml-4 list-disc"><strong>Data Asset:</strong> The customer database itself, containing personal identifiable information (PII), purchase history, and credit card information.</li></ul><br>b) <strong>Asset inventory and valuation</strong> is critical to the <strong>NIST RMF</strong> because it is the foundation of the very first step: <strong>"Categorize."</strong> You cannot determine the potential impact of a loss of confidentiality, integrity, or availability if you don't know what your assets are, where they are, and how valuable they are to the business. An accurate inventory allows an organization to prioritize its security efforts, focusing resources on protecting its most critical and high-value assets first. Without it, risk management is just guesswork.<br><br>c) <strong>GLPI</strong> can manage asset lifecycles as follows:<ul><li class="ml-4 list-disc"><strong>Hardware Asset (Web Server):</strong> When a new server is purchased, its details (serial number, model, purchase date, warranty) are entered into GLPI. GLPI tracks its location, network configuration, and assigned administrator. Any maintenance or incidents are logged against the asset. When the server is decommissioned, its status is updated in GLPI to "retired," providing a complete history from acquisition to disposal.</li><li class="ml-4 list-disc"><strong>Software Asset (OS License):</strong> GLPI can store details about software licenses, including the number of seats purchased, the license key, and the expiration date. It can be linked to the hardware assets where the software is installed. This helps the company perform audits, ensure license compliance (avoiding fines), and anticipate renewal costs.</li></ul>` },
+            { id: 4, answer: `a) The primary purpose of a vulnerability scanner like <strong>OpenVAS</strong> is to <strong>automatically inspect computer systems, networks, and applications for known security weaknesses (vulnerabilities)</strong>. It compares the configuration and software versions of the target system against a large database of known vulnerabilities to identify potential security holes that an attacker could exploit.<br><br>b) The immediate risk is <strong>total compromise of the web server</strong>. <strong>"Remote Code Execution" (RCE)</strong> means an attacker, from anywhere on the internet and without needing to log in, can run any command they want on the server. This would allow them to:<ul><li class="ml-4 list-disc">Steal, modify, or delete any data on the server, including the website's content and potentially customer data.</li><li class="ml-4 list-disc">Install malware, such as ransomware or a crypto-miner.</li><li class="ml-4 list-disc">Use the compromised server as a pivot point to attack other systems inside the company's network.</li></ul><br>c) <strong>Mitigation Strategy:</strong><ul><li class="ml-4 list-disc"><strong>Most Critical Recommendation:</strong> The first and most critical step is to <strong>patch or upgrade the Apache HTTP Server software</strong> to a version that is not vulnerable to this RCE exploit. The vulnerability is tied to a specific outdated version, so updating to the latest stable version will fix the underlying flaw.</li><li class="ml-4 list-disc"><strong>Additional Steps:</strong> If an immediate patch is not possible, a temporary compensating control could be to deploy a Web Application Firewall (WAF) with rules specifically designed to block this known exploit. However, this is a temporary fix, and patching remains the primary solution.</li></ul>` },
+            { id: 5, answer: `a) The <strong>NIST RMF</strong> is a <strong>prescriptive and process-oriented framework</strong>. Its primary focus is to provide a detailed, repeatable, six-step process (Categorize, Select, Implement, Assess, Authorize, Monitor) for integrating security and risk management into the system development lifecycle. It is heavily focused on selecting, implementing, and assessing security controls.<br><br>b) The <strong>FAIR framework</strong> is a <strong>quantitative and analytical model</strong>. Its primary focus is to help organizations <strong>quantify information risk in financial terms</strong>. It breaks down risk into measurable factors (like Loss Event Frequency and Probable Loss Magnitude) to calculate a final risk value, typically as an Annualized Loss Expectancy (ALE) in dollars.<br><br>c) <strong>Comparison and Scenarios:</strong><ul><li class="ml-4 list-disc"><strong>NIST RMF is more suitable for:</strong> Government agencies, defense contractors, or large, highly regulated organizations that need a comprehensive, repeatable, and auditable process for managing security controls. Its prescriptive nature is ideal for demonstrating compliance with legal and regulatory requirements (e.g., FISMA).</li><li class="ml-4 list-disc"><strong>FAIR is more effective for:</strong> A CISO in a commercial business who needs to <strong>communicate risk to the board of directors in financial terms</strong> and justify security investments. By calculating risk as an ALE (e.g., "This vulnerability represents a risk of $500,000 per year"), the CISO can more easily make a business case for spending, say, $100,000 on a security solution that reduces that risk, demonstrating a clear return on investment (ROI).</li></ul>` }
+        ];
+
+        const examData = {
+            questions: [
+                {
+                    id: 0,
+                    title: "Question 1: Threat Actor Profiling and Risk Assessment",
+                    questionText: `A financial services company has recently observed sophisticated phishing emails targeting its employees. These emails are well-crafted, referencing internal projects and using language specific to the company.<br><br>
+                        a) Based on the scenario, identify and describe a likely type of <strong>external threat actor</strong>. Justify your choice by explaining their common <strong>motivations</strong> and typical <strong>level of sophistication</strong>.<br>
+                        b) Explain the concept of a <strong>qualitative risk assessment</strong>.<br>
+                        c) Using the scenario, perform a simple qualitative risk assessment for the threat of a successful phishing attack leading to an employee's credentials being compromised. Define and assign a level (e.g., Low, Medium, High) for both <strong>Probability</strong> and <strong>Impact</strong>, justifying your ratings.`,
+                    tip: `Remember to link the evidence (sophisticated, targeted emails) directly to your choice of threat actor. For the qualitative assessment, visualize a simple 3x3 risk matrix like the one below to help determine the overall risk level by finding the intersection of Probability and Impact.
+                        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-stone-600 border border-stone-300">
+                            <thead class="bg-stone-200">
+                                <tr>
+                                    <th class="p-2 border border-stone-300">Probability</th>
+                                    <th class="p-2 border border-stone-300">Low Impact</th>
+                                    <th class="p-2 border border-stone-300">Medium Impact</th>
+                                    <th class="p-2 border border-stone-300">High Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white"><td class="p-2 font-semibold border border-stone-300">High</td><td class="p-2 border border-stone-300">Low Risk</td><td class="p-2 border border-stone-300">Medium Risk</td><td class="p-2 border border-stone-300 bg-red-100 font-bold">High Risk</td></tr>
+                                <tr class="bg-stone-50"><td class="p-2 font-semibold border border-stone-300">Medium</td><td class="p-2 border border-stone-300">Low Risk</td><td class="p-2 border border-stone-300">Medium Risk</td><td class="p-2 border border-stone-300">Medium Risk</td></tr>
+                                <tr class="bg-white"><td class="p-2 font-semibold border border-stone-300">Low</td><td class="p-2 border border-stone-300">Low Risk</td><td class="p-2 border border-stone-300">Low Risk</td><td class="p-2 border border-stone-300">Low Risk</td></tr>
+                            </tbody>
+                        </table></div>`
+                },
+                {
+                    id: 1,
+                    title: "Question 2: Open-Source Intelligence (OSINT) and Reconnaissance",
+                    questionText: `You are a penetration tester tasked with performing initial reconnaissance on the domain \`isc.sans.edu\`. You have decided to use the command-line tool Recon-ng.<br><br>
+                        a) What is the primary purpose of using <strong>workspaces</strong> in Recon-ng?<br>
+                        b) List the sequence of <strong>CLI commands</strong> you would use in Recon-ng to create a workspace, add the target domain, install the \`recon/domains-hosts/hackertarget\` module, and run it to find associated hosts.<br>
+                        c) Compare the use of a CLI tool like Recon-ng to a GUI-based tool like SpiderFoot. What is a key advantage of each tool for an analyst?`,
+                    tip: `The Recon-ng workflow is key. Remember the logical order: \`workspaces create\` -> \`db insert domains\` -> \`marketplace install\` -> \`modules load\` -> \`run\`. For more details on modules, you can consult the <a href="https://github.com/lanmaster53/recon-ng/wiki" target="_blank" class="text-teal-600 hover:underline">Recon-ng Wiki</a>. When comparing with SpiderFoot, think about control and depth (CLI) versus breadth and ease-of-use (GUI).`
+                },
+                {
+                    id: 2,
+                    title: "Question 3: Role-Based Access Control (RBAC) Implementation",
+                    questionText: `A startup company has three main roles: <strong>Developers</strong>, who need to access development servers and run specific privileged commands; <strong>Sales Agents</strong>, who only need access to the Customer Relationship Management (CRM) application; and <strong>System Administrators</strong>, who need full access to manage all systems.<br><br>
+                        a) Define <strong>Role-Based Access Control (RBAC)</strong> and its core components (Users, Roles, Permissions/Objects).<br>
+                        b) Design a simple RBAC model for this startup. Define the three roles and list at least two specific permissions that should be assigned to each.<br>
+                        c) Explain how a centralized identity management tool like <strong>FreeIPA</strong> could be used to enforce this model. Provide a practical example of a <strong>sudo rule</strong> you might create in FreeIPA for the "Developers" role.`,
+                    tip: `When designing permissions, always apply the <strong>Principle of Least Privilege</strong>. The RBAC model can be visualized as:
+                        <div class="flex items-center justify-center space-x-4 my-4 p-4 bg-stone-200 rounded-lg">
+                            <span class="font-semibold">User</span>
+                            <span class="text-2xl text-teal-600">&rarr;</span>
+                            <span class="font-semibold border-2 border-teal-500 p-2 rounded">Role</span>
+                            <span class="text-2xl text-teal-600">&rarr;</span>
+                            <span class="font-semibold">Permissions</span>
+                        </div>
+                        For the FreeIPA section, remember that <strong>HBAC (Host-Based Access Control)</strong> rules control <em>who</em> can log into <em>which machines</em>, while <strong>Sudo Rules</strong> control <em>which privileged commands</em> they can run. You can find detailed guidance in the <a href="https://www.freeipa.org/page/Sudo" target="_blank" class="text-teal-600 hover:underline">FreeIPA Sudo Rules Documentation</a>.`
+                },
+                {
+                    id: 3,
+                    title: "Question 4: Information Asset Management and Risk Frameworks",
+                    questionText: `An online retail company relies on its website, customer database, and order processing software to function.<br><br>
+                        a) Identify and classify at least one <strong>Hardware</strong>, one <strong>Software</strong>, and one <strong>Data</strong> asset for this company.<br>
+                        b) Explain why <strong>asset inventory and valuation</strong> is a critical foundational step in a comprehensive risk management framework like the <strong>NIST RMF</strong>.<br>
+                        c) How can a tool like <strong>GLPI</strong> be used to manage the lifecycle of a hardware asset (e.g., a web server) and a software asset (e.g., an operating system license)?`,
+                    tip: `Think of assets in distinct categories: Is it a physical object (Hardware)? Is it a program or license (Software)? Or is it the information itself (Data)? For the NIST RMF link, remember that the very first step is <strong>"Categorize,"</strong> which is impossible without first knowing what your assets are. For more information, refer to the <a href="https://csrc.nist.gov/projects/risk-management/rmf-overview" target="_blank" class="text-teal-600 hover:underline">NIST Risk Management Framework Overview</a>.`
+                },
+                {
+                    id: 4,
+                    title: "Question 5: Vulnerability Scanning and Analysis",
+                    questionText: `You have run a vulnerability scan using a tool like OpenVAS against a company's public-facing web server (\`192.168.1.100\`). The scan report highlights the following critical vulnerability:<br><br>
+                        <ul class="list-disc ml-6 bg-stone-200 p-4 rounded">
+                            <li><strong>Vulnerability:</strong> Apache HTTP Server 2.4.52 - Remote Code Execution (RCE)</li>
+                            <li><strong>Severity:</strong> High (CVSS Score: 9.8)</li>
+                            <li><strong>Summary:</strong> The version of Apache running is outdated and vulnerable to a known exploit that allows an unauthenticated attacker to execute arbitrary code on the server.</li>
+                        </ul><br>
+                        a) What is the primary purpose of a vulnerability scanner like OpenVAS?<br>
+                        b) Based on the scan result, what is the immediate risk to the organization? Explain what "Remote Code Execution" means in this context.<br>
+                        c) Propose a clear <strong>mitigation strategy</strong> to address this vulnerability. What would be your first and most critical recommendation?`,
+                    tip: `The CVSS score of 9.8 immediately tells you this is a critical issue. RCE effectively means an attacker has full control of the server, as shown in this simplified diagram. The most important mitigation for a specific software version vulnerability is always to <strong>patch or upgrade</strong>. You can see a real-world example of such a vulnerability report here: <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-41773" target="_blank" class="text-teal-600 hover:underline">CVE-2021-41773</a>.
+                        <div class="my-4 p-4 border border-dashed border-red-400 rounded-lg flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 text-center">
+                            <div class="font-bold text-red-700">Attacker</div>
+                            <div class="text-3xl text-red-500 animate-pulse">&rarr;</div>
+                            <div class="text-stone-600">Internet</div>
+                            <div class="text-3xl text-red-500 animate-pulse">&rarr;</div>
+                            <div class="p-3 bg-red-100 rounded border border-red-300">
+                                <div class="font-semibold">Vulnerable Server</div>
+                                <div class="text-sm">(Apache 2.4.52)</div>
+                            </div>
+                             <div class="text-3xl text-red-500 animate-pulse">&rarr;</div>
+                            <div class="font-bold text-red-700">Full Control</div>
+                        </div>`
+                },
+                {
+                    id: 5,
+                    title: "Question 6: Comparing Risk Management Frameworks",
+                    questionText: `An organization's Chief Information Security Officer (CISO) is deciding on a formal risk management framework. They are considering the <strong>NIST RMF</strong> and the <strong>FAIR (Factor Analysis of Information Risk)</strong> framework.<br><br>
+                        a) Briefly describe the primary focus and approach of the <strong>NIST RMF</strong>.<br>
+                        b) Briefly describe the primary focus and approach of the <strong>FAIR framework</strong>.<br>
+                        c) Compare the two frameworks. In which scenario would the NIST RMF be a more suitable choice, and in which scenario would FAIR be more effective for the CISO?`,
+                    tip: `The core difference to highlight is <strong>Process vs. Financial Quantification</strong>. Use this table to structure your comparison:
+                        <div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left text-stone-600 border border-stone-300">
+                            <thead class="bg-stone-200">
+                                <tr>
+                                    <th class="p-2 border border-stone-300">Factor</th>
+                                    <th class="p-2 border border-stone-300">NIST RMF</th>
+                                    <th class="p-2 border border-stone-300">FAIR Framework</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white"><td class="p-2 font-semibold border border-stone-300">Approach</td><td class="p-2 border border-stone-300">Prescriptive, process-based</td><td class="p-2 border border-stone-300">Analytical, model-based</td></tr>
+                                <tr class="bg-stone-50"><td class="p-2 font-semibold border border-stone-300">Focus</td><td class="p-2 border border-stone-300">Implementing and assessing security controls</td><td class="p-2 border border-stone-300">Quantifying risk in financial terms</td></tr>
+                                <tr class="bg-white"><td class="p-2 font-semibold border border-stone-300">Output</td><td class="p-2 border border-stone-300">System authorization, list of controls</td><td class="p-2 border border-stone-300">Annualized Loss Expectancy (ALE)</td></tr>
+                                <tr class="bg-stone-50"><td class="p-2 font-semibold border border-stone-300">Best For</td><td class="p-2 border border-stone-300">Compliance, auditors, government</td><td class="p-2 border border-stone-300">Business leaders, budget justification</td></tr>
+                            </tbody>
+                        </table></div>`
+                }
+            ],
+            grid: {
+                title: "Evaluation Grid",
+                content: `<div class="overflow-x-auto"><table class="w-full text-sm text-left text-stone-600 border border-stone-300">
+                    <thead class="bg-stone-200">
+                        <tr>
+                            <th class="p-3 border border-stone-300">Question</th>
+                            <th class="p-3 border border-stone-300">Criteria</th>
+                            <th class="p-3 border border-stone-300">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-white"><td class="p-2 font-semibold border border-stone-300 align-top">Q1</td><td class="p-2 border border-stone-300">Correctly identifies actor & motivation (1.5)<br>Accurately defines qualitative assessment (1.5)<br>Provides a logical PxI assessment (2)</td><td class="p-2 font-bold border border-stone-300 align-middle text-center">5</td></tr>
+                        <tr class="bg-stone-50"><td class="p-2 font-semibold border border-stone-300 align-top">Q2</td><td class="p-2 border border-stone-300">Explains workspaces correctly (1.5)<br>Provides accurate CLI commands in order (2)<br>Logically compares CLI vs. GUI tools (1.5)</td><td class="p-2 font-bold border border-stone-300 align-middle text-center">5</td></tr>
+                        <tr class="bg-white"><td class="p-2 font-semibold border border-stone-300 align-top">Q3</td><td class="p-2 border border-stone-300">Defines RBAC and components accurately (1.5)<br>Designs a logical RBAC model (2)<br>Explains FreeIPA use and gives sudo rule (1.5)</td><td class="p-2 font-bold border border-stone-300 align-middle text-center">5</td></tr>
+                        <tr class="bg-stone-50"><td class="p-2 font-semibold border border-stone-300 align-top">Q4</td><td class="p-2 border border-stone-300">Correctly classifies assets (1.5)<br>Links asset management to NIST RMF (2)<br>Explains GLPI's role for assets (1.5)</td><td class="p-2 font-bold border border-stone-300 align-middle text-center">5</td></tr>
+                        <tr class="bg-white"><td class="p-2 font-semibold border border-stone-300 align-top">Q5</td><td class="p-2 border border-stone-300">Defines the purpose of OpenVAS (1.5)<br>Explains the risk and RCE clearly (2)<br>Proposes a correct mitigation strategy (1.5)</td><td class="p-2 font-bold border border-stone-300 align-middle text-center">5</td></tr>
+                        <tr class="bg-stone-50"><td class="p-2 font-semibold border border-stone-300 align-top">Q6</td><td class="p-2 border border-stone-300">Accurately describes NIST RMF (1.5)<br>Accurately describes FAIR (1.5)<br>Provides logical comparison and scenarios (2)</td><td class="p-2 font-bold border border-stone-300 align-middle text-center">5</td></tr>
+                        <tr class="bg-stone-200"><td colspan="2" class="p-3 font-bold text-right border border-stone-300">Total</td><td class="p-3 font-bold border border-stone-300 text-center">30</td></tr>
+                    </tbody>
+                </table></div>`
+            }
+        };
+        const navigation = document.getElementById('navigation');
+        const mainContent = document.getElementById('main-content');
+        let activeQuestionId = 0;
+        let isAuthenticated = false;
+        let resolvePasswordPromise = null;
+        const CORRECT_PASSWORD = "cyber2025";
+        let studentAnswers = {};
+
+        function showPasswordModal() {
+            return new Promise((resolve) => {
+                resolvePasswordPromise = resolve;
+                const modal = document.getElementById('password-modal-overlay');
+                modal.classList.remove('hidden');
+                document.getElementById('password-input').focus();
+            });
+        }
+
+        function hidePasswordModal() {
+            const modal = document.getElementById('password-modal-overlay');
+            modal.classList.add('hidden');
+            document.getElementById('password-input').value = '';
+            document.getElementById('password-error').classList.add('hidden');
+        }
+
+        function renderNavigation() {
+            let navHTML = '';
+            examData.questions.forEach(q => {
+                navHTML += `<button data-id="${q.id}" class="sidebar-btn w-full text-left px-4 py-2 rounded-md text-stone-700 hover:bg-teal-100 hover:text-teal-800 transition-colors ${q.id === activeQuestionId ? 'active' : ''}">Q${q.id + 1}: ${q.title.split(':')[1]}</button>`;
+            });
+            navHTML += `<button data-id="grid" class="sidebar-btn w-full text-left px-4 py-2 rounded-md text-stone-700 hover:bg-teal-100 hover:text-teal-800 transition-colors">Evaluation Grid</button>`;
+            navigation.innerHTML = navHTML;
+        }
+
+        function renderContent(id) {
+            let contentHTML = '';
+            if (id === 'grid') {
+                document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+                const gridBtn = document.querySelector('.sidebar-btn[data-id="grid"]');
+                if(gridBtn) gridBtn.classList.add('active');
+
+                contentHTML = `
+                    <div class="bg-white p-6 md:p-8 rounded-xl shadow-md">
+                        <h2 class="text-3xl font-bold mb-6 text-teal-800">${examData.grid.title}</h2>
+                        ${examData.grid.content}
+                    </div>`;
+            } else {
+                const q = examData.questions.find(item => item.id === parseInt(id));
+                if (!q) return;
+
+                activeQuestionId = q.id;
+                document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.id == q.id) {
+                        btn.classList.add('active');
+                    }
+                });
+
+                contentHTML = `
+                    <div class="bg-white p-6 md:p-8 rounded-xl shadow-md space-y-6">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-2 text-teal-800">${q.title}</h2>
+                            <p class="text-stone-600">${q.questionText}</p>
+                        </div>
+
+                        <div class="mt-4">
+                            <label for="answer-input-${q.id}" class="block text-lg font-semibold text-stone-800 mb-2">Your Answer:</label>
+                            <textarea id="answer-input-${q.id}" data-question-id="${q.id}" rows="8" class="student-answer-box w-full p-3 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Type your answer here...">${studentAnswers[q.id] || ''}</textarea>
+                        </div>
+
+                        <div class="border-t border-stone-200 pt-6 space-y-4">
+                            <div>
+                                <button class="toggle-btn bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-transform transform hover:scale-105" data-action="toggle" data-target="tip-${q.id}">Show Useful Tip</button>
+                                <div id="tip-${q.id}" class="hidden content-toggle mt-4 p-4 bg-amber-50 border-l-4 border-amber-400 text-amber-800 rounded-r-lg">
+                                    ${q.tip}
+                                </div>
+                            </div>
+                             <div>
+                                <button class="toggle-btn bg-sky-600 text-white px-4 py-2 rounded-md hover:bg-sky-700 transition-transform transform hover:scale-105" data-action="reveal-answer" data-target="answer-${q.id}" data-id="${q.id}">Show Correct Answer</button>
+                                <div id="answer-${q.id}" class="hidden content-toggle mt-4 p-4 bg-sky-50 border-l-4 border-sky-400 text-sky-800 rounded-r-lg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            mainContent.innerHTML = contentHTML;
+            mainContent.scrollTop = 0;
+        }
+
+        navigation.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const id = e.target.dataset.id;
+                if (id === 'grid') {
+                    activeQuestionId = -1;
+                    renderContent('grid');
+                } else {
+                    renderContent(id);
+                }
+            }
+        });
+
+        mainContent.addEventListener('input', (e) => {
+            if (e.target.classList.contains('student-answer-box')) {
+                const questionId = e.target.dataset.questionId;
+                studentAnswers[questionId] = e.target.value;
+            }
+        });
+
+        mainContent.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('toggle-btn')) {
+                const action = e.target.dataset.action;
+                const targetId = e.target.dataset.target;
+                const targetDiv = document.getElementById(targetId);
+
+                if (action === 'toggle') {
+                     if(targetDiv) targetDiv.classList.toggle('hidden');
+                } else if (action === 'reveal-answer') {
+                    if (!isAuthenticated) {
+                        try {
+                            const success = await showPasswordModal();
+                             if (!success) return;
+                        } catch (error) {
+                            return; 
+                        }
+                    }
+                    
+                    if (isAuthenticated && targetDiv) {
+                        const questionId = parseInt(e.target.dataset.id);
+                        const answerData = protectedAnswers.find(a => a.id === questionId);
+                        if (answerData && targetDiv.innerHTML.trim() === '') {
+                           targetDiv.innerHTML = answerData.answer;
+                        }
+                        targetDiv.classList.toggle('hidden');
+                    }
+                }
+            }
+        });
+        
+        document.getElementById('submit-all-answers').addEventListener('click', () => {
+            const studentNameInput = document.getElementById('student-name');
+            const studentIdInput = document.getElementById('student-id');
+            const studentName = studentNameInput.value.trim();
+            const studentId = studentIdInput.value.trim();
+            
+            studentNameInput.classList.remove('border-red-500');
+            studentIdInput.classList.remove('border-red-500');
+
+            if (!studentName || !studentId) {
+                if (!studentName) studentNameInput.classList.add('border-red-500');
+                if (!studentId) studentIdInput.classList.add('border-red-500');
+                return;
+            }
+
+            let emailBody = `Cybersecurity Midterm Answers Submission\n\n`;
+            emailBody += `Student Name: ${studentName}\n`;
+            emailBody += `Student ID: ${studentId}\n`;
+            emailBody += `------------------------------------\n\n`;
+
+            examData.questions.forEach(q => {
+                emailBody += `Question ${q.id + 1}: ${q.title.split(':')[1].trim()}\n\n`;
+                emailBody += `Answer:\n${studentAnswers[q.id] || 'No answer provided.'}\n\n`;
+                emailBody += `------------------------------------\n\n`;
+            });
+
+            const mailtoLink = `mailto:agrozdanov@dawsoncollege.qc.ca?subject=${encodeURIComponent('Midterm Answers from ' + studentName)}&body=${encodeURIComponent(emailBody)}`;
+            window.location.href = mailtoLink;
+        });
+
+        document.getElementById('password-submit').addEventListener('click', () => {
+            const input = document.getElementById('password-input');
+            const errorMsg = document.getElementById('password-error');
+            const enteredPassword = input.value.trim();
+
+            if (enteredPassword === CORRECT_PASSWORD) {
+                isAuthenticated = true;
+                hidePasswordModal();
+                if (resolvePasswordPromise) resolvePasswordPromise(true);
+            } else {
+                errorMsg.classList.remove('hidden');
+                input.focus();
+            }
+        });
+        
+        document.getElementById('password-input').addEventListener('keydown', (e) => {
+             document.getElementById('password-error').classList.add('hidden');
+             if (e.key === 'Enter') {
+                document.getElementById('password-submit').click();
+            }
+        });
+
+        document.getElementById('password-cancel').addEventListener('click', () => {
+            hidePasswordModal();
+            if (resolvePasswordPromise) resolvePasswordPromise(false);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNavigation();
+            renderContent(activeQuestionId);
+        });
+
+    </script>
+</body>
+</html>
+

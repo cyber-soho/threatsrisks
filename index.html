@@ -196,7 +196,6 @@
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 5 — Oct 7, 9 (online) &amp; Oct 11 (<strong>2F.20</strong>)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
             <div class="grid cols-3">
-              <!-- CHANGED: link Class 1 (Lab) title; link 'OpenSCAP' word -->
               <div>
                 <h3><a href="risk mgmnt_step-by-step.html" target="_blank" rel="noopener noreferrer">Class 1 (Lab)</a></h3>
                 <ul>
@@ -205,14 +204,19 @@
                   <li><strong>LAB #05.01</strong> &amp; <strong>#05.02</strong></li>
                 </ul>
               </div>
-              <!-- CHANGED: link Class 2 title; KEEP existing Midterm review link -->
               <div>
                 <h3><a href="risk_management.html" target="_blank" rel="noopener noreferrer">Class 2</a></h3>
                 <ul>
                   <li><a href="midterm.html" target="_blank" rel="noopener noreferrer">Midterm review</a>: case studies on threats &amp; risks</li>
                 </ul>
               </div>
-              <div><h3>Class 3</h3><ul><li><strong>Midterm Assessment (in class — 2F.20)</strong><br/>Practical exam based on Weeks 1–5 lab activities</li></ul></div>
+              <div>
+                <h3>Class 3</h3>
+                <ul>
+                  <!-- CHANGED ONLY THIS: make Midterm Assessment open mterm.html in a new tab -->
+                  <li><strong><a href="mterm.html" target="_blank" rel="noopener noreferrer">Midterm Assessment (in class — 2F.20)</a></strong><br/>Practical exam based on Weeks 1–5 lab activities</li>
+                </ul>
+              </div>
             </div>
           </div>
         </details>
@@ -292,6 +296,7 @@
       const $ = (s, el=document) => el.querySelector(s);
       const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
 
+      // Ensure DOM is ready before binding
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init, { once:true });
       } else { init(); }
@@ -330,6 +335,3 @@
   </script>
 </body>
 </html>
-
-
-
