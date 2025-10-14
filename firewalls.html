@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course Content: Firewalls & Mitigation — Solarized</title>
+  <meta name="description" content="Comprehensive, dynamic, interactive course content with Solarized Light/Dark themes covering firewalls and mitigation strategies with evaluation." />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'nonce-r4nd0m'; script-src 'nonce-r4nd0m'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content; referrer no-referrer;" />
+  <meta name="referrer" content="no-referrer" />
+  <style nonce="r4nd0m">
+    /* Solarized palette tokens */
+    /* Base colors from Ethan Schoonover's Solarized */
+    /* base03:#002b36 base02:#073642 base01:#586e75 base00:#657b83 base0:#839496 base1:#93a1a1 base2:#eee8d5 base3:#fdf6e3 */
+    /* yellow:#b58900 orange:#cb4b16 red:#dc322f magenta:#d33682 violet:#6c71c4 blue:#268bd2 cyan:#2aa198 green:#859900 */
+
+    :root {
+      color-scheme: dark; /* default to dark; toggle adds .light */
+      --bg:#002b36;      /* base03 */
+      --fg:#93a1a1;      /* base1 */
+      --muted:#839496;   /* base0 */
+      --card:#073642;    /* base02 */
+      --ui:#073642;      /* panels */
+      --ui-hover:#0a3f4d;
+      --border:rgba(147,161,161,.35); /* base1 @35% */
+
+      --accent:#268bd2;  /* blue */
+      --link:#268bd2;    /* blue */
+      --ok:#859900;      /* green */
+      --warn:#b58900;    /* yellow */
+      --bad:#dc322f;     /* red */
+      --shadow:0 10px 28px rgba(0,0,0,.35);
+    }
+    
+    body.light { 
+      --bg:#fdf6e3;      /* base3 */
+      --fg:#586e75;      /* base01 */
+      --muted:#657b83;   /* base00 */
+      --card:#fffdf0;    /* slightly lifted from base3 */
+      --ui:#eee8d5;      /* base2 */
+      --ui-hover:#e6dfc9;
+      --border:rgba(88,110,117,.25);
+      --accent:#268bd2; --link:#268bd2; --ok:#859900; --warn:#b58900; --bad:#dc322f; --shadow:0 8px 20px rgba(88,110,117,.15);
+    } 
+    body.dark { 
+      --bg:#002b36;      /* base03 */
+      --fg:#93a1a1;      /* base1 */
+      --muted:#839496;   /* base0 */
+      --card:#073642;    /* base02 */
+      --ui:#073642;      /* panels */
+      --ui-hover:#0a3f4d;
+      --border:rgba(147,161,161,.35);
+      --accent:#268bd2; --link:#268bd2; --ok:#859900; --warn:#b58900; --bad:#dc322f; --shadow:0 10px 28px rgba(0,0,0,.35);
+    }
+
+    html { color-scheme: light dark; scroll-behavior: smooth; scroll-padding-top: 100px; }
+    body { margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; background:var(--bg); color:var(--fg); display:grid; grid-template-columns: 320px 1fr; min-height:100vh; }
+    header { grid-column: 1 / -1; padding: 20px 24px; background: linear-gradient(135deg, var(--bg), var(--card)); position: sticky; top: 0; z-index: 10; box-shadow: var(--shadow); }
+    header h1 { margin:0 0 4px; font-size: clamp(20px, 2.2vw, 30px); letter-spacing:.2px; }
+    header p { margin:0; color:var(--muted); font-size: .95rem; }
+    .layout { display: contents; }
+    nav { position: sticky; top: 88px; align-self: start; height: calc(100vh - 88px); overflow:auto; padding: 16px; background: var(--card); border-right:1px solid var(--border); }
+    .controls { display:grid; gap:10px; margin-bottom:14px; }
+    .controls button, .controls input[type="search"] { width:100%; border-radius: 14px; padding: 10px 12px; background:var(--ui); color:var(--fg); border:1px solid var(--border); box-shadow: inset 0 1px 0 rgba(255,255,255,.03); }
+    .controls button { cursor:pointer; text-align:left; }
+    .controls button:hover { background:var(--ui-hover); }
+    .toc { list-style:none; margin: 8px 0 0; padding:0; }
+    .toc li { margin: 6px 0; }
+    .toc a { color: var(--link); text-decoration: underline; }
+    main { padding: 24px; }
+    section { background: var(--card); border:1px solid var(--border); border-radius: 16px; padding: 18px 18px 8px; margin: 0 0 16px; box-shadow: var(--shadow); scroll-margin-top: 110px; }
+    section h2 { margin-top:0; font-size: clamp(18px, 2vw, 24px); }
+    details { background: var(--ui); border:1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin: 10px 0 12px; }
+    details summary { cursor: pointer; font-weight: 600; }
+    p, li { line-height: 1.6; }
+    .bad { color: var(--bad); }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    a, a[target="_blank"] { color: var(--link); text-decoration: underline; }
+    figure { margin: 12px auto; padding: 10px; background:var(--ui); border:1px solid var(--border); border-radius: 12px; }
+    figcaption { color: var(--muted); font-size:.9rem; margin-top: 6px; }
+    svg { max-width: 100%; height: auto; display:block; }
+    svg text { fill: var(--fg) !important; }
+    .mcq { border-left: 4px solid var(--accent); padding-left: 12px; margin: 10px 0; }
+    .reveal { margin-top: 8px; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:999px; background:var(--ui); border:1px solid var(--border); font-size:.8rem; color:var(--muted); }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:var(--ui); border: 1px solid var(--border); border-bottom-width:2px; padding: 1px 6px; border-radius: 6px; }
+    .grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .footer { color:var(--muted); font-size:.9rem; text-align:center; padding: 18px 0 32px; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Course Content: Firewalling & Mitigation (Solarized)</h1>
+    <p>Protecting networks with firewalls and applying mitigation strategies — with practical evaluation using Nessus.</p>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="Course navigation">
+      <div class="controls" id="controls">
+        <input id="search" type="search" placeholder="Search sections… (press Enter)" aria-label="Search" />
+        <button id="toggleTheme" type="button">🌗 Toggle Solarized</button>
+        <button id="expandAll" type="button">⤢ Expand All</button>
+        <button id="collapseAll" type="button">⤡ Collapse All</button>
+        <button id="printPage" type="button">🖨️ Print</button>
+        <div class="pill">Solarized Light/Dark • CSP • No inline handlers • Sanitized UI</div>
+      </div>
+      <ul class="toc" id="toc">
+        <li><a href="#intro">Introduction to Firewalls</a></li>
+        <li><a href="#functions">Firewall Functions</a></li>
+        <li><a href="#types">Types of Firewalls</a></li>
+        <li><a href="#opensource">Open-Source Firewalls & Proxies</a></li>
+        <li><a href="#deploy">Deployment Variants</a></li>
+        <li><a href="#mitigation">Mitigation Strategies</a></li>
+        <li><a href="#implement">Implementing Measures</a></li>
+        <li><a href="#evaluate">Evaluating Effectiveness</a></li>
+        <li><a href="#nessus">Nessus for Evaluation</a></li>
+        <li><a href="#summary">Summary</a></li>
+      </ul>
+    </nav>
+
+    <main id="content" tabindex="-1">
+      <!-- INTRO -->
+      <section id="intro">
+        <h2>Introduction to Firewalls</h2>
+        <p>A firewall is a network security system that monitors and controls traffic between a trusted network and an untrusted network (e.g., the internet). It prevents unauthorized access, blocks malicious traffic, and enforces security policies.</p>
+        <details open>
+          <summary>Real‑world examples</summary>
+          <ul>
+            <li>Company perimeter firewall protecting office networks.</li>
+            <li>Home router firewall preventing inbound unsolicited connections.</li>
+            <li>University firewalls segmenting research networks from student VLANs.</li>
+          </ul>
+        </details>
+        <figure aria-label="Simple packet flow diagram">
+          <svg viewBox="0 0 720 210" role="img" aria-labelledby="fw1">
+            <title id="fw1">Traffic across a firewall</title>
+            <rect x="20" y="60" width="160" height="90" rx="12" fill="#0b3a46" stroke="#3b7b8b"/>
+            <text x="100" y="115" font-size="14" text-anchor="middle">Internet</text>
+            <rect x="520" y="60" width="180" height="90" rx="12" fill="#0b3a46" stroke="#3b7b8b"/>
+            <text x="610" y="115" font-size="14" text-anchor="middle">Internal Network</text>
+            <rect x="300" y="40" width="120" height="130" rx="8" fill="#3a221f" stroke="#cb4b16"/>
+            <text x="360" y="110" font-size="14" text-anchor="middle">FIREWALL</text>
+            <!-- Allowed egress arrows in dark green -->
+            <path d="M180 105 H300" stroke="#859900" stroke-width="4" marker-end="url(#arrowGreen)" />
+            <path d="M420 105 H520" stroke="#859900" stroke-width="4" marker-end="url(#arrowGreen)" />
+            <!-- Blocked return arrow in red -->
+            <path d="M300 125 H180" stroke="#dc322f" stroke-width="4" marker-end="url(#arrowRed)" />
+            <defs>
+              <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto-start-reverse">
+                <path d="M0,0 L8,4 L0,8 z" fill="#859900"/>
+              </marker>
+              <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto-start-reverse">
+                <path d="M0,0 L8,4 L0,8 z" fill="#dc322f"/>
+              </marker>
+            </defs>
+          </svg>
+          <figcaption>Allowed traffic flows right → (green); blocked traffic returns left ← (red).</figcaption>
+        </figure>
+      </section>
+
+      <!-- FUNCTIONS -->
+      <section id="functions">
+        <h2>Firewall Functions</h2>
+        <details open>
+          <summary>Traffic Filtering</summary>
+          <p>Examines packets based on IPs, ports, and protocols. Can be stateless or stateful.</p>
+          <ul>
+            <li>Block inbound <span class="kbd">TCP 22</span>; allow outbound <span class="kbd">80/443</span>.</li>
+            <li>Stateful tracking validates connection sequences.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Access Control</summary>
+          <p>Controls who/what can reach resources via authentication, IP allow‑lists, least‑privilege.</p>
+        </details>
+        <details>
+          <summary>NAT &amp; Proxy Services</summary>
+          <p><strong>NAT</strong> hides internal addresses and enables shared public IPs. <strong>Proxy</strong> intermediates requests for caching, filtering, logging.</p>
+          <p>Learn more: <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Network_address_translation">Network address translation</a></p>
+          <figure aria-label="NAT schematic">
+            <svg viewBox="0 0 720 220" role="img" aria-labelledby="nat1">
+              <title id="nat1">NAT: many internal → one public</title>
+              <rect x="40" y="60" width="220" height="120" rx="12" fill="#0b3a46" stroke="#3b7b8b"/>
+              <text x="150" y="88" font-size="13" text-anchor="middle">Private LAN</text>
+              <circle cx="90" cy="140" r="18" fill="#0f4854" stroke="#2aa198"/>
+              <circle cx="150" cy="140" r="18" fill="#0f4854" stroke="#2aa198"/>
+              <circle cx="210" cy="140" r="18" fill="#0f4854" stroke="#2aa198"/>
+              <rect x="320" y="80" width="90" height="80" rx="8" fill="#3a221f" stroke="#cb4b16"/>
+              <text x="365" y="123" font-size="12" text-anchor="middle">NAT GW</text>
+              <rect x="490" y="60" width="190" height="120" rx="12" fill="#0b3a46" stroke="#3b7b8b"/>
+              <text x="585" y="88" font-size="13" text-anchor="middle">Internet</text>
+              <path d="M260 120 H320 M410 120 H490" stroke="#268bd2" stroke-width="4" marker-end="url(#arrow)" />
+            </svg>
+            <figcaption>NAT maps many internal addresses to a single public address.</figcaption>
+          </figure>
+        </details>
+        <details>
+          <summary>Intrusion Prevention (IPS)</summary>
+          <p>Deep packet inspection detects blocks: scans, exploits, DoS. Signatures and anomaly detection.</p>
+        </details>
+        <div class="mcq">
+          <p><strong>MCQ:</strong> Which function hides internal network structure?</p>
+          <button class="reveal" data-answer="nat">Reveal Answer</button>
+          <div class="answer" hidden><p><strong>Answer:</strong> Network Address Translation (NAT).</p></div>
+        </div>
+      </section>
+
+      <!-- TYPES -->
+      <section id="types">
+        <h2>Types of Firewalls</h2>
+        <details open>
+          <summary>Packet Filtering (L3/L4)</summary>
+          <p>Fast, basic rules by source/destination IP, ports, protocols.</p>
+        </details>
+        <details>
+          <summary>Stateful Firewalls</summary>
+          <p>Track connection state across layers; common in modern OS/devices. Examples: pfSense, OPNsense.</p>
+        </details>
+        <details>
+          <summary>Application‑Level / Proxy &amp; NGFW</summary>
+          <p>Layer‑7 awareness with DPI, app control, IPS, user identity. See <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Firewall_(computing)">overview</a>.</p>
+        </details>
+        <div class="mcq">
+          <p><strong>MCQ:</strong> Which operates at Layer 7 and examines content?</p>
+          <button class="reveal" data-answer="l7">Reveal Answer</button>
+          <div class="answer" hidden><p><strong>Answer:</strong> Application‑level (proxy) firewall.</p></div>
+        </div>
+      </section>
+
+      <!-- OPEN SOURCE & PROXIES -->
+      <section id="opensource">
+        <h2>Open‑Source Firewalls & Proxies</h2>
+        <div class="grid">
+          <details open>
+            <summary>Linux Tools: <span class="kbd">iptables</span>, <span class="kbd">ufw</span>, <span class="kbd">firewalld</span></summary>
+            <ul>
+              <li><strong>iptables</strong>: granular control; steep learning curve.</li>
+              <li><strong>ufw</strong>: simpler CLI wrapper for iptables.</li>
+              <li><strong>firewalld</strong>: dynamic zones & service concepts; integrates with systemd.</li>
+            </ul>
+          </details>
+          <details>
+            <summary>Distributions &amp; Appliances</summary>
+            <ul>
+              <li><strong>Smoothwall</strong> — <a target="_blank" rel="noopener noreferrer" href="https://www.smoothwall.com/">site</a></li>
+              <li><strong>IPFire</strong> — <a target="_blank" rel="noopener noreferrer" href="https://www.ipfire.org/">site</a></li>
+              <li><strong>pfSense</strong> (FreeBSD) — <a target="_blank" rel="noopener noreferrer" href="https://www.pfsense.org/">official site</a></li>
+              <li><strong>OPNsense</strong> — <a target="_blank" rel="noopener noreferrer" href="https://opnsense.org/">site</a></li>
+            </ul>
+          </details>
+          <details>
+            <summary>Application‑Level (WAF)</summary>
+            <ul>
+              <li><strong>ModSecurity</strong> + OWASP CRS</li>
+              <li><strong>NAXSI</strong> for Nginx</li>
+            </ul>
+          </details>
+          <details>
+            <summary>Proxies</summary>
+            <ul>
+              <li><strong>Squid</strong> (forward proxy, caching) — <a target="_blank" rel="noopener noreferrer" href="http://www.squid-cache.org/">project</a></li>
+              <li><strong>Apache</strong> / <strong>Nginx</strong> (reverse proxy, load balancing)</li>
+            </ul>
+            <div class="mcq">
+              <p><strong>MCQ:</strong> Which proxy is commonly used for caching & access control?</p>
+              <button class="reveal" data-answer="squid">Reveal Answer</button>
+              <div class="answer" hidden><p><strong>Answer:</strong> Squid.</p></div>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- DEPLOYMENT -->
+      <section id="deploy">
+        <h2>Deployment Variants</h2>
+        <details open>
+          <summary>Physical Appliance</summary>
+          <p>Dedicated hardware; high performance, full control; higher capex.</p>
+        </details>
+        <details>
+          <summary>Virtual Machine (VM)</summary>
+          <p>Flexible, scalable, cost‑effective; easy to manage on existing hypervisors. See <a target="_blank" rel="noopener noreferrer" href="https://www.redhat.com/en/topics/virtualization/what-is-virtualization">virtualization</a>.</p>
+          <div class="mcq">
+            <p><strong>MSQ:</strong> Advantages of VM deployment?</p>
+            <button class="reveal" data-answer="vm">Reveal Answer</button>
+            <div class="answer" hidden><p><strong>Answer:</strong> Flexibility & scalability; reduced hardware costs.</p></div>
+          </div>
+        </details>
+        <details>
+          <summary>Cloud &amp; Containerized</summary>
+          <p>High availability & orchestration: pfSense/OPNsense in AWS/Azure/GCP; containerized firewalls for microservices.</p>
+          <figure aria-label="Deployment comparison diagram">
+            <svg viewBox="0 0 760 260" role="img" aria-labelledby="dep1">
+              <title id="dep1">Deployment options</title>
+              <g>
+                <rect x="30" y="40" width="180" height="80" rx="12" fill="#0b3a46" stroke="#3b7b8b"/>
+                <text x="120" y="85" font-size="13" text-anchor="middle">Appliance</text>
+                <rect x="290" y="40" width="180" height="80" rx="12" fill="#0b3a46" stroke="#3b7b8b"/>
+                <text x="380" y="85" font-size="13" text-anchor="middle">VM / Hypervisor</text>
+                <rect x="550" y="40" width="180" height="80" rx="12" fill="#0b3a46" stroke="#3b7b8b"/>
+                <text x="640" y="85" font-size="13" text-anchor="middle">Cloud / K8s</text>
+              </g>
+            </svg>
+            <figcaption>Select based on performance, scale, budget, and expertise.</figcaption>
+          </figure>
+        </details>
+      </section>
+
+      <!-- MITIGATION STRATEGIES -->
+      <section id="mitigation">
+        <h2>Mitigation Strategies (Risk Treatment)</h2>
+        <div class="grid">
+          <details open>
+            <summary>Avoidance</summary>
+            <p>Eliminate the risky activity altogether (e.g., decomission outdated FTP services, do not launch insecure apps).</p>
+          </details>
+          <details>
+            <summary>Reduction (Mitigation/Control)</summary>
+            <p>Lower likelihood/impact with controls: patching, MFA, firewalls/IDS/IPS, encryption, segmentation, backups.</p>
+          </details>
+          <details>
+            <summary>Sharing (Transfer)</summary>
+            <p>Shift financial/operational consequences to third parties (cyber insurance, MSSP/SOC, cloud SLAs).</p>
+          </details>
+          <details>
+            <summary>Acceptance</summary>
+            <p>Formally accept residual risk when cost > impact or probability is very low; document and review regularly.</p>
+          </details>
+        </div>
+        <figure aria-label="Risk matrix">
+          <svg viewBox="0 0 560 320" role="img" aria-labelledby="rm1">
+            <title id="rm1">Risk matrix with Impact and Likelihood</title>
+            <!-- Grid -->
+            <rect x="80" y="60" width="420" height="180" fill="#0b3a46" stroke="#3b7b8b" />
+            <g>
+              <!-- Columns Low/Med/High colors (subtle solarized tints) -->
+              <rect x="80" y="60" width="140" height="60" fill="#0e4653" stroke="#3b7b8b"/>
+              <rect x="220" y="60" width="140" height="60" fill="#115260" stroke="#3b7b8b"/>
+              <rect x="360" y="60" width="140" height="60" fill="#145e6e" stroke="#3b7b8b"/>
+
+              <rect x="80" y="120" width="140" height="60" fill="#115260" stroke="#3b7b8b"/>
+              <rect x="220" y="120" width="140" height="60" fill="#145e6e" stroke="#3b7b8b"/>
+              <rect x="360" y="120" width="140" height="60" fill="#176a7c" stroke="#3b7b8b"/>
+
+              <rect x="80" y="180" width="140" height="60" fill="#145e6e" stroke="#3b7b8b"/>
+              <rect x="220" y="180" width="140" height="60" fill="#176a7c" stroke="#3b7b8b"/>
+              <rect x="360" y="180" width="140" height="60" fill="#1a768a" stroke="#3b7b8b"/>
+            </g>
+
+            <!-- Axis labels -->
+            <text x="290" y="260" font-size="14" text-anchor="middle">Likelihood → Low · Medium · High</text>
+            <text x="48" y="150" font-size="14" text-anchor="middle" transform="rotate(-90 48,150)">Impact → Low · Medium · High</text>
+
+            <!-- Cell labels -->
+            <g font-size="12" text-anchor="middle">
+              <text x="150" y="95">Low</text>
+              <text x="290" y="95">Med</text>
+              <text x="430" y="95">High</text>
+
+              <text x="150" y="155">Low</text>
+              <text x="290" y="155">Med</text>
+              <text x="430" y="155">High</text>
+
+              <text x="150" y="215">Low</text>
+              <text x="290" y="215">Med</text>
+              <text x="430" y="215">High</text>
+            </g>
+
+            <!-- Sample risk markers using solarized accents -->
+            <g>
+              <circle cx="290" cy="215" r="10" fill="#b58900" stroke="#a07a00"/>
+              <circle cx="430" cy="215" r="10" fill="#dc322f" stroke="#c2251f"/>
+              <circle cx="150" cy="95" r="10" fill="#859900" stroke="#6f8100"/>
+            </g>
+          </svg>
+          <figcaption>Prioritize items toward the lower‑right (high impact & high likelihood). Use colors/markers to track risks over time.</figcaption>
+        </figure>
+      </section>
+
+      <!-- IMPLEMENTATION -->
+      <section id="implement">
+        <h2>Implementing Mitigation Measures</h2>
+        <details open>
+          <summary>Planning &amp; Prioritization</summary>
+          <ul>
+            <li>Define action plans, owners, timelines, and success metrics.</li>
+            <li>Risk‑based sequencing: address critical, internet‑facing issues first.</li>
+            <li>Integrate with SDLC/PM (Agile/Waterfall) and change management.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Resource Allocation</summary>
+          <ul>
+            <li>Budget tools (EDR, SIEM, scanners), training, and services.</li>
+            <li>Assign skilled personnel; upskill or engage third parties.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Change Management &amp; Communication</summary>
+          <ul>
+            <li>Embed in ITSM; ensure approvals, testing, back‑out plans.</li>
+            <li>Explain the "why" behind controls; provide helpdesk support.</li>
+            <li>Maintain clear, current documentation and diagrams.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- EVALUATION -->
+      <section id="evaluate">
+        <h2>Evaluating Mitigation Effectiveness</h2>
+        <details open>
+          <summary>KPIs &amp; Metrics</summary>
+          <ul>
+            <li>Phishing click‑through rate trend</li>
+            <li>Mean Time To Patch (MTTP)</li>
+            <li>Blocked malicious attempts (firewall/IDS/IPS)</li>
+            <li>EDR coverage &amp; training completion %</li>
+            <li>Vulnerability density</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Audits &amp; Assessments</summary>
+          <ul>
+            <li>Vulnerability assessment (e.g., Qualys, OpenVAS)</li>
+            <li>Penetration testing (external/internal, web app, social)</li>
+            <li>Security &amp; compliance audits (ISO 27001, NIST, PCI DSS)</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Post‑Incident Reviews</summary>
+          <ul>
+            <li>Lessons learned, root‑cause analysis, improvement cycles</li>
+            <li>Update playbooks; address gaps like segmentation/MFA</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- NESSUS -->
+      <section id="nessus">
+        <h2>Nessus for Evaluating Mitigation</h2>
+        <p><strong>Nessus</strong> (by Tenable) is a widely used vulnerability scanner to identify missing patches, misconfigurations, and compliance gaps. It supports unauthenticated and credentialed scans and a rich plugin database.</p>
+        <details open>
+          <summary>How Nessus helps</summary>
+          <ul>
+            <li>Establishes a baseline before changes</li>
+            <li>Verifies patching/hardening success post‑change</li>
+            <li>Schedules recurring scans for drift/new vulns</li>
+            <li>Supports compliance policies (e.g., CIS, PCI)</li>
+            <li>Prioritizes via CVSS scores & exploitability</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Limits to keep in mind</summary>
+          <ul>
+            <li>Scanner, not an exploiter; verify critical findings</li>
+            <li>Point‑in‑time snapshot; complement with SIEM/EDR</li>
+            <li>Relies on known vulnerabilities (not zero‑days)</li>
+          </ul>
+        </details>
+      </section>
+
+      <section id="summary">
+        <h2>Summary</h2>
+        <ul>
+          <li>Firewalls enforce policy and protect traffic at multiple layers.</li>
+          <li>Open‑source options (iptables, ufw, firewalld, pfSense/OPNsense, ModSecurity) cover many scenarios.</li>
+          <li>Deployment can be physical, virtual, cloud, or containerized.</li>
+          <li>Mitigation strategies: Avoid, Reduce, Share, Accept — implemented with planning, resources, change management.</li>
+          <li>Evaluate with metrics, audits, and scanners like Nessus.</li>
+        </ul>
+      </section>
+
+      <div class="footer">© Course Content — Solarized interactive HTML. External links open in a new tab. No data is collected.</div>
+    </main>
+  </div>
+
+  <script nonce="r4nd0m" type="module">
+    const qs = (sel, root=document) => root.querySelector(sel);
+    const qsa = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    // Theme toggle (Solarized Light/Dark)
+    const THEME_KEY = 'safe.theme.pref.solarized';
+    const applyTheme = (mode) => {
+      const b = document.body;
+      b.classList.remove('light','dark');
+      if (mode === 'light') { b.classList.add('light'); }
+      else { b.classList.add('dark'); }
+    };
+    (() => {
+      try {
+        const pref = localStorage.getItem(THEME_KEY);
+        if (pref === 'light') applyTheme('light');
+        else applyTheme('dark');
+      } catch (_) { applyTheme('dark'); }
+    })();
+    qs('#toggleTheme').addEventListener('click', () => {
+      const light = !document.body.classList.contains('light');
+      applyTheme(light ? 'light' : 'dark');
+      try { localStorage.setItem(THEME_KEY, light ? 'light' : 'dark'); } catch (_) {}
+    });
+
+    // Expand/Collapse all
+    const setAllDetails = (open) => { qsa('details').forEach(d => { d.open = !!open; }); };
+    qs('#expandAll').addEventListener('click', () => setAllDetails(true));
+    qs('#collapseAll').addEventListener('click', () => setAllDetails(false));
+
+    // Print
+    qs('#printPage').addEventListener('click', () => { window.print(); });
+
+    // Search
+    qs('#search').addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const needle = e.currentTarget.value.trim().toLowerCase();
+      if (!needle) return;
+      const sections = qsa('main section');
+      let firstMatch = null;
+      sections.forEach(sec => {
+        const text = sec.textContent.toLowerCase();
+        const match = text.includes(needle);
+        sec.style.outline = match ? '2px solid var(--accent)' : '';
+        if (match && !firstMatch) firstMatch = sec;
+      });
+      if (firstMatch) firstMatch.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // MCQ reveal buttons
+    qsa('.reveal').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wrap = btn.parentElement;
+        const ans = wrap.querySelector('.answer');
+        if (ans) ans.hidden = false;
+        btn.disabled = true;
+      });
+    });
+
+    // Rebuild TOC from sections
+    const toc = qs('#toc');
+    if (toc) {
+      const frag = document.createDocumentFragment();
+      qsa('main section').forEach(sec => {
+        const id = sec.id; const h2 = sec.querySelector('h2');
+        if (!id || !h2) return;
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '#' + encodeURIComponent(id);
+        a.textContent = h2.textContent;
+        a.rel = 'noopener'; a.target = '_self';
+        li.appendChild(a); frag.appendChild(li);
+      });
+      toc.replaceChildren(frag);
+    }
+  </script>
+</body>
+</html>

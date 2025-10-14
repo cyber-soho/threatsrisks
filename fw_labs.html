@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Network Security Labs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background-color: #eef2ff;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .step {
+            border-left: 3px solid #6366f1;
+            padding-left: 1.5rem;
+            margin-left: 0.5rem;
+            position: relative;
+        }
+        .step::before {
+            content: '';
+            position: absolute;
+            left: -0.5rem;
+            top: 0.5rem;
+            width: 0.875rem;
+            height: 0.875rem;
+            border-radius: 9999px;
+            background-color: #fff;
+            border: 3px solid #6366f1;
+        }
+        code {
+            background-color: #1f2937;
+            color: #d1d5db;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+        }
+        .tip-section details summary {
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+    <div class="max-w-7xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+
+        <header class="text-center mb-8 border-b pb-6">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-800">Network Security Interactive Labs</h1>
+            <p class="mt-3 text-lg text-gray-600">A step-by-step guide for pfSense, Snort, and Suricata.</p>
+        </header>
+
+        <!-- Tabs Navigation -->
+        <div class="mb-8 flex flex-wrap justify-center gap-2 sm:gap-4 border-b border-gray-200 pb-4">
+            <button class="tab-btn active text-sm sm:text-base font-semibold py-2 px-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-700 hover:border-gray-300" onclick="showTab('pfsense')">1. pfSense Firewall Setup</button>
+            <button class="tab-btn text-sm sm:text-base font-semibold py-2 px-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-700 hover:border-gray-300" onclick="showTab('snort')">2. Snort IDS on pfSense</button>
+            <button class="tab-btn text-sm sm:text-base font-semibold py-2 px-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-700 hover:border-gray-300" onclick="showTab('suricata')">3. Suricata IPS on IPFire</button>
+            <button class="tab-btn text-sm sm:text-base font-semibold py-2 px-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-700 hover:border-gray-300" onclick="showTab('tips')">💡 Student Tips</button>
+        </div>
+
+        <!-- pfSense Lab Content -->
+        <div id="pfsense" class="content-section active">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Lab 1: pfSense Firewall Installation & Configuration</h2>
+            
+            <div class="space-y-12">
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Part A: Virtual Machine Creation</h3>
+                    <div class="space-y-6">
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">1. Create a New VM in VirtualBox</h4>
+                            <p class="text-gray-600">Launch VirtualBox and create a new virtual machine with the following settings:</p>
+                            <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                <li><strong>Name:</strong> pfSense</li>
+                                <li><strong>Type:</strong> BSD</li>
+                                <li><strong>Version:</strong> FreeBSD (64-bit)</li>
+                                <li><strong>Memory Size:</strong> 1024 MB (1GB)</li>
+                                <li><strong>Hard Disk:</strong> Create a VDI with 8 GB size.</li>
+                            </ul>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">2. Configure Network Adapters</h4>
+                             <p class="text-gray-600">This is a crucial step for firewall routing. Configure three adapters:</p>
+                             <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                <li><strong>Adapter 1 (WAN):</strong> Attached to: <strong>Bridged Adapter</strong>. This connects to your physical network.</li>
+                                <li><strong>Adapter 2 (LAN):</strong> Attached to: <strong>Internal Network</strong>, Name: `lan`.</li>
+                                <li><strong>Adapter 3 (DMZ):</strong> Attached to: <strong>Internal Network</strong>, Name: `dmz`.</li>
+                            </ul>
+                             <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p class="text-blue-700"><strong class="font-semibold">Note:</strong> Make sure to attach the pfSense ISO file to the VM's virtual CD/DVD drive before starting.</p>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Part B: pfSense Installation Wizard</h3>
+                    <div class="space-y-6">
+                         <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">1. Boot and Install</h4>
+                            <p>Start the VM. Follow the on-screen prompts to accept the license, select "Install", and proceed through the keymap and partitioning options (Auto/UFS is fine). The installer will then copy files to the virtual disk.</p>
+                         </div>
+                         <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">2. Reboot and Assign Interfaces</h4>
+                            <p>Once installation is complete, reboot the VM (remember to remove the ISO). After rebooting, pfSense will ask you to assign interfaces. Your bridged adapter will be your WAN, and the other two will be LAN and OPT1 (DMZ).</p>
+                             <p class="mt-2 text-gray-600">Set the LAN IP address to `192.168.1.1/24` when prompted and enable the DHCP server on the LAN interface.</p>
+                         </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Part C: Client Machine & Initial pfSense Setup</h3>
+                    <div class="space-y-6">
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">1. Configure Client VM</h4>
+                             <p>Use another VM (e.g., Ubuntu Desktop). Set its network adapter to the <strong>Internal Network</strong> named `lan`.</p>
+                             <p class="mt-2 text-gray-600">Configure its IP address statically:</p>
+                            <code>
+# Edit with: sudo vi /etc/netplan/01-network-manager-all.yaml
+network:
+  version: 2
+  ethernets:
+    enp0s3: # Your interface name might differ
+      dhcp4: no
+      addresses: [192.168.1.10/24]
+      routes:
+        - to: default
+          via: 192.168.1.1
+      nameservers:
+        addresses: [192.168.1.1]
+
+# Apply with: sudo netplan apply
+                            </code>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">2. Access pfSense WebGUI</h4>
+                            <p>From the client VM's browser, navigate to <strong>https://192.168.1.1</strong>. Accept the self-signed certificate warning.</p>
+                            <p class="mt-2 text-gray-600">Login with default credentials:</p>
+                            <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                <li><strong>Username:</strong> admin</li>
+                                <li><strong>Password:</strong> pfsense</li>
+                            </ul>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">3. Complete the Setup Wizard</h4>
+                            <p>Follow the wizard to set a new admin password, configure hostname/domain, and time server. <strong>Important:</strong> On the "Configure WAN Interface" step, untick the "Block RFC1918 Private Networks" option if your home network uses a private IP range (like 192.168.x.x).</p>
+                        </div>
+                        <div class="step">
+                             <h4 class="text-xl font-semibold mb-2">4. Configure Firewall Rules</h4>
+                             <p>Navigate to <strong>Firewall > Rules</strong>.</p>
+                             <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                 <li><strong>WAN Tab:</strong> By default, it blocks everything. This is good practice.</li>
+                                 <li><strong>LAN Tab:</strong> By default, it has an "allow all" rule. For this lab, add a rule to block traffic coming from the WAN address space to the LAN address space.</li>
+                             </ul>
+                             <p class="mt-2 text-gray-600">After making changes, always click "Apply Changes".</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Snort Lab Content -->
+        <div id="snort" class="content-section">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Lab 2: Snort IDS on pfSense</h2>
+            
+            <div class="space-y-12">
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Part A: Install Snort Package</h3>
+                    <div class="space-y-6">
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">1. Navigate to Package Manager</h4>
+                            <p>In the pfSense WebGUI, go to <strong>System > Package Manager > Available Packages</strong>.</p>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">2. Find and Install Snort</h4>
+                            <p>Search for `snort` and click the <strong>+ Install</strong> button. Confirm the installation. After a few moments, Snort will be installed.</p>
+                            <p class="mt-2 text-gray-600">A new menu option will appear under <strong>Services > Snort</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Part B: Configure Snort Rules and Interface</h3>
+                    <div class="space-y-6">
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">1. Get a Snort Oinkcode</h4>
+                            <p>You need a free account from the official Snort website to get community rules.</p>
+                            <ol class="list-decimal list-inside mt-2 space-y-1 text-gray-600">
+                                <li>Go to <a href="https://www.snort.org/users/sign_up" target="_blank" class="text-indigo-600 hover:underline">snort.org</a> and sign up.</li>
+                                <li>Log in and find your personal <strong>Oinkcode</strong> in your account details. Copy it.</li>
+                            </ol>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">2. Configure Global Settings</h4>
+                             <p>Go to <strong>Services > Snort > Global Settings</strong>.</p>
+                             <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                <li>Paste your <strong>Oinkcode</strong> into the corresponding field.</li>
+                                <li>Enable the "Snort VRT" rules and "Emerging Threats" rules.</li>
+                                <li>Set an update interval (e.g., 12 hours). Save.</li>
+                             </ul>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">3. Update Rules</h4>
+                             <p>Go to the <strong>Updates</strong> tab. Click the <strong>Update Rules</strong> button. Wait for the process to complete successfully.</p>
+                        </div>
+                         <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">4. Add a Snort Interface</h4>
+                             <p>Go to <strong>Services > Snort > Snort Interfaces</strong> and click <strong>+ Add</strong>.</p>
+                             <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                 <li><strong>Interface:</strong> LAN</li>
+                                 <li><strong>Enable:</strong> Check the box.</li>
+                                 <li><strong>Description:</strong> Snort on LAN</li>
+                                 <li>Scroll down and save.</li>
+                             </ul>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">5. Select Rule Categories</h4>
+                             <p>Edit the newly created LAN interface. Go to the <strong>LAN Categories</strong> tab.</p>
+                             <p class="mt-2 text-gray-600">Select a ruleset to start. A good one for testing is `emerging-scan.rules`. Check its box and save.</p>
+                        </div>
+                        <div class="step">
+                             <h4 class="text-xl font-semibold mb-2">6. Start Snort on the Interface</h4>
+                             <p>Go back to <strong>Services > Snort > Snort Interfaces</strong>. Click the blue play icon (▶) to start the Snort service on the LAN interface. It should turn green.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Part C: Intrusion Test</h3>
+                    <div class="space-y-6">
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">1. Prepare Attacker VM</h4>
+                             <p>Create a third VM for attacking. Connect it to the <strong>Internal Network</strong> named `dmz`. Assign it a static IP like `192.168.30.10/24` (you'll need to configure the DMZ interface in pfSense first with an IP like `192.168.30.1/24`).</p>
+                        </div>
+                        <div class="step">
+                             <h4 class="text-xl font-semibold mb-2">2. Perform a Network Scan</h4>
+                             <p>From your attacker VM, run an nmap scan targeting your LAN client (`192.168.1.10`).</p>
+                            <code>
+nmap -sV 192.168.1.10
+                            </code>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">3. Check for Alerts</h4>
+                            <p>In the pfSense GUI, navigate to <strong>Services > Snort > Alerts</strong>. You should see entries generated by the nmap scan, such as "ET SCAN RDP Connection Attempt from Nmap". This confirms Snort is working!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suricata Lab Content -->
+        <div id="suricata" class="content-section">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Lab 3: Suricata IPS on IPFire</h2>
+            
+             <div class="space-y-12">
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Part A: IPFire Setup</h3>
+                    <div class="space-y-6">
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">1. IPFire VM and Network Config</h4>
+                             <p>Create a new VM for IPFire (it's Linux-based). Configure its network adapters:</p>
+                             <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                <li><strong>RED (WAN):</strong> Bridged Adapter</li>
+                                <li><strong>GREEN (LAN):</strong> Internal Network, `ipfire-lan` (e.g., `192.168.10.2/24`)</li>
+                                <li><strong>ORANGE (DMZ):</strong> Internal Network, `ipfire-dmz` (e.g., `192.168.20.2/24`)</li>
+                             </ul>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">2. Access IPFire WebUI</h4>
+                             <p>Connect a client VM to the `ipfire-lan` network. From its browser, go to <strong>https://192.168.10.2:444</strong>.</p>
+                             <p class="mt-2 text-gray-600">Default credentials are often `admin`/`admin` and `root`/`root` for console.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Part B: Install and Configure Suricata</h3>
+                    <div class="space-y-6">
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">1. Install Suricata Add-on</h4>
+                             <p>In the IPFire WebUI, navigate to <strong>IPFire > Pakfire</strong>.</p>
+                             <p class="mt-2 text-gray-600">Search for `suricata` in the list of available add-ons and install it.</p>
+                             <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                 <p class="text-yellow-700"><strong class="font-semibold">Troubleshooting:</strong> If Pakfire fails to refresh, it's likely a DNS issue. Go to <strong>Network > Domain Name System</strong> and add public DNS servers like `8.8.8.8` and `1.1.1.1`.</p>
+                             </div>
+                        </div>
+                         <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">2. Configure Intrusion Prevention</h4>
+                             <p>After installation, a new menu appears at <strong>Firewall > Intrusion Prevention System</strong>.</p>
+                             <ol class="list-decimal list-inside mt-2 space-y-1 text-gray-600">
+                                <li>Click "Add Provider". Select <strong>Emergingthreats.net Community Rules</strong> and save.</li>
+                                 <li>Tick "Enable automatic updates".</li>
+                             </ol>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">3. Enable on an Interface</h4>
+                            <p>On the main IPS page:</p>
+                             <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                <li>Check <strong>Enable Intrusion Prevention System</strong>.</li>
+                                 <li>Under "Monitored Interfaces", check <strong>Enabled on GREEN</strong>.</li>
+                                 <li>Click <strong>Save</strong>. The service will start.</li>
+                             </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Part C: Intrusion Test</h4>
+                    <div class="space-y-6">
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">1. Prepare Attacker and Target</h4>
+                             <p>Use a VM on the DMZ network (`ipfire-dmz`) as the attacker (e.g., `192.168.20.3`).</p>
+                             <p class="mt-2 text-gray-600">Use a VM on the LAN network (`ipfire-lan`) as the target (e.g., `192.168.10.3`).</p>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">2. Perform a Stealth Scan</h4>
+                             <p>From the attacker VM, run a stealth (SYN) scan against the target.</p>
+                            <code>
+nmap -sS 192.168.10.3
+                            </code>
+                        </div>
+                        <div class="step">
+                            <h4 class="text-xl font-semibold mb-2">3. View IPS Logs</h4>
+                            <p>In the IPFire WebUI, go to <strong>Logs > IPS Logs</strong>. You should see alerts indicating a "Suspicious inbound" scan, such as "ET SCAN Suspicious inbound to mySQL port 3306". This confirms Suricata is actively monitoring and logging threats.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Student Tips -->
+        <div id="tips" class="content-section">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">💡 Tips for Success</h2>
+            <div class="space-y-4 tip-section">
+                <details class="bg-gray-50 p-4 rounded-lg">
+                    <summary class="text-lg text-gray-800">Use Snapshots Liberally</summary>
+                    <p class="mt-2 text-gray-600">Before making a major change (like installing a new package or modifying critical firewall rules), take a snapshot of your VMs in VirtualBox. If something goes wrong, you can revert to a working state in seconds instead of starting over.</p>
+                </details>
+                <details class="bg-gray-50 p-4 rounded-lg">
+                    <summary class="text-lg text-gray-800">Understand Virtual Networking</summary>
+                    <p class="mt-2 text-gray-600">
+                        <strong class="block">Bridged Adapter:</strong> Connects your VM directly to your physical network. It gets its own IP address from your main router. Use this for the WAN (internet-facing) interface of your firewalls.
+                        <strong class="block mt-2">Internal Network:</strong> Creates a private, isolated network that only VMs on the same host can see. Perfect for creating secure LAN and DMZ segments that are forced to communicate through your virtual firewall.
+                    </p>
+                </details>
+                <details class="bg-gray-50 p-4 rounded-lg">
+                    <summary class="text-lg text-gray-800">Read the Logs</summary>
+                    <p class="mt-2 text-gray-600">Logs are your best friend for troubleshooting. Whether it's the main system log, the firewall log, or the IDS/IPS alerts log, they provide detailed information about what the system is doing and why something might not be working as expected.</p>
+                </details>
+                 <details class="bg-gray-50 p-4 rounded-lg">
+                    <summary class="text-lg text-gray-800">Firewall Rules are Processed Top-Down</summary>
+                    <p class="mt-2 text-gray-600">Firewalls process rules from top to bottom and stop at the first match. This means the order of your rules is critical. A broad "allow" rule placed above a specific "block" rule will render the block rule useless. Always place your more specific rules first.</p>
+                </details>
+                <details class="bg-gray-50 p-4 rounded-lg">
+                    <summary class="text-lg text-gray-800">IDS vs. IPS</summary>
+                    <p class="mt-2 text-gray-600">
+                        <strong class="block">IDS (Intrusion Detection System):</strong> Like a security camera. It watches network traffic and sends an alert when it sees something suspicious (like Snort in its default mode). It detects but does not prevent.
+                        <strong class="block mt-2">IPS (Intrusion Prevention System):</strong> Like a security guard. It sits in-line with the traffic and can actively block malicious packets before they reach their destination (like Suricata). It detects and prevents.
+                    </p>
+                </details>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.content-section');
+
+        function showTab(tabId) {
+            tabs.forEach(tab => {
+                if (tab.getAttribute('onclick').includes(`'${tabId}'`)) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            contents.forEach(content => {
+                if (content.id === tabId) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
+
+
+
+
