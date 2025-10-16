@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nessus: From Novice to Practitioner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0e1a; /* Dark blue background */
+            color: #e0e0e0;
+        }
+        .section-title {
+            @apply text-3xl md:text-4xl font-bold text-cyan-400 mb-4;
+        }
+        .section-subtitle {
+            @apply text-lg md:text-xl text-gray-300 mb-8 max-w-3xl mx-auto;
+        }
+        .card {
+            @apply bg-gray-800 bg-opacity-50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 shadow-lg transition-all duration-300;
+        }
+        .card:hover {
+            @apply transform -translate-y-1 shadow-cyan-500/20 border-cyan-500;
+        }
+        .tag {
+            @apply inline-block bg-cyan-900 text-cyan-300 text-sm font-medium px-3 py-1 rounded-full;
+        }
+        /* Animation for elements fading in on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Custom styles for the workflow diagram */
+        .workflow-step {
+            @apply flex items-center justify-center w-28 h-28 md:w-36 md:h-36 rounded-full border-2 border-cyan-500 bg-gray-800 text-center font-semibold text-white shadow-lg z-10;
+        }
+        .workflow-line {
+            @apply absolute top-1/2 left-0 w-full h-0.5 bg-cyan-700;
+        }
+        /* Styles for the fake Nessus UI */
+        .nessus-ui {
+            @apply bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden;
+        }
+        .nessus-header {
+            @apply bg-gray-800 p-4 flex justify-between items-center border-b border-gray-700;
+        }
+        .nessus-body {
+            @apply p-6;
+        }
+        .vuln-row:hover {
+            @apply bg-gray-700;
+        }
+        .vuln-details {
+            @apply bg-gray-800 p-4 border-t-2 border-cyan-500;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header class="bg-gray-900 bg-opacity-70 backdrop-blur-md sticky top-0 z-50 border-b border-gray-800">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-white">
+                <span class="text-cyan-400">Nessus</span> Lecture
+            </div>
+            <div class="hidden md:flex space-x-6 text-sm font-medium">
+                <a href="#intro" class="text-gray-300 hover:text-cyan-400 transition">Introduction</a>
+                <a href="#concepts" class="text-gray-300 hover:text-cyan-400 transition">Core Concepts</a>
+                <a href="#workflow" class="text-gray-300 hover:text-cyan-400 transition">Workflow</a>
+                <a href="#demo" class="text-gray-300 hover:text-cyan-400 transition">Demo</a>
+                <a href="#advanced" class="text-gray-300 hover:text-cyan-400 transition">Advanced</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Part 1: Introduction & The "Why" -->
+        <section id="intro" class="text-center py-20 min-h-screen flex flex-col justify-center">
+            <div class="reveal">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-cyan-400">Nessus: From Novice to Practitioner</h1>
+                <p class="section-subtitle">Understanding the foundational tool for vulnerability management.</p>
+            </div>
+            <div class="reveal mt-12">
+                <div class="card max-w-4xl mx-auto p-8">
+                    <h3 class="text-2xl font-bold text-cyan-400 mb-4">The Castle Analogy</h3>
+                    <div class="flex flex-col md:flex-row items-center gap-8">
+                        <div id="castle-animation" class="w-48 h-48 flex-shrink-0">
+                            <!-- SVG Castle Animation -->
+                            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M40 180 V 80 L 70 80 V 60 L 90 60 V 40 L 110 40 V 60 L 130 60 V 80 L 160 80 V 180 H 40 Z" fill="#4a5568"/>
+                                <path d="M70 180 V 100 H 130 V 180 H 70 Z" fill="#2d3748"/>
+                                <rect x="90" y="140" width="20" height="40" fill="#0a0e1a"/>
+                                <path d="M95 130 L 105 130 L 100 120 Z" fill="#e53e3e">
+                                    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite" />
+                                </path>
+                                <text x="100" y="115" font-size="10" fill="#e53e3e" text-anchor="middle" font-weight="bold">VULNERABILITY</text>
+                            </svg>
+                        </div>
+                        <p class="text-left text-gray-300">
+                            "Think of your network as a castle. You can have the highest walls and strongest gates. But if there's one small, forgotten, unlocked door, all other defenses become irrelevant. In the digital world, these are <strong>vulnerabilities</strong>. Nessus is the tool we use to find these unlocked doors before the attackers do."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Part 2: What is Nessus? Core Concepts -->
+        <section id="concepts" class="py-20 text-center">
+            <div class="reveal">
+                <p class="tag mb-2">Core Concepts</p>
+                <h2 class="section-title">What is Nessus?</h2>
+                <p class="section-subtitle">At its core, Nessus is a remote security scanning tool that scans a computer or network to identify vulnerabilities. Let's break down how it works.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 mt-12">
+                <!-- Plugin Architecture -->
+                <div class="card reveal">
+                    <div class="flex justify-center mb-4">
+                        <svg class="w-16 h-16 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 011-1h1a2 2 0 100-4H7a1 1 0 01-1-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Plugin-Based Architecture</h3>
+                    <p class="text-gray-400">Nessus's power comes from plugins. Each plugin is a script to test a single vulnerability. With over 190,000 plugins, Nessus has vast threat intelligence.</p>
+                </div>
+                <!-- CVSS Scoring -->
+                <div class="card reveal">
+                     <div class="flex justify-center mb-4">
+                        <svg class="w-16 h-16 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-white">CVSS Scoring</h3>
+                    <p class="text-gray-400 mb-4">Nessus doesn't just find issues; it ranks them using the Common Vulnerability Scoring System (CVSS) to help you prioritize.</p>
+                    <div class="space-y-2 text-left text-sm">
+                        <div class="flex items-center"><div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div><span class="font-bold text-red-400">Critical (9.0-10.0)</span></div>
+                        <div class="flex items-center"><div class="w-3 h-3 rounded-full bg-orange-500 mr-2"></div><span class="font-bold text-orange-400">High (7.0-8.9)</span></div>
+                        <div class="flex items-center"><div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div><span class="font-bold text-yellow-400">Medium (4.0-6.9)</span></div>
+                        <div class="flex items-center"><div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div><span class="font-bold text-blue-400">Low (0.1-3.9)</span></div>
+                    </div>
+                </div>
+                <!-- Nessus Versions -->
+                <div class="card reveal">
+                     <div class="flex justify-center mb-4">
+                        <svg class="w-16 h-16 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Product Tiers</h3>
+                    <p class="text-gray-400">From hobbyists to global enterprises, there's a version of Nessus for everyone.</p>
+                     <ul class="text-left mt-4 space-y-2 text-sm">
+                        <li><strong class="text-cyan-400">Essentials:</strong> Free, for learning (16 IPs).</li>
+                        <li><strong class="text-cyan-400">Professional:</strong> For pentesters & businesses.</li>
+                        <li><strong class="text-cyan-400">Tenable.io/sc:</strong> Enterprise-grade platform.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Part 3: The Nessus Workflow -->
+        <section id="workflow" class="py-20 text-center">
+             <div class="reveal">
+                <p class="tag mb-2">Practical Guide</p>
+                <h2 class="section-title">The Vulnerability Management Workflow</h2>
+                <p class="section-subtitle">Effective scanning is a cyclical process, not a one-time task. Here are the four key phases.</p>
+            </div>
+            <!-- Workflow Diagram -->
+            <div class="reveal mt-16">
+                <div class="relative max-w-5xl mx-auto">
+                    <div class="workflow-line"></div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex flex-col items-center">
+                            <div class="workflow-step"><span class="p-4">1. Plan &<br>Configure</span></div>
+                            <p class="mt-4 text-gray-400 max-w-xs">Define scope and choose scan policies (Credentialed vs. Non-Credentialed).</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                             <div class="workflow-step"><span class="p-4">2. Execute<br>Scan</span></div>
+                             <p class="mt-4 text-gray-400 max-w-xs">Launch the scan against defined targets.</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                             <div class="workflow-step"><span class="p-4">3. Analyze &<br>Report</span></div>
+                             <p class="mt-4 text-gray-400 max-w-xs">Prioritize findings (CVSS), validate, and create reports for stakeholders.</p>
+                        </div>
+                         <div class="flex flex-col items-center">
+                             <div class="workflow-step"><span class="p-4">4. Remediate &<br>Verify</span></div>
+                             <p class="mt-4 text-gray-400 max-w-xs">Fix the issues and rescan to confirm the vulnerabilities are gone.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Part 4: Live Demo Simulation -->
+        <section id="demo" class="py-20 text-center">
+            <div class="reveal">
+                <p class="tag mb-2">Live Demo</p>
+                <h2 class="section-title">Running Your First Scan</h2>
+                <p class="section-subtitle">Let's walk through a simulated Nessus scan, from configuration to analyzing the results.</p>
+            </div>
+            
+            <div class="reveal nessus-ui max-w-6xl mx-auto mt-12 text-left">
+                <!-- Nessus Header -->
+                <div class="nessus-header">
+                    <img src="https://placehold.co/100x30/0a0e1a/4ade80?text=Nessus" alt="Nessus Logo">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-400">user: admin</span>
+                        <button onclick="openModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-bold py-2 px-4 rounded">New Scan</button>
+                    </div>
+                </div>
+
+                <!-- Nessus Body -->
+                <div class="nessus-body">
+                    <h3 class="text-xl font-bold text-white mb-4">Scan Results: Quarterly Lab Scan</h3>
+                    <p class="text-sm text-gray-400 mb-6">Status: Completed | Targets: 192.168.1.52 | Policy: Basic Network Scan</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-700">
+                                    <th class="p-3 text-left">Severity</th>
+                                    <th class="p-3 text-left">Name</th>
+                                    <th class="p-3 text-left">Family</th>
+                                    <th class="p-3 text-right">Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Vulnerability Row 1 -->
+                                <tr class="vuln-row cursor-pointer" onclick="toggleDetails('vuln1')">
+                                    <td class="p-3"><span class="px-2 py-1 text-xs font-bold rounded bg-red-900 text-red-300">Critical</span></td>
+                                    <td class="p-3 font-medium text-white">MS17-010: EternalBlue SMB RCE</td>
+                                    <td class="p-3 text-gray-400">Windows</td>
+                                    <td class="p-3 text-right text-white">1</td>
+                                </tr>
+                                <tr id="vuln1" class="hidden">
+                                    <td colspan="4" class="p-0">
+                                        <div class="vuln-details">
+                                            <h4 class="font-bold text-cyan-400">Description</h4>
+                                            <p class="text-xs text-gray-300 mt-1 mb-3">The remote Windows host is affected by the remote code execution vulnerability known as EternalBlue, which was exploited by the WannaCry ransomware.</p>
+                                            <h4 class="font-bold text-cyan-400">Solution</h4>
+                                            <p class="text-xs text-gray-300 mt-1 mb-3">Apply the appropriate patch for this vulnerability provided by Microsoft in security bulletin MS17-010.</p>
+                                            <h4 class="font-bold text-cyan-400">Plugin Output</h4>
+                                            <pre class="bg-black p-2 rounded text-xs text-green-400">The remote host is missing security update MS17-010.</pre>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Vulnerability Row 2 -->
+                                <tr class="vuln-row cursor-pointer" onclick="toggleDetails('vuln2')">
+                                    <td class="p-3"><span class="px-2 py-1 text-xs font-bold rounded bg-orange-900 text-orange-300">High</span></td>
+                                    <td class="p-3 font-medium text-white">Apache 2.4 < 2.4.51 Path Traversal</td>
+                                    <td class="p-3 text-gray-400">Web Servers</td>
+                                    <td class="p-3 text-right text-white">1</td>
+                                </tr>
+                                <tr id="vuln2" class="hidden">
+                                    <td colspan="4" class="p-0">
+                                        <div class="vuln-details">
+                                             <h4 class="font-bold text-cyan-400">Description</h4>
+                                             <p class="text-xs text-gray-300 mt-1 mb-3">A flaw was found in a change made to path normalization in Apache HTTP Server 2.4.49. An attacker could use a path traversal attack to map URLs to files outside the expected document root.</p>
+                                             <h4 class="font-bold text-cyan-400">Solution</h4>
+                                             <p class="text-xs text-gray-300 mt-1 mb-3">Upgrade to Apache version 2.4.51 or later.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Vulnerability Row 3 -->
+                                <tr class="vuln-row cursor-pointer" onclick="toggleDetails('vuln3')">
+                                    <td class="p-3"><span class="px-2 py-1 text-xs font-bold rounded bg-yellow-900 text-yellow-300">Medium</span></td>
+                                    <td class="p-3 font-medium text-white">SSL Certificate Cannot Be Trusted</td>
+                                    <td class="p-3 text-gray-400">General</td>
+                                    <td class="p-3 text-right text-white">1</td>
+                                </tr>
+                                 <tr id="vuln3" class="hidden">
+                                    <td colspan="4" class="p-0">
+                                        <div class="vuln-details">
+                                             <h4 class="font-bold text-cyan-400">Description</h4>
+                                             <p class="text-xs text-gray-300 mt-1 mb-3">The server's X.509 certificate is not trusted. This is usually because it is self-signed or signed by a Certificate Authority that is not trusted by default.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Part 5: Advanced Topics & Best Practices -->
+        <section id="advanced" class="py-20">
+            <div class="text-center reveal">
+                <p class="tag mb-2">Beyond the Basics</p>
+                <h2 class="section-title">Advanced Topics & Best Practices</h2>
+                <p class="section-subtitle">Nessus can do more than just basic scans. Let's explore its advanced capabilities and how to use it effectively.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-12 mt-12">
+                <!-- Advanced Topics -->
+                <div class="reveal">
+                    <h3 class="text-2xl font-bold text-white mb-6">Advanced Capabilities</h3>
+                    <div class="space-y-4" id="accordion">
+                        <div class="card !p-0 overflow-hidden">
+                           <button class="w-full text-left p-5 font-semibold text-white flex justify-between items-center" data-target="panel1">
+                               Compliance Scanning
+                               <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                           </button>
+                           <div id="panel1" class="px-5 pb-5 text-gray-400 text-sm hidden">
+                               Nessus can audit system configurations against standards like CIS Benchmarks or DISA STIGs, checking password policies, firewall rules, and more. Essential for regulated industries.
+                           </div>
+                        </div>
+                         <div class="card !p-0 overflow-hidden">
+                           <button class="w-full text-left p-5 font-semibold text-white flex justify-between items-center" data-target="panel2">
+                               Nessus Agents
+                               <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                           </button>
+                           <div id="panel2" class="px-5 pb-5 text-gray-400 text-sm hidden">
+                               For assets that aren't always on the network (like remote laptops), agents can be installed to scan locally and report results back to a central manager when they reconnect.
+                           </div>
+                        </div>
+                        <div class="card !p-0 overflow-hidden">
+                           <button class="w-full text-left p-5 font-semibold text-white flex justify-between items-center" data-target="panel3">
+                               API and Integrations
+                               <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                           </button>
+                           <div id="panel3" class="px-5 pb-5 text-gray-400 text-sm hidden">
+                              A robust API allows for automation and integration with other tools. You can script scans, pull results, and feed data into ticketing systems or dashboards.
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Best Practices -->
+                <div class="reveal">
+                     <h3 class="text-2xl font-bold text-white mb-6">Best Practices</h3>
+                     <ul class="space-y-4">
+                         <li class="flex items-start">
+                             <svg class="w-6 h-6 text-cyan-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                             <div>
+                                <h4 class="font-semibold text-white">Scan Consistently</h4>
+                                <p class="text-gray-400">Vulnerability management is a continuous process. Scan on a regular, automated schedule.</p>
+                             </div>
+                         </li>
+                         <li class="flex items-start">
+                              <svg class="w-6 h-6 text-cyan-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                             <div>
+                                <h4 class="font-semibold text-white">Always Use Credentials</h4>
+                                <p class="text-gray-400">Authenticated scans provide the most accurate and actionable data. It's the difference between looking at a house from the outside vs. having the keys.</p>
+                             </div>
+                         </li>
+                         <li class="flex items-start">
+                              <svg class="w-6 h-6 text-cyan-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                             <div>
+                                <h4 class="font-semibold text-white">Don't Scan and Forget</h4>
+                                <p class="text-gray-400">The goal is remediation. Track fixes, build relationships with system owners, and verify that risks are closed.</p>
+                             </div>
+                         </li>
+                     </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 mt-20">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-500">
+             <h3 class="text-2xl font-bold text-white mb-4">Conclusion & Next Steps</h3>
+             <p class="max-w-3xl mx-auto mb-6">Nessus is a fundamental skill for any cybersecurity role. It provides the visibility you need to proactively defend your network. The best way to learn is by doing: download Nessus Essentials, set up a home lab, and start scanning.</p>
+             <p class="text-sm">&copy; 2024 Interactive Lecture. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Modal for New Scan -->
+    <div id="new-scan-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full text-center">
+            <h3 class="text-lg font-bold text-cyan-400 mb-4">Demonstration Only</h3>
+            <p class="text-gray-300 mb-6">This is a simulated interface. The "New Scan" button is for visual demonstration purposes.</p>
+            <button onclick="closeModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded w-full">Got it</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Modal ---
+        function openModal() {
+            document.getElementById('new-scan-modal').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('new-scan-modal').classList.add('hidden');
+        }
+
+        // --- Simulated Nessus UI Interactivity ---
+        function toggleDetails(vulnId) {
+            const element = document.getElementById(vulnId);
+            if (element) {
+                element.classList.toggle('hidden');
+            }
+        }
+
+        // --- Accordion for Advanced Topics ---
+        const accordion = document.getElementById('accordion');
+        if (accordion) {
+            accordion.addEventListener('click', function(e) {
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                const targetPanelId = button.getAttribute('data-target');
+                const targetPanel = document.getElementById(targetPanelId);
+                const icon = button.querySelector('svg');
+
+                if (targetPanel) {
+                    if (targetPanel.classList.contains('hidden')) {
+                        // Close all others
+                        accordion.querySelectorAll('[id^="panel"]').forEach(p => {
+                           if(p.id !== targetPanelId){
+                                p.classList.add('hidden');
+                                const correspondingButton = accordion.querySelector(`[data-target="${p.id}"]`);
+                                if(correspondingButton) correspondingButton.querySelector('svg').classList.remove('rotate-180');
+                           }
+                        });
+                        // Open clicked one
+                        targetPanel.classList.remove('hidden');
+                        if (icon) icon.classList.add('rotate-180');
+                    } else {
+                        targetPanel.classList.add('hidden');
+                        if (icon) icon.classList.remove('rotate-180');
+                    }
+                }
+            });
+        }
+
+        // --- Animate elements on scroll ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const revealElements = document.querySelectorAll('.reveal');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target); // Optional: stop observing once visible
+                    }
+                });
+            }, {
+                threshold: 0.1 // Trigger when 10% of the element is visible
+            });
+
+            revealElements.forEach(element => {
+                observer.observe(element);
+            });
+
+            // --- Smooth scrolling for nav links ---
+            document.querySelectorAll('header a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const targetElement = document.querySelector(this.getAttribute('href'));
+
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+
