@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Lab Guide: Firewalls & IDS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Cool Slate -->
+    <!-- Application Structure Plan: A fixed sidebar navigation SPA. The user clicks a topic (e.g., 'Lab 1: pfSense'), and the main content area dynamically displays only that section's content. This structure was chosen to break down a long, technical document into manageable, easily accessible sections, improving navigation and reducing cognitive load for students who may need to jump between different topics like lab setup and a specific lab's instructions. -->
+    <!-- Visualization & Content Choices: Content is primarily step-by-step text. Goal: Inform/Instruct. Method: Ordered lists and styled code blocks. Interaction: 'Copy to Clipboard' buttons on code blocks for usability. Goal: Organize. Method: A network diagram for pfSense setup will be built with HTML/CSS (divs and borders) to visually represent the architecture. Justification: These choices directly support the goal of a clear, easy-to-follow lab guide. No complex data exists, so no charts are necessary. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+        .sidebar-link.active {
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .code-block {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4b5563;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-64 bg-white border-r border-gray-200 p-4 md:fixed md:h-full">
+            <h1 class="text-xl font-bold text-sky-800 mb-6">Cyber Labs</h1>
+            <nav id="sidebarNav">
+                <ul class="space-y-2">
+                    <li><a href="#" class="sidebar-link active block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100" data-target="intro">Introduction</a></li>
+                    <li><a href="#" class="sidebar-link block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100" data-target="lab1">Lab 1: pfSense</a></li>
+                    <li><a href="#" class="sidebar-link block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100" data-target="lab2">Lab 2: Snort on pfSense</a></li>
+                    <li><a href="#" class="sidebar-link block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100" data-target="lab3">Lab 3: Suricata on IPFire</a></li>
+                    <li><a href="#" class="sidebar-link block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100" data-target="rules">Firewall Rules Guide</a></li>
+                    <li><a href="#" class="sidebar-link block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100" data-target="env">Lab Environment</a></li>
+                    <li><a href="#" class="sidebar-link block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100" data-target="tools">Nessus Alternatives</a></li>
+                    <li><a href="#" class="sidebar-link block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100" data-target="ethics">Ethical Use Warning</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="flex-1 md:ml-64 p-6 md:p-8">
+            <div id="content-panes">
+
+                <section id="intro" class="content-section active space-y-6">
+                    <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">Firewall and IDS/IPS Configuration Guide</h2>
+                    <p class="text-lg text-gray-600">This guide provides interactive, step-by-step instructions for installing, configuring, and testing open-source firewalls and intrusion detection/prevention systems. You will work with pfSense, IPFire, Snort, and Suricata in a virtual lab environment. Use the navigation on the left to select a lab or topic.</p>
+                </section>
+
+                <section id="lab1" class="content-section space-y-6">
+                    <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">Lab 1: pfSense Firewall Installation</h2>
+                    <p class="text-gray-600">In this lab, you will install the powerful open-source firewall, pfSense, in a virtual machine and perform its initial configuration.</p>
+                    
+                    <h3 class="text-2xl font-semibold">1.1 Virtual Machine Setup</h3>
+                    <p>First, create a dedicated virtual machine for pfSense using software like VirtualBox or VMware.</p>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <h4 class="font-bold mb-2">VM Settings:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-700">
+                            <li><strong>Name:</strong> `pfSense`</li>
+                            <li><strong>Type:</strong> BSD, <strong>Version:</strong> FreeBSD (64-bit)</li>
+                            <li><strong>Memory:</strong> 1024 MB (1 GB)</li>
+                            <li><strong>Hard Disk:</strong> 8 GB (VDI type)</li>
+                            <li><strong>Network Adapters:</strong>
+                                <ul class="list-['-_'] list-inside ml-4 mt-1 space-y-1">
+                                    <li><strong>Adapter 1 (WAN):</strong> `Bridged Adapter`. This connects pfSense to your physical network.</li>
+                                    <li><strong>Adapter 2 (LAN):</strong> `Internal Network`. Name it `lan`.</li>
+                                    <li><strong>Adapter 3 (DMZ):</strong> `Internal Network`. Name it `dmz`.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-2xl font-semibold">1.2 pfSense Installation Process</h3>
+                    <ol class="list-decimal list-inside space-y-2 bg-white p-4 rounded-lg border">
+                        <li>Start the pfSense VM with the downloaded pfSense ISO image mounted.</li>
+                        <li>Accept the Copyright and Distribution notice.</li>
+                        <li>On the welcome screen, select **Install** to begin the installation.</li>
+                        <li>Proceed through setup prompts. For partitioning, **Auto (UFS)** is the simplest option.</li>
+                        <li>After file copy, select **No** when asked to open a shell.</li>
+                        <li>Select **Reboot**. **Crucially, unmount the ISO image** from the VM before it reboots.</li>
+                    </ol>
+
+                    <h3 class="text-2xl font-semibold">1.4 Client Machine Setup</h3>
+                    <p>To access the pfSense web interface, configure a client VM on the same `lan` internal network.</p>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <h4 class="font-bold mb-2">Client IP Configuration:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-700">
+                           <li><strong>IP Address:</strong> `192.168.1.10`</li>
+                           <li><strong>Subnet Mask:</strong> `255.255.255.0` (or `/24`)</li>
+                           <li><strong>Gateway:</strong> `192.168.1.1` (the pfSense LAN IP)</li>
+                           <li><strong>DNS Server:</strong> `192.168.1.1`</li>
+                        </ul>
+                    </div>
+                    
+                    <h3 class="text-2xl font-semibold">1.5 pfSense Web Configurator Wizard</h3>
+                     <ol class="list-decimal list-inside space-y-2 bg-white p-4 rounded-lg border">
+                        <li>From your client VM's browser, navigate to `https://192.168.1.1`.</li>
+                        <li>Accept the security risk for the self-signed certificate.</li>
+                        <li>Login with **Username:** `admin` and **Password:** `pfsense`.</li>
+                        <li>Follow the wizard steps. In "Configure WAN", **uncheck "Block RFC1918 Private Networks"**.</li>
+                        <li>Change the admin password.</li>
+                        <li>Click **Reload** to apply the configuration.</li>
+                    </ol>
+
+                    <h3 class="text-2xl font-semibold">1.6 Test Connectivity</h3>
+                    <p>From your client VM's terminal, test your connection.</p>
+                     <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto"><code># Test connection to pfSense LAN interface
+ping 192.168.1.1
+
+# Test connection to the internet (goes through pfSense)
+ping google.com</code></pre>
+                    </div>
+                </section>
+
+                <section id="lab2" class="content-section space-y-6">
+                    <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">Lab 2: Snort IDS/IPS on pfSense</h2>
+                    <p class="text-gray-600">Now you will install and configure Snort, a powerful Intrusion Detection and Prevention System (IDS/IPS), on your pfSense firewall.</p>
+
+                    <h3 class="text-2xl font-semibold">2.1 Install & Configure Snort</h3>
+                     <ol class="list-decimal list-inside space-y-2 bg-white p-4 rounded-lg border">
+                        <li>In pfSense, go to **System > Package Manager > Available Packages** and install `snort`.</li>
+                        <li>Go to <a href="https://www.snort.org/users/sign_up" target="_blank" class="text-sky-600 hover:underline">snort.org</a> to register for a free account and get your **Oinkcode**.</li>
+                        <li>Navigate to **Services > Snort > Global Settings**. Enable Snort VRT, paste your Oinkcode, and save.</li>
+                        <li>Go to the **Updates** tab and click **Update Rules**.</li>
+                    </ol>
+
+                    <h3 class="text-2xl font-semibold">2.5 Configure the Snort Interface</h3>
+                     <ol class="list-decimal list-inside space-y-2 bg-white p-4 rounded-lg border">
+                        <li>Go to the **Snort Interfaces** tab and click **+ Add**.</li>
+                        <li>Set **Interface** to `LAN`, add a description, and check **Block Offenders**. Save.</li>
+                        <li>Edit the LAN interface, go to the **LAN Categories** tab.</li>
+                        <li>Check the box for **emerging-scan.rules** and save.</li>
+                    </ol>
+
+                    <h3 class="text-2xl font-semibold">2.7 Start Snort and Test</h3>
+                     <ol class="list-decimal list-inside space-y-2 bg-white p-4 rounded-lg border">
+                        <li>On the **Snort Interfaces** tab, click the play icon to start Snort on the LAN interface.</li>
+                        <li>From an attacker machine on a different network, scan your client VM:</li>
+                    </ol>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto"><code>nmap -sV 192.168.1.10</code></pre>
+                    </div>
+                    <p>Check **Services > Snort > Alerts** in pfSense to see the generated alerts.</p>
+                </section>
+
+                <section id="lab3" class="content-section space-y-6">
+                    <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">Lab 3: Suricata IDS/IPS on IPFire</h2>
+                     <p class="text-gray-600">IPFire comes with its own integrated IDS/IPS, Suricata. This lab guides you through its configuration.</p>
+                     
+                    <h3 class="text-2xl font-semibold">3.2 Enable the Intrusion Prevention System (IPS)</h3>
+                     <ol class="list-decimal list-inside space-y-2 bg-white p-4 rounded-lg border">
+                        <li>In the IPFire web UI, go to **Firewall > Intrusion Prevention System**.</li>
+                        <li>Check **Enable Intrusion Prevention System**.</li>
+                        <li>Under "Monitored Interfaces", check **Enabled on GREEN**. Save.</li>
+                    </ol>
+
+                    <h3 class="text-2xl font-semibold">3.3 Add a Ruleset Provider</h3>
+                     <ol class="list-decimal list-inside space-y-2 bg-white p-4 rounded-lg border">
+                        <li>At the bottom of the IPS page, click **Add provider**.</li>
+                        <li>Select **Emergingthreats.net Community Rules** and check **Enable automatic updates**. Click **Add**.</li>
+                        <li>The system will download rules and start. The status bar should turn green.</li>
+                    </ol>
+
+                    <h3 class="text-2xl font-semibold">3.4 Test the Suricata IPS</h3>
+                     <p>You need an attacker VM in the DMZ (ORANGE zone) and a target VM in the LAN (GREEN zone).</p>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto"><code>nmap -sS 192.168.10.10</code></pre>
+                    </div>
+                    <p>Check **Logs > IPS Logs** in IPFire to see the scan detection alerts.</p>
+                </section>
+
+                <section id="rules" class="content-section space-y-6">
+                    <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">Firewall Rule Configuration Guide</h2>
+                    <p class="text-gray-600">Firewall rules are processed top-to-bottom. The first rule that matches is applied. If no rule matches, traffic is blocked by default.</p>
+
+                    <h3 class="text-2xl font-semibold">Firewall Rules on pfSense / OPNsense</h3>
+                    <p>Rules are created on the interface where traffic <strong>enters</strong> the firewall.</p>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <h4 class="font-bold mb-2">Example: Allow a web server in the DMZ to be reached from the internet.</h4>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>Go to <strong>Firewall > Rules > WAN</strong> and click <strong>+ Add</strong>.</li>
+                            <li><strong>Action:</strong> `Pass`</li>
+                            <li><strong>Protocol:</strong> `TCP`</li>
+                            <li><strong>Source:</strong> `any`</li>
+                            <li><strong>Destination:</strong> Your Public IP / WAN Address</li>
+                            <li><strong>Destination Port Range:</strong> `HTTP` (port 80)</li>
+                            <li>Save and repeat for `HTTPS` (port 443). Apply changes.</li>
+                        </ol>
+                    </div>
+
+                    <h3 class="text-2xl font-semibold">Firewall Rules on IPFire</h3>
+                    <p>IPFire uses a zone-based model for traffic flowing from one zone to another.</p>
+                     <div class="bg-white p-4 rounded-lg border">
+                        <h4 class="font-bold mb-2">Example: Allow LAN (GREEN) to access a web server in DMZ (ORANGE).</h4>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>Go to <strong>Firewall > Firewall Rules</strong> and click <strong>New rule</strong>.</li>
+                            <li><strong>Source:</strong> Standard networks > `GREEN`</li>
+                            <li><strong>Destination:</strong> Destination Address > `IP of web server in DMZ`</li>
+                            <li><strong>Protocol:</strong> `TCP`, Destination Port `80`</li>
+                            <li><strong>Action:</strong> `ACCEPT`</li>
+                            <li>Add the rule and Apply Changes.</li>
+                        </ol>
+                    </div>
+                </section>
+                
+                <section id="env" class="content-section space-y-6">
+                    <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">Lab Environment: Setup and Best Practices</h2>
+                    <h3 class="text-2xl font-semibold">Why Use a Dedicated Lab Environment?</h3>
+                    <p>A controlled lab environment provides a <strong>safe and legal "sandbox"</strong> to practice without affecting production systems or breaking the law.</p>
+                    
+                    <h3 class="text-2xl font-semibold">Setting Up Your Safe Playground</h3>
+                     <ol class="list-decimal list-inside space-y-4">
+                        <li>
+                            <strong>Choose a Hypervisor:</strong>
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li>Oracle VirtualBox (Free)</li>
+                                <li>VMware Workstation Player (Free for non-commercial use)</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Create an Isolated Network:</strong> Use the "Internal Network" or "Host-only" networking modes in your hypervisor.
+                        </li>
+                        <li>
+                            <strong>Install Target Machines:</strong>
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li>Metasploitable</li>
+                                <li>OWASP Juice Shop</li>
+                                <li>Damn Vulnerable Web Application (DVWA)</li>
+                            </ul>
+                        </li>
+                         <li>
+                            <strong>Install Attacker Machines:</strong>
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li>Kali Linux</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </section>
+
+                <section id="tools" class="content-section space-y-6">
+                    <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">Free and Open Source Alternatives to Nessus</h2>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg border">
+                            <h3 class="text-xl font-bold mb-2"><a href="https://www.greenbone.net/" target="_blank" class="text-sky-700 hover:underline">OpenVAS (GVM)</a></h3>
+                            <p class="text-gray-600">A full-featured vulnerability scanner. The most comprehensive open-source alternative, great for finding missing patches and weak configurations.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border">
+                            <h3 class="text-xl font-bold mb-2"><a href="https://github.com/sullo/nikto" target="_blank" class="text-sky-700 hover:underline">Nikto</a></h3>
+                            <p class="text-gray-600">A focused and effective web server scanner. Excellent for quickly finding common misconfigurations, dangerous files, and outdated software.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border">
+                            <h3 class="text-xl font-bold mb-2"><a href="https://www.zaproxy.org/" target="_blank" class="text-sky-700 hover:underline">OWASP ZAP</a></h3>
+                            <p class="text-gray-600">An interception proxy with a powerful automated scanner for web applications. Perfect for finding flaws like SQL Injection and XSS.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="ethics" class="content-section space-y-6">
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-lg" role="alert">
+                      <h2 class="text-3xl font-bold text-red-900">CRITICAL WARNING: Legal and Ethical Use</h2>
+                      <p class="mt-4 font-semibold">The tools used in these labs (Nmap, Snort, etc.) are for professional, legitimate security work. Using them without explicit, written permission on any system you do not own is a crime.</p>
+                      <ul class="list-disc list-inside mt-4 space-y-2">
+                        <li><strong>Unauthorized scanning is illegal.</strong> In Canada, it falls under Section 342.1 of the Criminal Code.</li>
+                        <li><strong>Consequences are severe:</strong> They include criminal charges, civil lawsuits, and permanent damage to your career prospects.</li>
+                        <li><strong>Always have permission.</strong> The only safe places to practice are within your private, isolated lab or on platforms that explicitly allow it, such as bug bounty programs (after reading their rules carefully).</li>
+                      </ul>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('#sidebarNav a');
+            const contentPanes = document.querySelectorAll('#content-panes .content-section');
+
+            function showPane(targetId) {
+                navLinks.forEach(link => {
+                    if (link.dataset.target === targetId) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+                
+                contentPanes.forEach(pane => {
+                    if (pane.id === targetId) {
+                        pane.classList.add('active');
+                    } else {
+                        pane.classList.remove('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const targetId = this.dataset.target;
+                    showPane(targetId);
+                });
+            });
+
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const codeBlock = this.nextElementSibling;
+                    const code = codeBlock.innerText;
+                    
+                    navigator.clipboard.writeText(code).then(() => {
+                        const originalText = this.innerText;
+                        this.innerText = 'Copied!';
+                        setTimeout(() => {
+                            this.innerText = originalText;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 
+      Content Security Policy (CSP):
+      This is a crucial security measure to prevent Cross-Site Scripting (XSS) attacks.
+      - 'default-src' 'self': By default, only allows content from the same origin.
+      - 'script-src' 'self' 'unsafe-inline' https://cdn.tailwindcss.com: Allows scripts from the same origin, inline scripts (for our interactivity), and the official Tailwind CSS CDN.
+      - 'style-src' 'self' 'unsafe-inline' https://cdn.tailwindcss.com: Allows styles from the same origin, inline styles, and the Tailwind CSS CDN.
+      This is a strong policy for a static site like this. For a real-world dynamic application, you would aim to remove 'unsafe-inline'.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; font-src 'self' https://rsms.me; connect-src 'self'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none';">
+    <title>Interactive Guide to Firewall Rules</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a professional look and feel */
+        @import url('https://rsms.me/inter/inter.css');
+        html {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .content-section {
+            @apply bg-gray-800 border border-gray-700 rounded-2xl p-6 mb-8 transition-all duration-300;
+        }
+
+        .content-section h2 {
+            @apply text-2xl font-bold text-cyan-400 mb-4 border-b border-gray-600 pb-2;
+        }
+
+        .content-section h3 {
+            @apply text-xl font-semibold text-teal-300 mt-6 mb-3;
+        }
+        
+        .tooltip {
+            @apply invisible absolute z-10 bg-gray-700 text-white text-sm rounded-lg px-3 py-1.5 whitespace-nowrap shadow-lg transition-opacity duration-300;
+        }
+
+        .has-tooltip:hover .tooltip {
+            @apply visible;
+        }
+
+        .keyword {
+            @apply text-yellow-400 font-mono cursor-pointer relative;
+        }
+        
+        /* Styles for the interactive diagram */
+        .packet {
+            animation: packet-flow 10s infinite linear;
+            position: absolute;
+        }
+
+        @keyframes packet-flow {
+            0% { top: 0%; left: 50%; transform: translateX(-50%); }
+            10% { top: 12%; left: 50%; transform: translateX(-50%); }
+            20% { top: 28%; left: 50%; transform: translateX(-50%); }
+            40% { top: 48%; left: 50%; transform: translateX(-50%); }
+            50% { top: 60%; left: 25%; transform: translateX(-50%); }
+            60% { top: 72%; left: 25%; transform: translateX(-50%); }
+            70% { top: 88%; left: 25%; transform: translateX(-50%); opacity: 1; }
+            75% { top: 95%; left: 25%; transform: translateX(-50%); opacity: 0; }
+            76% { top: 0%; left: 50%; transform: translateX(-50%); opacity: 0; }
+            80% { opacity: 1; }
+            100% { top: 0%; left: 50%; transform: translateX(-50%); }
+        }
+
+        .packet-denied {
+            animation: packet-denied-flow 10s infinite linear;
+            position: absolute;
+        }
+
+        @keyframes packet-denied-flow {
+            0% { top: 0%; left: 50%; transform: translateX(-50%); opacity: 0; }
+            39% { opacity: 0;}
+            40% { top: 48%; left: 50%; transform: translateX(-50%); opacity: 1; }
+            50% { top: 60%; left: 75%; transform: translateX(-50%); }
+            60% { top: 72%; left: 75%; transform: translateX(-50%); }
+            70% { top: 88%; left: 75%; transform: translateX(-50%); opacity: 1; }
+            75% { top: 95%; left: 75%; transform: translateX(-50%); opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        .nav-link {
+             @apply block text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200;
+        }
+
+        .nav-link.active {
+            @apply bg-cyan-600 text-white;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200">
+
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-extrabold text-white">Firewall Rules & Policy Execution</h1>
+            <p class="text-lg text-gray-400 mt-2">An Interactive Guide for IPFire, OPNsense, and pfSense</p>
+        </header>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sticky Navigation -->
+            <aside class="lg:w-1/4 lg:sticky top-8 self-start">
+                <nav id="navbar" class="bg-gray-800 border border-gray-700 rounded-2xl p-4">
+                    <h3 class="text-lg font-bold text-white mb-3 px-3">Sections</h3>
+                    <ul class="space-y-1">
+                        <li><a href="#overview" class="nav-link">1. Concept Overview</a></li>
+                        <li><a href="#structure" class="nav-link">2. Rule Structure</a></li>
+                        <li><a href="#execution" class="nav-link">3. Order of Execution</a></li>
+                        <li><a href="#implicit" class="nav-link">4. Implicit Rules</a></li>
+                        <li><a href="#evaluation" class="nav-link">5. Evaluation Process</a></li>
+                        <li><a href="#implementations" class="nav-link">6. Implementations</a></li>
+                        <li><a href="#best-practices" class="nav-link">7. Best Practices</a></li>
+                        <li><a href="#visualization" class="nav-link">8. Visualization Example</a></li>
+                        <li><a href="#summary" class="nav-link">9. Platform Summary</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="lg:w-3/4">
+                <section id="overview" class="content-section">
+                    <h2>1. Concept Overview</h2>
+                    <p>Firewalls act as gatekeepers for computer networks, controlling incoming and outgoing traffic based on a set of predefined rules. These rules, also known as policies or <span class="keyword has-tooltip">Access Control Lists (ACLs)<span class="tooltip">A list of permissions attached to an object, specifying which users or systems are granted access.</span></span>, determine whether to allow, deny, or log network packets based on various conditions like source, destination, port, and protocol.</p>
+                    <p class="mt-4">While different firewall platforms like IPFire, OPNsense, and pfSense have their own unique interfaces, the fundamental logic of how they apply these rules is remarkably consistent. Understanding this core logic is key to effective network security management.</p>
+                </section>
+
+                <section id="structure" class="content-section">
+                    <h2>2. Structure of a Firewall Rule</h2>
+                    <p>A typical firewall rule is composed of several key components that define its behavior. Think of it as a detailed instruction for the firewall.</p>
+                    <div class="grid md:grid-cols-2 gap-6 mt-6">
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>ID / Priority:</strong> Determines the rule's position. Rules are evaluated from top to bottom, so the first rule in the list is checked first.</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Source:</strong> The origin of the traffic (e.g., an IP address, a network range, or an interface).</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Destination:</strong> The target of the traffic (IP address, network, or interface).</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Service / Port:</strong> The protocol and port number (e.g., TCP Port 80 for HTTP, UDP Port 53 for DNS).</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Action:</strong> What to do with matching traffic: <span class="text-green-400">Accept</span>, <span class="text-red-400">Deny/Drop</span>, or <span class="text-orange-400">Reject</span>.</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong><span class="keyword has-tooltip">NAT<span class="tooltip">Network Address Translation: A method of remapping an IP address space into another by modifying network address information in the IP header of packets.</span></span>:</strong> Whether to translate IP addresses.</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Logging:</strong> Whether to record an entry when traffic matches this rule.</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Description:</strong> A comment explaining the rule's purpose, crucial for documentation.</div>
+                    </div>
+                </section>
+                
+                <section id="execution" class="content-section">
+                    <h2>3. Order of Execution: First Match Wins</h2>
+                    <p>Firewall policies are processed sequentially from top to bottom. When a network packet arrives, the firewall compares it against the first rule. If it matches, the rule's action is taken, and the process stops. No further rules are checked. This "first match wins" principle is fundamental.</p>
+                    
+                    <div class="mt-6 p-6 bg-gray-900 rounded-lg overflow-x-auto">
+                        <h3 class="text-lg font-semibold mb-3 text-center">Example Rule Table</h3>
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-700">
+                                <tr>
+                                    <th class="p-3">Rule #</th>
+                                    <th class="p-3">Source</th>
+                                    <th class="p-3">Destination</th>
+                                    <th class="p-3">Action</th>
+                                    <th class="p-3">Comment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-700">
+                                    <td class="p-3 font-mono">1</td>
+                                    <td class="p-3">LAN</td>
+                                    <td class="p-3">WAN</td>
+                                    <td class="p-3 text-green-400">ACCEPT</td>
+                                    <td class="p-3">Allow LAN to Internet</td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="p-3 font-mono">2</td>
+                                    <td class="p-3"><span class="keyword has-tooltip">DMZ<span class="tooltip">Demilitarized Zone: A physical or logical subnetwork that contains and exposes an organization's external-facing services to an untrusted network, usually the Internet.</span></span></td>
+                                    <td class="p-3">LAN</td>
+                                    <td class="p-3 text-red-400">DENY</td>
+                                    <td class="p-3">Block DMZ to LAN</td>
+                                </tr>
+                                <tr class="bg-gray-800/50">
+                                    <td class="p-3 font-mono">3</td>
+                                    <td class="p-3">ANY</td>
+                                    <td class="p-3">ANY</td>
+                                    <td class="p-3 text-red-400">DENY</td>
+                                    <td class="p-3">Implicit deny (default rule)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                     <p class="mt-4 text-sm text-gray-400 text-center">Traffic is compared sequentially. If a packet matches Rule #1, it is allowed. If not, it's checked against Rule #2. If it matches neither, it falls to the final implicit deny rule and is blocked.</p>
+                </section>
+
+                <section id="implicit" class="content-section">
+                    <h2>4. The Implicit Deny Rule</h2>
+                    <p>Nearly all firewalls operate on a principle of default denial. At the very bottom of the rule list, there is an invisible, uneditable rule called the <span class="keyword has-tooltip">"Implicit Deny"<span class="tooltip">A security principle where access is denied unless it has been explicitly granted. It's the "block all" rule at the end of every ACL.</span></span>. This rule blocks any traffic that hasn't been explicitly allowed by a preceding rule.</p>
+                    <div class="mt-4 bg-red-900/30 border border-red-500 text-red-300 px-4 py-3 rounded-lg" role="alert">
+                        <strong class="font-bold">Important:</strong> Administrators must explicitly define rules for all necessary traffic. If you don't create an "allow" rule for it, it will be silently dropped by default.
+                    </div>
+                </section>
+
+                <section id="evaluation" class="content-section">
+                    <h2>5. Interactive Firewall Rule Evaluation Process</h2>
+                    <p>This diagram visualizes how a stateful firewall processes a network packet from arrival to its final action. Follow the packet as it moves through the system.</p>
+                    <div class="relative mt-6 p-4 bg-gray-900 rounded-lg h-96 w-full max-w-2xl mx-auto font-sans text-center text-sm">
+                        <!-- Animated Packet -->
+                        <div class="packet bg-cyan-400 w-8 h-5 rounded-md flex items-center justify-center shadow-lg shadow-cyan-500/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+                        </div>
+                        <div class="packet-denied bg-red-500 w-8 h-5 rounded-md flex items-center justify-center shadow-lg shadow-red-500/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </div>
+                        
+                        <!-- Diagram Steps -->
+                        <div class="absolute top-[5%] left-1/2 -translate-x-1/2 bg-gray-700 p-2 rounded-lg w-48">1. Packet Arrives</div>
+                        <div class="absolute top-[20%] left-1/2 -translate-x-1/2 bg-gray-700 p-2 rounded-lg w-48">2. NAT Processing</div>
+                        <div class="absolute top-[40%] left-1/2 -translate-x-1/2 bg-blue-600 p-2 rounded-lg w-56 font-bold">3. Check State Table</div>
+                        <div class="absolute top-[65%] left-1/4 -translate-x-1/2 bg-teal-600 p-2 rounded-lg w-48">4. Existing Connection? <br/> <span class="text-green-300 font-bold">YES</span></div>
+                        <div class="absolute top-[65%] left-3/4 -translate-x-1/2 bg-orange-600 p-2 rounded-lg w-48">4. New Connection? <br/> <span class="text-yellow-300 font-bold">YES</span></div>
+                        <div class="absolute top-[80%] left-1/4 -translate-x-1/2 bg-green-600 p-2 rounded-lg w-48">5. ACCEPT & Forward</div>
+                        <div class="absolute top-[80%] left-3/4 -translate-x-1/2 bg-gray-700 p-2 rounded-lg w-48">5. Evaluate Rules Top-Down</div>
+
+                        <!-- Arrows -->
+                        <div class="absolute top-[12%] left-1/2 -translate-x-1/2 h-8 border-l-2 border-dashed border-cyan-400"></div>
+                        <div class="absolute top-[27%] left-1/2 -translate-x-1/2 h-12 border-l-2 border-dashed border-cyan-400"></div>
+                        <div class="absolute top-[47%] left-1/2 -translate-x-1/2 h-6 border-l-2 border-dashed border-cyan-400"></div>
+                        <div class="absolute top-[53%] left-1/4 w-1/4 h-12 border-b-2 border-l-2 border-dashed border-cyan-400 rounded-bl-lg"></div>
+                        <div class="absolute top-[53%] left-1/2 w-1/4 h-12 border-b-2 border-r-2 border-dashed border-cyan-400 rounded-br-lg"></div>
+                        <div class="absolute top-[72%] left-1/4 -translate-x-1/2 h-8 border-l-2 border-dashed border-green-400"></div>
+                        <div class="absolute top-[72%] left-3/4 -translate-x-1/2 h-8 border-l-2 border-dashed border-red-400"></div>
+
+                    </div>
+                </section>
+
+                <section id="implementations" class="content-section">
+                    <h2>6. Platform Implementations</h2>
+                    <p>Here’s how firewall concepts are applied in three popular open-source platforms. While the GUIs differ, the core logic remains the same.</p>
+                    
+                    <div id="tabs-container" class="mt-6">
+                        <div class="border-b border-gray-600">
+                            <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                                <button class="tab-btn active" data-tab="ipfire">IPFire</button>
+                                <button class="tab-btn" data-tab="pfsense">pfSense</button>
+                                <button class="tab-btn" data-tab="opnsense">OPNsense</button>
+                            </nav>
+                        </div>
+                        <div class="py-6">
+                            <div id="ipfire" class="tab-content">
+                                <h3>IPFire (Zone-Based)</h3>
+                                <p>IPFire uses a zone-based model, which is intuitive for segmenting networks. Rules are created to explicitly allow traffic between these zones.</p>
+                                <ul class="list-disc list-inside mt-4 space-y-2">
+                                    <li><strong class="text-green-400">Green:</strong> Internal LAN (trusted)</li>
+                                    <li><strong class="text-red-400">Red:</strong> Internet (untrusted)</li>
+                                    <li><strong class="text-orange-400">Orange:</strong> DMZ (semi-trusted)</li>
+                                    <li><strong class="text-blue-400">Blue:</strong> Wi-Fi zone (controlled)</li>
+                                </ul>
+                                <p class="mt-4">Example Logic:</p>
+                                <ul class="list-disc list-inside mt-2 bg-gray-900 p-4 rounded-lg">
+                                    <li>Create rule to ALLOW Green -> Red (for LAN internet access).</li>
+                                    <li>Create rule to ALLOW Orange -> Red (for DMZ server access to updates).</li>
+                                    <li>All other traffic (like Orange -> Green) is blocked by default.</li>
+                                </ul>
+                                <a href="https://www.ipfire.org/docs/configuration/firewall/rules" target="_blank" class="inline-block mt-4 text-cyan-400 hover:text-cyan-300">Official IPFire Docs &rarr;</a>
+                            </div>
+                            <div id="pfsense" class="tab-content hidden">
+                                <h3>pfSense (Interface-Based)</h3>
+                                <p>pfSense assigns rules directly to interfaces (e.g., WAN, LAN, OPT1). Rules are processed top-to-bottom for each interface's traffic.</p>
+                                <ul class="list-disc list-inside mt-4 space-y-2">
+                                    <li><strong class="text-red-400">WAN:</strong> By default, blocks all inbound traffic.</li>
+                                    <li><strong class="text-green-400">LAN:</strong> By default, allows all outbound traffic.</li>
+                                    <li>NAT is configured separately under <code class="bg-gray-700 px-1 rounded">Firewall > NAT</code>.</li>
+                                    <li>Supports "floating rules" that can apply to multiple interfaces.</li>
+                                </ul>
+                                <p class="mt-4">Example Logic:</p>
+                                <ul class="list-disc list-inside mt-2 bg-gray-900 p-4 rounded-lg">
+                                    <li>The default "Allow LAN to Any" rule provides internet access.</li>
+                                    <li>To expose a web server, a NAT Port Forward rule is created on WAN, which automatically creates a linked firewall rule.</li>
+                                </ul>
+                                <a href="https://docs.netgate.com/pfsense/en/latest/firewall/index.html" target="_blank" class="inline-block mt-4 text-cyan-400 hover:text-cyan-300">Official pfSense Docs &rarr;</a>
+                            </div>
+                            <div id="opnsense" class="tab-content hidden">
+                                <h3>OPNsense (Interface-Based)</h3>
+                                <p>OPNsense builds on pfSense's logic with a more modern user interface and additional features. The core interface-based, top-down evaluation is the same.</p>
+                                <ul class="list-disc list-inside mt-4 space-y-2">
+                                    <li>Inherits the same default block/allow logic as pfSense.</li>
+                                    <li>Evaluation order: Floating rules -> Interface rules -> Default deny.</li>
+                                    <li>Features an excellent rule search and visualization system.</li>
+                                    <li>NAT rules are also configured separately and evaluated before filter rules.</li>
+                                </ul>
+                                <p class="mt-4">Example Logic:</p>
+                                <ul class="list-disc list-inside mt-2 bg-gray-900 p-4 rounded-lg">
+                                    <li>Similar to pfSense, a default LAN allow rule is present on new installs.</li>
+                                    <li>Blocking access from one internal network to another requires an explicit block rule on the source interface.</li>
+                                </ul>
+                                <a href="https://docs.opnsense.org/manual/firewall.html" target="_blank" class="inline-block mt-4 text-cyan-400 hover:text-cyan-300">Official OPNsense Docs &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="best-practices" class="content-section">
+                    <h2>7. Best Practices for Rule Management</h2>
+                    <p>Maintaining a clean, efficient, and secure firewall ruleset is an ongoing process. Follow these best practices to avoid common pitfalls.</p>
+                     <div class="grid md:grid-cols-2 gap-4 mt-6">
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Most Specific First:</strong> Place more specific rules (e.g., blocking a single IP) above more general rules (e.g., allowing a whole subnet).</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Document Everything:</strong> Use the description/comment field on every rule. Your future self will thank you.</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Principle of Least Privilege:</strong> Only allow what is absolutely necessary. Avoid broad "any to any" rules.</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Use Aliases/Groups:</strong> Group IPs, ports, and networks into aliases. Updating an alias updates every rule that uses it.</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Regularly Review:</strong> Periodically audit your ruleset to remove obsolete or redundant rules.</div>
+                        <div class="bg-gray-700/50 p-4 rounded-lg"><strong>Backup Configurations:</strong> Always save a backup of your configuration before making significant changes.</div>
+                    </div>
+                </section>
+
+                <section id="visualization" class="content-section">
+                    <h2>8. Visualization Example (FortiGate Style)</h2>
+                    <p>Many firewalls provide a view that shows not just the rules, but also how much traffic has matched each one. This is incredibly useful for diagnostics and understanding network flows.</p>
+                    <div class="mt-6 p-4 bg-gray-900 rounded-lg overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-700">
+                                <tr>
+                                    <th class="p-3">ID</th>
+                                    <th class="p-3">Source</th>
+                                    <th class="p-3">Destination</th>
+                                    <th class="p-3">Service</th>
+                                    <th class="p-3">Action</th>
+                                    <th class="p-3">Bytes Matched</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-700">
+                                    <td class="p-3 font-mono">1</td>
+                                    <td class="p-3">LAN</td>
+                                    <td class="p-3">WAN</td>
+                                    <td class="p-3">HTTP, HTTPS</td>
+                                    <td class="p-3 text-green-400">ACCEPT</td>
+                                    <td class="p-3 text-cyan-300">2.1 GB</td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="p-3 font-mono">2</td>
+                                    <td class="p-3">VLAN_Guest</td>
+                                    <td class="p-3">LAN</td>
+                                    <td class="p-3">ANY</td>
+                                    <td class="p-3 text-red-400">DENY</td>
+                                    <td class="p-3 text-cyan-300">15.3 MB</td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="p-3 font-mono">3</td>
+                                    <td class="p-3">DMZ</td>
+                                    <td class="p-3">WAN</td>
+                                    <td class="p-3">DNS</td>
+                                    <td class="p-3 text-green-400">ACCEPT</td>
+                                    <td class="p-3 text-cyan-300">87.0 MB</td>
+                                </tr>
+                                <tr class="bg-gray-800/50">
+                                    <td class="p-3 font-mono">Implicit</td>
+                                    <td class="p-3">ANY</td>
+                                    <td class="p-3">ANY</td>
+                                    <td class="p-3">ANY</td>
+                                    <td class="p-3 text-red-400">DENY</td>
+                                    <td class="p-3 text-cyan-300">540.2 MB</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <h3 class="mt-4">Interpretation:</h3>
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                        <li><strong>Rule 1:</strong> Is actively passing a high volume of web traffic from the LAN to the internet.</li>
+                        <li><strong>Rule 2:</strong> Is correctly blocking traffic from the guest network to the internal LAN.</li>
+                        <li><strong>Implicit Deny:</strong> A significant amount of traffic is being dropped, which may warrant investigation to see if a legitimate service is being blocked unintentionally.</li>
+                    </ul>
+                </section>
+                
+                <section id="summary" class="content-section">
+                    <h2>9. Summary Table: Comparison of Platforms</h2>
+                    <div class="mt-6 overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-700">
+                                <tr>
+                                    <th class="p-3">Feature</th>
+                                    <th class="p-3">IPFire</th>
+                                    <th class="p-3">pfSense</th>
+                                    <th class="p-3">OPNsense</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-700">
+                                    <td class="p-3 font-bold">Rule Evaluation</td>
+                                    <td class="p-3">Top-down</td>
+                                    <td class="p-3">Top-down</td>
+                                    <td class="p-3">Top-down</td>
+                                </tr>
+                                <tr class="border-b border-gray-700 bg-gray-800/50">
+                                    <td class="p-3 font-bold">Rule Context</td>
+                                    <td class="p-3">Zones</td>
+                                    <td class="p-3">Interfaces</td>
+                                    <td class="p-3">Interfaces</td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="p-3 font-bold">NAT</td>
+                                    <td class="p-3">Separate Config</td>
+                                    <td class="p-3">Separate Config</td>
+                                    <td class="p-3">Separate Config</td>
+                                </tr>
+                                <tr class="border-b border-gray-700 bg-gray-800/50">
+                                    <td class="p-3 font-bold">Implicit Rule</td>
+                                    <td class="p-3 text-red-400">Deny All</td>
+                                    <td class="p-3 text-red-400">Deny All</td>
+                                    <td class="p-3 text-red-400">Deny All</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                     <div class="mt-6 text-center p-6 bg-cyan-900/30 border border-cyan-500 rounded-lg">
+                        <h3 class="text-xl font-bold text-cyan-300">The Golden Rule</h3>
+                        <p class="text-lg mt-2">"That which is not explicitly permitted is denied."</p>
+                        <p class="text-gray-400 mt-1">This principle is the foundation of firewall security across all platforms.</p>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Tabbed Interface Logic ---
+        const tabsContainer = document.getElementById('tabs-container');
+        const tabButtons = tabsContainer.querySelectorAll('.tab-btn');
+        const tabContents = tabsContainer.querySelectorAll('.tab-content');
+
+        // Custom styling for tab buttons
+        const activeClasses = 'border-cyan-400 text-cyan-400';
+        const inactiveClasses = 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-400';
+        tabButtons.forEach(button => {
+            button.className = `tab-btn py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${button.classList.contains('active') ? activeClasses : inactiveClasses}`;
+            button.addEventListener('click', () => {
+                // Deactivate all
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.className = `tab-btn py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${inactiveClasses}`;
+                });
+                tabContents.forEach(content => content.classList.add('hidden'));
+
+                // Activate clicked
+                button.classList.add('active');
+                button.className = `tab-btn py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeClasses}`;
+                const targetTab = button.getAttribute('data-tab');
+                document.getElementById(targetTab).classList.remove('hidden');
+            });
+        });
+
+        // --- Active Scrolling Navigation Logic ---
+        const navbar = document.getElementById('navbar');
+        const navLinks = navbar.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('main section');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.3 // Section is considered active when 30% visible
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            let activeSectionId = null;
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    activeSectionId = entry.target.id;
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (activeSectionId && link.getAttribute('href') === `#${activeSectionId}`) {
+                    link.classList.add('active');
+                }
+            });
+            // Fallback for top of page
+            if (window.scrollY < 200) {
+                 navLinks.forEach(link => link.classList.remove('active'));
+                 if(navLinks[0]) navLinks[0].classList.add('active');
+            }
+
+
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    });
+    </script>
+</body>
+</html>
+
+
+
