@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threats Eradication, Incident Response and Preventive Measures</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Solarized Light Theme */
+        .light {
+            --bg-base: #fdf6e3; /* base */
+            --bg-alt: #eee8d5; /*-1 */
+            --text-base: #657b83; /* 1 */
+            --text-muted: #586e75; /* 0 */
+            --text-heading: #073642; /*-2 */
+            --accent: #268bd2; /* blue */
+            --accent-green: #859900; /* green */
+            --accent-red: #dc322f; /* red */
+            --border-color: #93a1a1;
+        }
+
+        /* Solarized Dark Theme */
+        .dark {
+            --bg-base: #002b36; /* base */
+            --bg-alt: #073642; /*-2 */
+            --text-base: #839496; /* 0 */
+            --text-muted: #93a1a1; /* 1 */
+            --text-heading: #eee8d5; /*-1 */
+            --accent: #268bd2; /* blue */
+            --accent-green: #859900; /* green */
+            --accent-red: #dc322f; /* red */
+            --border-color: #586e75;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-base);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--text-heading);
+        }
+        
+        a {
+            color: var(--accent);
+        }
+
+        .header, .main-menu {
+            background-color: var(--bg-alt);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .main-menu button, .control-btn {
+            background-color: var(--bg-base);
+            color: var(--text-base);
+            border: 1px solid var(--border-color);
+        }
+        
+        .main-menu button.active {
+            background-color: var(--accent);
+            color: var(--bg-base);
+            border-color: var(--accent);
+        }
+
+        .details-container summary {
+            background-color: var(--bg-alt);
+            color: var(--text-heading);
+            padding: 1rem;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 5px;
+            list-style: none; /* Hide the default marker */
+        }
+        .details-container summary::-webkit-details-marker {
+            display: none; /* Hide the default marker for Chrome/Safari */
+        }
+
+        .details-container summary::before {
+            content: '►';
+            margin-right: 0.5rem;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .details-container[open] summary::before {
+            transform: rotate(90deg);
+        }
+        
+        .details-content {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1rem;
+        }
+
+        .password-modal {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: var(--bg-base);
+        }
+
+        .answer-box {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-base);
+            margin-top: 10px;
+        }
+        
+        .dark .answer-box, .dark .submission-input {
+             background-color: var(--bg-alt);
+             color: var(--text-base);
+        }
+
+        .submission-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--bg-base);
+            color: var(--text-base);
+        }
+        
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Header -->
+    <header class="header sticky top-0 z-50 p-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl md:text-2xl font-bold">Threats Eradication, Incident Response and Preventive Measures</h1>
+        <div class="flex items-center space-x-2">
+            <button id="expand-all" class="control-btn px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700">Expand All</button>
+            <button id="collapse-all" class="control-btn px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700">Collapse All</button>
+            <div class="flex items-center">
+                <span class="text-sm mr-2">☀️</span>
+                <label for="theme-switcher" class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="theme-switcher" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                </label>
+                <span class="text-sm ml-2">🌙</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Menu -->
+    <nav class="main-menu sticky top-[72px] z-50 p-2 shadow-md">
+        <div class="container mx-auto flex justify-center space-x-1 md:space-x-4">
+            <button class="menu-btn px-4 py-2 rounded-md font-semibold" data-section="lecture">Lecture</button>
+            <button class="menu-btn px-4 py-2 rounded-md font-semibold" data-section="exercises">Exercises</button>
+            <button class="menu-btn px-4 py-2 rounded-md font-semibold" data-section="tips">Tips</button>
+            <button class="menu-btn px-4 py-2 rounded-md font-semibold" data-section="explanations">Explanations</button>
+            <button class="menu-btn px-4 py-2 rounded-md font-semibold" data-section="answers">Answers</button>
+            <button class="menu-btn px-4 py-2 rounded-md font-semibold" data-section="evaluation">Evaluation Grid</button>
+        </div>
+    </nav>
+
+    <!-- Content Sections -->
+    <main class="container mx-auto p-4">
+
+        <!-- Lecture Section -->
+        <section id="lecture" class="content-section">
+            <h2 class="text-3xl font-bold mb-6">Lecture: Threats and Risks for Cybersecurity</h2>
+            
+            <details class="details-container">
+                <summary class="text-xl font-semibold">1. Eradication of Threats: Techniques and Tools</summary>
+                <div class="details-content space-y-4">
+                    <h3 class="text-lg font-semibold">Identifying and Isolating Compromised Systems</h3>
+                    <p>The crucial first step in eradication is to pinpoint exactly which systems have been affected by a threat and then to disconnect or segment them from the rest of the network to prevent further spread.</p>
+                    <div class="my-4 p-4 border rounded-lg border-[var(--border-color)]">
+                         <h4 class="font-bold mb-2">Network Segmentation Visualization</h4>
+                         <svg width="100%" height="200" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" class="bg-[var(--bg-base)] rounded">
+                            <style>
+                                .net-text { font-size: 12px; fill: var(--text-base); }
+                                .net-box { stroke: var(--border-color); stroke-width: 1.5; fill: var(--bg-alt); }
+                                .quarantine-box { fill: #ffdddd; }
+                                .dark .quarantine-box { fill: #581818; }
+                                .net-line { stroke: var(--accent-red); stroke-width: 2; stroke-dasharray: 4; }
+                                .firewall { fill: var(--accent-green); }
+                            </style>
+                            <!-- Production Network -->
+                            <rect x="20" y="50" width="150" height="100" class="net-box" rx="5"></rect>
+                            <text x="50" y="100" class="net-text">Production Network</text>
+                             <text x="65" y="120" class="net-text">(Healthy Systems)</text>
+                            <!-- Firewall -->
+                            <rect x="220" y="75" width="20" height="50" class="firewall" rx="2"></rect>
+                             <text x="222" y="105" class="net-text" fill="white">FW</text>
+                            <!-- Quarantine Zone -->
+                            <rect x="300" y="50" width="150" height="100" class="net-box quarantine-box" rx="5"></rect>
+                            <text x="330" y="100" class="net-text">Quarantine VLAN</text>
+                            <text x="325" y="120" class="net-text">(Compromised System)</text>
+                             <!-- Connection line -->
+                            <line x1="170" y1="100" x2="220" y2="100" style="stroke: var(--text-base); stroke-width: 1;"></line>
+                             <line x1="240" y1="100" x2="300" y2="100" style="stroke: var(--text-base); stroke-width: 1;"></line>
+                             <!-- Isolation Representation -->
+                            <line x1="265" y1="80" x2="285" y2="120" class="net-line"></line>
+                             <line x1="285" y1="80" x2="265" y2="120" class="net-line"></line>
+                             <text x="180" y="30" class="net-text" style="font-style: italic;">Traffic Blocked by Firewall</text>
+                         </svg>
+                    </div>
+                    <p><strong>Techniques:</strong> Network Segmentation, Host Isolation, Firewall Rules, Process Termination.</p>
+                    <p><strong>Tools:</strong> NAC, EDR, Firewalls, Network monitoring tools (Wireshark), OS tools (Task Manager, netstat).</p>
+                    <p><strong>Examples:</strong> Isolating a malware-infected PC, blocking a compromised server's IP at the firewall, containing a ransomware attack by disconnecting file servers.</p>
+                </div>
+            </details>
+
+            <details class="details-container">
+                <summary class="text-xl font-semibold">2. Preventative Measures: Best Practices</summary>
+                 <div class="details-content space-y-4">
+                    <h3 class="text-lg font-semibold">Implementing Strong Access Controls</h3>
+                    <p>Ensure that only authorized individuals and systems can access specific resources, based on the principle of least privilege.</p>
+                     <p><strong>Techniques:</strong> Strong Password Policies, Multi-Factor Authentication (MFA), Role-Based Access Control (RBAC).</p>
+                    <h3 class="text-lg font-semibold mt-4">Data Backup and Recovery Strategy</h3>
+                    <p>Regularly backing up critical data to secure, isolated locations ensures data can be recovered after an incident like a ransomware attack.</p>
+                    <div class="my-4 p-4 border rounded-lg border-[var(--border-color)]">
+                         <h4 class="font-bold mb-2">The 3-2-1 Backup Rule</h4>
+                         <svg width="100%" height="220" viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg" class="bg-[var(--bg-base)] rounded">
+                             <style>
+                                 .rule-text { font-size: 14px; fill: var(--text-heading); font-weight: bold; }
+                                 .desc-text { font-size: 12px; fill: var(--text-base); }
+                                 .icon-bg { fill: var(--bg-alt); stroke: var(--border-color); stroke-width: 1; }
+                                 .icon-line { stroke: var(--accent); stroke-width: 2; }
+                                 .arrow { fill: var(--accent); }
+                             </style>
+                             <!-- 3 Copies -->
+                             <circle cx="80" cy="60" r="30" class="icon-bg"></circle>
+                             <text x="75" y="65" font-size="24" fill="var(--text-heading)">3</text>
+                             <text x="40" y="110" class="rule-text">THREE Copies</text>
+                             <text x="45" y="130" class="desc-text">1 Primary + 2 Backups</text>
+                            
+                             <!-- Arrow -->
+                             <path d="M 130 80 L 170 80" stroke="var(--border-color)" stroke-width="2"></path>
+                             <polygon points="170,75 180,80 170,85" class="arrow"></polygon>
+
+                             <!-- 2 Media -->
+                             <circle cx="250" cy="60" r="30" class="icon-bg"></circle>
+                             <text x="245" y="65" font-size="24" fill="var(--text-heading)">2</text>
+                             <text x="210" y="110" class="rule-text">TWO Media Types</text>
+                             <text x="200" y="130" class="desc-text">e.g., Disk and Cloud</text>
+                            
+                             <!-- Arrow -->
+                             <path d="M 300 80 L 340 80" stroke="var(--border-color)" stroke-width="2"></path>
+                             <polygon points="340,75 350,80 340,85" class="arrow"></polygon>
+                            
+                             <!-- 1 Offsite -->
+                             <circle cx="420" cy="60" r="30" class="icon-bg"></circle>
+                             <text x="415" y="65" font-size="24" fill="var(--text-heading)">1</text>
+                             <text x="380" y="110" class="rule-text">ONE Offsite Copy</text>
+                             <text x="360" y="130" class="desc-text">Geographically separate</text>
+                         </svg>
+                    </div>
+                     <p><strong>Key Principles:</strong> 3-2-1 Rule, Immutability, Regularity, Verification.</p>
+                     <p><strong>Tools:</strong> Enterprise backup solutions (Veeam, Commvault), Cloud backup services (AWS, Azure), NAS/SAN devices.</p>
+                </div>
+            </details>
+
+            <details class="details-container">
+                <summary class="text-xl font-semibold">3. Incident Response Planning</summary>
+                <div class="details-content space-y-4">
+                     <h3 class="text-lg font-semibold">NIST Incident Response Lifecycle</h3>
+                     <p>A structured approach to incident management, providing a framework for handling security incidents effectively.</p>
+                     <div class="my-4 p-4 border rounded-lg border-[var(--border-color)]">
+                        <h4 class="font-bold mb-2">Lifecycle Phases</h4>
+                         <svg width="100%" height="300" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" class="bg-[var(--bg-base)] rounded">
+                            <style>
+                                .phase-circle { fill: var(--bg-alt); stroke: var(--accent); stroke-width: 2; }
+                                .phase-text { font-size: 12px; fill: var(--text-heading); text-anchor: middle; }
+                                .arrow-path { stroke: var(--border-color); stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+                                .feedback-loop { stroke: var(--accent-red); stroke-width: 1.5; fill: none; stroke-dasharray: 5,5; marker-end: url(#arrowhead-red); }
+                            </style>
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--border-color)" />
+                                </marker>
+                                <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--accent-red)" />
+                                </marker>
+                            </defs>
+                            
+                            <!-- Phases -->
+                             <g transform="translate(100, 50)">
+                                 <circle r="40" class="phase-circle"></circle>
+                                 <text y="0" class="phase-text">Preparation</text>
+                             </g>
+                             <g transform="translate(300, 50)">
+                                 <circle r="40" class="phase-circle"></circle>
+                                 <text y="-5" class="phase-text">Identification</text>
+                                 <text y="10" class="phase-text">& Analysis</text>
+                             </g>
+                             <g transform="translate(500, 50)">
+                                 <circle r="40" class="phase-circle"></circle>
+                                 <text y="0" class="phase-text">Containment</text>
+                             </g>
+                             <g transform="translate(500, 200)">
+                                 <circle r="40" class="phase-circle"></circle>
+                                 <text y="0" class="phase-text">Eradication</text>
+                             </g>
+                             <g transform="translate(300, 200)">
+                                 <circle r="40" class="phase-circle"></circle>
+                                 <text y="0" class="phase-text">Recovery</text>
+                             </g>
+                             <g transform="translate(100, 200)">
+                                 <circle r="40" class="phase-circle"></circle>
+                                 <text y="-5" class="phase-text">Post-Incident</text>
+                                 <text y="10" class="phase-text">(Lessons Learned)</text>
+                             </g>
+                            
+                            <!-- Arrows -->
+                            <path d="M 145 50 H 255" class="arrow-path"></path>
+                            <path d="M 345 50 H 455" class="arrow-path"></path>
+                            <path d="M 500 95 V 155" class="arrow-path"></path>
+                            <path d="M 455 200 H 345" class="arrow-path"></path>
+                            <path d="M 255 200 H 145" class="arrow-path"></path>
+                             <!-- Feedback Loop -->
+                             <path d="M 100 155 C 50 150, 50 100, 100 95" class="feedback-loop"></path>
+                             <text x="10" y="125" class="desc-text" fill="var(--accent-red)">Feedback Loop</text>
+                        </svg>
+                     </div>
+                     <p><strong>Key Elements:</strong> Creating an Incident Response Team (IRT), developing a formal Incident Response Plan (IRP), establishing communication protocols, and conducting regular tabletop exercises.</p>
+                </div>
+            </details>
+        </section>
+
+        <!-- Exercises Section -->
+        <section id="exercises" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-6">Exercises</h2>
+            <div class="space-y-8">
+                <details class="details-container">
+                    <summary class="text-xl font-semibold">Exercise 1: Isolation Strategy</summary>
+                    <div class="details-content">
+                        <p class="mt-2">A user in the finance department reports that their computer is running extremely slow and multiple antivirus alerts are popping up. What are the immediate first three steps you should take to contain this potential threat? Justify your choices.</p>
+                        <div class="answer-box-container mt-4">
+                            <div contenteditable="true" class="answer-box" data-exercise-id="1"></div>
+                            <button class="import-btn mt-2 px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-md text-sm">Import Content</button>
+                        </div>
+                    </div>
+                </details>
+                <details class="details-container">
+                    <summary class="text-xl font-semibold">Exercise 2: Preventative Policy</summary>
+                    <div class="details-content">
+                        <p class="mt-2">Your company is concerned about ransomware attacks. Propose a preventative measure that combines both a technical control and an administrative (policy/training) control. Explain how they work together.</p>
+                        <div class="answer-box-container mt-4">
+                            <div contenteditable="true" class="answer-box" data-exercise-id="2"></div>
+                            <button class="import-btn mt-2 px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-md text-sm">Import Content</button>
+                        </div>
+                    </div>
+                </details>
+                 <details class="details-container">
+                    <summary class="text-xl font-semibold">Exercise 3: Incident Response Role Play</summary>
+                    <div class="details-content">
+                        <p class="mt-2">A web server in your company's DMZ has been defaced. As the Incident Commander, who are the first three members of the IRT you would contact and what initial instructions would you give them?</p>
+                         <div class="answer-box-container mt-4">
+                            <div contenteditable="true" class="answer-box" data-exercise-id="3"></div>
+                            <button class="import-btn mt-2 px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-md text-sm">Import Content</button>
+                        </div>
+                    </div>
+                </details>
+            </div>
+             <!-- Submit Your Work Section -->
+            <div id="submit-work-section" class="mt-12 p-6 rounded-lg shadow-md" style="background-color: var(--bg-alt);">
+                <h2 class="text-2xl font-bold mb-4">Submit Your Work</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <input type="text" id="student-name" placeholder="Your Name" class="submission-input">
+                    <input type="text" id="student-id" placeholder="Student ID" class="submission-input">
+                </div>
+                <div class="flex flex-wrap gap-4 items-center">
+                    <button id="send-email" class="control-btn px-4 py-2 rounded-md font-semibold" style="background-color: var(--accent-green); color: white;">Send Answers via Email</button>
+                    <button id="copy-answers" class="control-btn px-4 py-2 rounded-md font-semibold">Copy & Download Answers (.txt)</button>
+                </div>
+                <div class="mt-4 p-4 rounded-md" style="background-color: var(--bg-base);">
+                    <h4 class="font-semibold">How to Submit:</h4>
+                    <p class="text-sm mt-2">1. Fill in your Name and Student ID above.</p>
+                    <p class="text-sm">2. Click <strong>"Send Answers via Email"</strong> to open your default mail client with your answers pre-filled.</p>
+                    <p class="text-sm">3. If that doesn't work, click <strong>"Copy & Download Answers (.txt)"</strong>. This will copy your answers to the clipboard and prompt you to save them as a text file. You can then manually email this file to <strong>asengroa@hotmail.com</strong>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tips Section -->
+        <section id="tips" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-6">Tips</h2>
+            <div class="space-y-4">
+                <details class="details-container">
+                    <summary class="font-semibold">Tip for Exercise 1</summary>
+                    <div class="details-content">Think about the principle of "do no further harm". What is the fastest way to stop the threat from spreading to other computers on the network? Consider both physical and logical isolation.</div>
+                </details>
+                <details class="details-container">
+                    <summary class="font-semibold">Tip for Exercise 2</summary>
+                    <div class="details-content">A good preventative strategy is layered (defense in depth). How can you protect your data backups (technical) and also reduce the chance of malware getting in through employees (administrative)?</div>
+                </details>
+                 <details class="details-container">
+                    <summary class="font-semibold">Tip for Exercise 3</summary>
+                    <div class="details-content">Review the roles in an Incident Response Team. Who handles the technical investigation and containment? Who handles communication? Who manages legal and compliance issues? Prioritize based on the immediate needs of a server compromise.</div>
+                </details>
+            </div>
+        </section>
+
+        <!-- Explanations Section -->
+        <section id="explanations" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-6">Explanations</h2>
+             <div class="space-y-4">
+                <details class="details-container">
+                    <summary class="font-semibold">Explanation for Exercise 1</summary>
+                    <div class="details-content">This question tests your understanding of the "Containment" phase of incident response. The goal is to limit the damage. Disconnecting the machine from the network prevents malware from spreading (lateral movement) or communicating with its command-and-control server. Notifying the security team ensures the incident is officially tracked and managed. Avoiding personal use prevents accidental data loss or further compromise.</div>
+                </details>
+                <details class="details-container">
+                    <summary class="font-semibold">Explanation for Exercise 2</summary>
+                    <div class="details-content">This question assesses your knowledge of preventative controls. A technical control is a safeguard implemented in hardware or software (like immutable backups). An administrative control is a policy or procedure that people follow (like security awareness training). A strong security posture relies on both; technology can fail, and people can make mistakes, so layering them provides resilience.</div>
+                </details>
+                 <details class="details-container">
+                    <summary class="font-semibold">Explanation for Exercise 3</summary>
+                    <div class="details-content">This scenario evaluates your ability to apply the Incident Response Plan. The Incident Commander's role is to coordinate the response. The Technical Lead is needed immediately to investigate and contain the breach on the server. The Communications Lead is crucial for managing the message both internally and externally, preventing misinformation. The Legal Counsel should also be engaged early, especially if sensitive data may be involved, but the first two are critical for immediate technical and communication control.</div>
+                </details>
+            </div>
+        </section>
+
+        <!-- Answers Section -->
+        <section id="answers" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-6">Answers</h2>
+            <div id="answers-content" class="hidden space-y-4">
+                 <details class="details-container">
+                    <summary class="font-semibold">Answer for Exercise 1</summary>
+                    <div class="details-content">
+                        <p><strong>1. Physically Isolate the System:</strong> Immediately disconnect the network cable and disable Wi-Fi. This is the fastest and most effective way to prevent the potential malware from spreading to other systems on the network.</p>
+                        <p><strong>2. Notify the Incident Response Team (IRT) / Security Team:</strong> Report the incident through official channels. This activates the formal incident response process, ensuring the event is properly tracked, managed, and escalated.</p>
+                        <p><strong>3. Do Not Turn Off or Use the Computer:</strong> Leave the machine powered on but isolated. Shutting it down could erase volatile memory (RAM) which may contain crucial forensic evidence. Do not attempt to log in or "fix" it, as this could alter the state of the system and hamper investigation.</p>
+                    </div>
+                </details>
+                 <details class="details-container">
+                    <summary class="font-semibold">Answer for Exercise 2</summary>
+                    <div class="details-content">
+                        <p><strong>Technical Control: Immutable Backups.</strong> Implement a backup solution following the 3-2-1 rule, with one copy stored on immutable storage (e.g., in the cloud with object lock or on WORM - Write-Once, Read-Many - media). This ensures that even if the live network is compromised by ransomware, the backup copy cannot be encrypted or deleted by the attacker, guaranteeing a clean source for recovery.</p>
+                        <p><strong>Administrative Control: Mandatory Phishing Awareness Training.</strong> Implement a continuous security training program that includes simulated phishing campaigns. This educates employees on how to spot and report malicious emails, which are the primary delivery vector for ransomware. The policy would mandate participation and track performance, reducing the likelihood of human error leading to an initial infection.</p>
+                        <p><strong>Synergy:</strong> The training reduces the probability of a successful attack, while the immutable backups provide a robust safety net to ensure business continuity if an attack does get through. This layered approach addresses both the human and technical vulnerabilities.</p>
+                    </div>
+                </details>
+                 <details class="details-container">
+                    <summary class="font-semibold">Answer for Exercise 3</summary>
+                    <div class="details-content">
+                        <p>As the Incident Commander, my first three contacts and instructions would be:</p>
+                        <p><strong>1. Technical Lead:</strong> "We have a suspected defacement on web server [Server Name/IP]. I need you to immediately verify the compromise, preserve volatile data for forensic analysis, and begin containment procedures by isolating the server in a quarantine VLAN. Do not wipe the server yet; focus on containment and evidence preservation."</p>
+                        <p><strong>2. Communications Lead:</strong> "Our public-facing web server has been defaced. Prepare internal and external communication drafts. Internally, we need to inform key IT and management stakeholders. Externally, we need a holding statement for the website and potential media inquiries. All communications must be approved by me before release."</p>
+                        <p><strong>3. Legal Counsel:</strong> "I am activating the IRT for a security incident involving a public web server. Please be on standby to advise on potential data breach notification requirements and evidence handling procedures. We are currently in the containment and investigation phase."</p>
+                    </div>
+                </details>
+            </div>
+            <div id="answers-prompt">
+                <p>This section is password protected. Please enter the password to view the answers.</p>
+            </div>
+        </section>
+
+        <!-- Evaluation Grid Section -->
+        <section id="evaluation" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-6">Evaluation Grid</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border" style="border-color: var(--border-color);">
+                    <thead style="background-color: var(--bg-alt);">
+                        <tr>
+                            <th class="p-3 text-left font-semibold">Criteria</th>
+                            <th class="p-3 text-left font-semibold">Points</th>
+                            <th class="p-3 text-left font-semibold">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-t" style="border-color: var(--border-color);">
+                            <td class="p-3">Correct Identification of Concepts</td>
+                            <td class="p-3">40</td>
+                            <td class="p-3">Demonstrates a clear understanding of the core cybersecurity principles discussed in the lecture (e.g., containment, prevention, incident response roles).</td>
+                        </tr>
+                        <tr class="border-t" style="border-color: var(--border-color); background-color: var(--bg-alt);">
+                            <td class="p-3">Application and Justification</td>
+                            <td class="p-3">40</td>
+                            <td class="p-3">Ability to apply concepts to the specific scenarios and provide logical, well-reasoned justifications for the proposed actions.</td>
+                        </tr>
+                        <tr class="border-t" style="border-color: var(--border-color);">
+                            <td class="p-3">Clarity and Completeness</td>
+                            <td class="p-3">20</td>
+                            <td class="p-3">Answers are clear, concise, and address all parts of the question.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Password Modal -->
+    <div id="password-modal" class="password-modal fixed inset-0 flex items-center justify-center hidden">
+        <div class="modal-content w-full max-w-sm p-6 rounded-lg shadow-lg">
+            <h3 class="text-lg font-bold mb-2">Password Required</h3>
+            <p class="text-sm mb-1">Please enter the password to view the answers.</p>
+            <p class="text-sm mb-1">If you want to Cancel the action, click outside the "Password Required" box.</p>
+            <p class="text-sm mb-4">You can see the entered password by clicking on the "eye" icon.</p>
+            <div class="relative">
+                <input type="password" id="password-input" class="w-full p-2 border rounded" style="border-color: var(--border-color); background-color: var(--bg-base); color: var(--text-base);">
+                <button id="toggle-password" class="absolute inset-y-0 right-0 px-3 flex items-center text-sm leading-5">
+                    <svg id="eye-icon-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                    <svg id="eye-icon-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 20 20" fill="currentColor">
+                         <path fill-rule="evenodd" d="M1.707 2.293a1 1 0 011.414 0l14 14a1 1 0 01-1.414 1.414l-1.474-1.474A10.03 10.03 0 0110 17c-4.52 0-8.268-2.943-9.542-7 .94-3.004 3.456-5.36 6.63-6.218L1.707 2.293zM10 12a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        <path d="M10 3a7 7 0 017 7c0 .543-.064 1.07-.184 1.573l-1.89-1.89A4 4 0 0010 6a4 4 0 00-4 4c0 .37.051.727.146 1.065l-1.87 1.87A6.974 6.974 0 013 10a7 7 0 017-7z" />
+                    </svg>
+                </button>
+            </div>
+            <p id="password-error" class="text-red-500 text-sm mt-2 hidden">Incorrect password. Please try again.</p>
+            <button id="password-submit" class="w-full mt-4 px-4 py-2 rounded-md font-semibold" style="background-color: var(--accent); color: white;">Submit</button>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Theme Switcher
+            const themeSwitcher = document.getElementById('theme-switcher');
+            const html = document.documentElement;
+
+            themeSwitcher.addEventListener('change', () => {
+                html.classList.toggle('dark');
+                html.classList.toggle('light');
+            });
+
+            // Section Navigation
+            const menuButtons = document.querySelectorAll('.menu-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            const submitWorkSection = document.getElementById('submit-work-section');
+
+            function showSection(sectionId) {
+                contentSections.forEach(section => {
+                    if (section.id === sectionId) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+
+                menuButtons.forEach(btn => {
+                    if (btn.dataset.section === sectionId) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                // Show/hide submit section
+                 if (sectionId === 'exercises') {
+                    submitWorkSection.classList.remove('hidden');
+                } else {
+                    submitWorkSection.classList.add('hidden');
+                }
+            }
+
+            menuButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const sectionId = button.dataset.section;
+                    if (sectionId === 'answers') {
+                        handleAnswersClick();
+                    } else {
+                        showSection(sectionId);
+                    }
+                });
+            });
+
+            // Set initial section
+            showSection('lecture');
+             menuButtons[0].classList.add('active');
+
+
+            // Expand/Collapse All
+            const expandAllBtn = document.getElementById('expand-all');
+            const collapseAllBtn = document.getElementById('collapse-all');
+            const detailsElements = document.querySelectorAll('.details-container');
+
+            expandAllBtn.addEventListener('click', () => {
+                detailsElements.forEach(details => details.open = true);
+            });
+
+            collapseAllBtn.addEventListener('click', () => {
+                detailsElements.forEach(details => details.open = false);
+            });
+            
+            // Password Protection
+            const passwordModal = document.getElementById('password-modal');
+            const passwordInput = document.getElementById('password-input');
+            const passwordSubmit = document.getElementById('password-submit');
+            const passwordError = document.getElementById('password-error');
+            const answersContent = document.getElementById('answers-content');
+            const answersPrompt = document.getElementById('answers-prompt');
+            const correctPassword = 'dawson2025';
+            let passwordEntered = false;
+
+            function handleAnswersClick() {
+                if (passwordEntered) {
+                    showSection('answers');
+                } else {
+                    passwordModal.classList.remove('hidden');
+                }
+            }
+            
+             passwordModal.addEventListener('click', (e) => {
+                 if (e.target === passwordModal) {
+                    passwordModal.classList.add('hidden');
+                 }
+            });
+
+            passwordSubmit.addEventListener('click', () => {
+                if (passwordInput.value === correctPassword) {
+                    passwordEntered = true;
+                    passwordModal.classList.add('hidden');
+                    answersPrompt.classList.add('hidden');
+                    answersContent.classList.remove('hidden');
+                    showSection('answers');
+                    passwordError.classList.add('hidden');
+                } else {
+                    passwordError.classList.remove('hidden');
+                }
+            });
+            
+            // Toggle password visibility
+            const togglePasswordBtn = document.getElementById('toggle-password');
+            const eyeIconOpen = document.getElementById('eye-icon-open');
+            const eyeIconClosed = document.getElementById('eye-icon-closed');
+
+            togglePasswordBtn.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                eyeIconOpen.classList.toggle('hidden');
+                eyeIconClosed.classList.toggle('hidden');
+            });
+
+
+            // Import Content functionality (simulation)
+            document.querySelectorAll('.import-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.txt,.md,.docx,.pdf,image/*,application/vnd.ms-excel';
+                    input.onchange = e => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                const answerBox = button.previousElementSibling;
+                                // Simple simulation: show file name and content placeholder
+                                const content = `
+                                    <div class="imported-content p-2 border rounded" style="border-color: var(--border-color);">
+                                        <strong>Imported:</strong> ${file.name}<br>
+                                        <p class="text-xs italic mt-1">[Content from complex files like DOCX/PDF would be converted and displayed here.]</p>
+                                    </div>
+                                `;
+                                answerBox.innerHTML += content;
+                            };
+                            reader.readAsText(file); // In a real app, more complex parsing would be needed
+                        }
+                    };
+                    input.click();
+                });
+            });
+            
+             // Submission Logic
+            const sendEmailBtn = document.getElementById('send-email');
+            const copyAnswersBtn = document.getElementById('copy-answers');
+            const studentNameInput = document.getElementById('student-name');
+            const studentIdInput = document.getElementById('student-id');
+
+            function getAnswersContent() {
+                let content = `Student Name: ${studentNameInput.value || 'Not Provided'}\n`;
+                content += `Student ID: ${studentIdInput.value || 'Not Provided'}\n\n`;
+                content += '=======================================\n\n';
+                
+                document.querySelectorAll('.answer-box').forEach(box => {
+                    const exerciseId = box.dataset.exerciseId;
+                    const question = box.parentElement.previousElementSibling.textContent;
+                    const answer = box.innerText || box.textContent; // Use innerText to get rendered text
+                    
+                    content += `Exercise ${exerciseId}: ${question}\n`;
+                    content += `Answer:\n${answer}\n\n`;
+                    content += '---------------------------------------\n\n';
+                });
+                return content;
+            }
+
+            sendEmailBtn.addEventListener('click', () => {
+                if (!studentNameInput.value || !studentIdInput.value) {
+                    alert('Please enter your name and student ID before submitting.');
+                    return;
+                }
+                const subject = `Cybersecurity Exercise Submission - ${studentNameInput.value}`;
+                const body = encodeURIComponent(getAnswersContent());
+                window.location.href = `mailto:asengroa@hotmail.com?subject=${subject}&body=${body}`;
+            });
+
+            copyAnswersBtn.addEventListener('click', () => {
+                const content = getAnswersContent();
+                try {
+                    navigator.clipboard.writeText(content).then(() => {
+                        // Create a blob and trigger download
+                        const blob = new Blob([content], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `copied_content_${studentNameInput.value || 'student'}.txt`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        alert('Answers copied to clipboard and download started!');
+                    }, () => {
+                        alert('Failed to copy answers to clipboard.');
+                    });
+                } catch (err) {
+                    console.error('Clipboard API not available.', err);
+                    alert('Clipboard access is not available in your browser.');
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
+
