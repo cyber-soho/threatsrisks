@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course: Business Continuity and Disaster Recovery</title>
+    
+    <!-- 
+      SECURITY HEADERS:
+      These meta tags add layers of security to the page.
+    -->
+    
+    <!-- Content-Security-Policy (CSP): Restricts where resources (scripts, styles, images) can be loaded from.
+         This helps prevent Cross-Site Scripting (XSS) attacks.
+         - default-src 'self': Allows loading resources from the same origin.
+         - script-src 'self' https://cdn.tailwindcss.com: Allows scripts from 'self' and the Tailwind CDN.
+         - style-src 'self' 'unsafe-inline': Allows styles from 'self' and inline <style> tags.
+    -->
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; 
+                   script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; 
+                   style-src 'self' 'unsafe-inline';
+                   font-src 'self' https://fonts.gstatic.com;
+                   img-src 'self' data: https://placehold.co;">
+
+    <!-- X-Content-Type-Options: Prevents the browser from "sniffing" the MIME type, which can lead to attacks. -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+
+    <!-- X-Frame-Options: Prevents the page from being loaded in an iframe, protecting against "clickjacking" attacks. -->
+    <meta http-equiv="X-Frame-Options" content="DENY">
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        /* Use the Inter font family */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom styles for <details> (collapsible sections) */
+        details > summary {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            background-color: #f9fafb; /* gray-50 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600; /* font-semibold */
+            transition: background-color 0.2s;
+            list-style: none; /* Remove default triangle */
+        }
+
+        details > summary::-webkit-details-marker {
+            display: none; /* Hide triangle in Chrome */
+        }
+
+        details > summary::before {
+            content: '► ';
+            margin-right: 0.5rem;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        
+        details[open] > summary::before {
+            transform: rotate(90deg);
+        }
+
+        details > summary:hover {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        
+        details[open] > summary {
+            background-color: #f3f4f6; /* gray-100 */
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .details-content {
+            padding: 1rem;
+            border: 1px solid #e5e7eb; /* gray-200 */
+            border-top: none;
+            border-bottom-left-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
+        /* Diagram styles */
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f9fafb; /* gray-50 */
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb; /* gray-200 */
+            overflow-x: auto;
+        }
+        
+        /* RTO/RPO Diagram */
+        .rto-rpo-diagram {
+            display: flex;
+            align-items: flex-end;
+            width: 100%;
+            max-width: 600px;
+            height: 150px;
+            position: relative;
+        }
+        .rto-rpo-diagram::before {
+            content: '';
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #6b7280; /* gray-500 */
+        }
+        .event-point {
+            position: absolute;
+            bottom: 10px;
+            width: 14px;
+            height: 14px;
+            background-color: #ef4444; /* red-500 */
+            border-radius: 50%;
+            left: 30%;
+            transform: translateX(-50%);
+        }
+        .event-label {
+            position: absolute;
+            bottom: -5px;
+            left: 30%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .rpo-marker {
+            position: absolute;
+            left: 10%;
+            bottom: 20px;
+            height: 80px;
+            width: 2px;
+            background-color: #3b82f6; /* blue-500 */
+        }
+        .rto-marker {
+            position: absolute;
+            left: 80%;
+            bottom: 20px;
+            height: 80px;
+            width: 2px;
+            background-color: #10b981; /* emerald-500 */
+        }
+        .rpo-line {
+            position: absolute;
+            left: 10%;
+            bottom: 100px;
+            width: 20%;
+            height: 2px;
+            background-color: #3b82f6; /* blue-500 */
+        }
+        .rto-line {
+            position: absolute;
+            left: 30%;
+            bottom: 100px;
+            width: 50%;
+            height: 2px;
+            background-color: #10b981; /* emerald-500 */
+        }
+        .rpo-label {
+            position: absolute;
+            top: 30px;
+            left: 10%;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        .rto-label {
+            position: absolute;
+            top: 30px;
+            left: 55%;
+            transform: translateX(-50%);
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* Backup Diagram */
+        .backup-diagram {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .backup-type {
+            width: 30%;
+        }
+        .backup-bar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 100px;
+            border-bottom: 2px solid #9ca3af;
+            padding: 0 5px;
+        }
+        .backup-bar {
+            width: 12%;
+            background-color: #3b82f6; /* blue-500 */
+        }
+        .bar-full { height: 100%; }
+        .bar-inc { height: 20%; }
+        .bar-inc-2 { height: 30%; }
+        .bar-inc-3 { height: 15%; }
+        .bar-diff { height: 20%; }
+        .bar-diff-2 { height: 40%; }
+        .bar-diff-3 { height: 50%; }
+
+        /* HA Diagram */
+        .ha-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        .ha-row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        .ha-box {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid;
+            font-weight: 600;
+            text-align: center;
+        }
+        .client { border-color: #3b82f6; background-color: #dbeafe; }
+        .vip { border-color: #10b981; background-color: #d1fae5; }
+        .master { border-color: #10b981; background-color: #d1fae5; }
+        .backup { border-color: #f59e0b; background-color: #fef3c7; border-style: dashed; }
+        .server { border-color: #6b7280; background-color: #f3f4f6; }
+        .server-down { border-color: #ef4444; background-color: #fee2e2; text-decoration: line-through; }
+        .arrow {
+            font-size: 2rem;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+        }
+        .arrow-dashed {
+            font-size: 2rem;
+            color: #f59e0b;
+            position: relative;
+        }
+
+        /* Code block */
+        pre {
+            background-color: #1f2937; /* gray-900 */
+            color: #d1d5db; /* gray-300 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        pre code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .code-comment {
+            color: #6b7280; /* gray-500 */
+        }
+        .code-keyword {
+            color: #c084fc; /* purple-400 */
+        }
+        .code-string {
+            color: #a5f3fc; /* cyan-300 */
+        }
+        .code-variable {
+            color: #fdba74; /* orange-300 */
+        }
+
+        /* NEW: BC vs DR Diagram styles */
+        .bc-dr-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            min-height: 250px;
+            padding: 1rem;
+        }
+        .bc-box {
+            position: relative;
+            padding: 2rem;
+            background-color: #dbeafe; /* blue-100 */
+            border: 2px solid #3b82f6; /* blue-500 */
+            border-radius: 0.75rem; /* rounded-xl */
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+        }
+        .bc-label {
+            font-weight: 700; /* font-bold */
+            font-size: 1.125rem; /* text-lg */
+            color: #1e3a8a; /* blue-900 */
+            margin-bottom: 3rem; /* mb-12 */
+        }
+        .dr-box {
+            padding: 2rem;
+            background-color: #e0f2fe; /* cyan-100 */
+            border: 2px dashed #0e7490; /* cyan-700 */
+            border-radius: 0.75rem; /* rounded-xl */
+            width: 70%;
+            margin: 0 auto; /* center horizontally */
+        }
+        .dr-label {
+            font-weight: 600; /* font-semibold */
+            font-size: 1rem; /* text-base */
+            color: #155e75; /* cyan-900 */
+        }
+    </style>
+
+    <!-- Preload Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-white text-gray-800 leading-relaxed">
+
+    <!-- Header -->
+    <header class="bg-gray-900 text-white p-8 shadow-lg">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold">Cybersecurity-Prevention and Intervention: Threats and Risks</h1>
+            <h2 class="text-xl text-gray-300 mt-2">Course Module: Business Continuity, Disaster Recovery & Implementation</h2>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto p-4 md:p-8">
+        
+        <!-- Controls -->
+        <div class="mb-6 flex gap-4">
+            <button id="expand-all" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors">Expand All</button>
+            <button id="collapse-all" class="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 transition-colors">Collapse All</button>
+        </div>
+        
+        <!-- Course Outline Introduction -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-lg mb-8" role="alert">
+            <p class="font-bold">Course Structure</p>
+            <p>This module details a 3-hour topic block on Business Continuity and Disaster Recovery (BCDR) and a 1-hour discussion on practical implementation tools, designed for the College Attestation Program of Cybersecurity.</p>
+        </div>
+
+        <!-- Part 1: BCDR -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 border-b-2 border-gray-300 pb-2 mb-6">Part 1: Business Continuity and Disaster Recovery (3 Hours)</h2>
+            
+            <!-- 1. BCDR -->
+            <article class="mb-6 space-y-4">
+                <h3 class="text-xl font-bold text-blue-700">1. Business Continuity and Disaster Recovery (BCDR) (Approx. 1 hour)</h3>
+                
+                <details>
+                    <summary>Definition and Importance</summary>
+                    <div class="details-content space-y-4">
+                        <p><strong class="font-semibold text-gray-900">Business Continuity (BC):</strong> The capability of an organization to continue delivery of products or services at pre-defined acceptable levels following a disruptive incident. It focuses on maintaining essential business functions during and after a crisis.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> A retail company has a plan to switch its online store traffic to a backup data center in another city if its primary data center experiences a power outage, ensuring customers can still make purchases.
+                        </div>
+                        
+                        <p><strong class="font-semibold text-gray-900">Disaster Recovery (DR):</strong> A subset of business continuity, focusing specifically on the IT systems and infrastructure recovery after a disaster. It's about restoring technological operations to a functional state.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> After a server room floods, the IT team follows a DR plan to restore all critical application servers and databases from off-site backups to new hardware.
+                        </div>
+
+                        <!-- BC vs DR Diagram -->
+                        <div class="diagram-container my-4">
+                            <div class="bc-dr-diagram">
+                                <div class="bc-box">
+                                    <div class="bc-label">Business Continuity (BC)</div>
+                                    <div class="dr-box">
+                                        <div class="dr-label">Disaster Recovery (DR)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600 text-center">Disaster Recovery (DR) is a key component *within* the broader scope of Business Continuity (BC).</p>
+                        
+                        <p><strong class="font-semibold text-gray-900">Importance:</strong> Minimizing downtime, protecting data, maintaining customer trust, ensuring regulatory compliance, and safeguarding reputation and financial stability.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> A bank's inability to process transactions for even a few hours due to a system failure could lead to massive financial losses, customer exodus, and severe regulatory fines. A robust BCDR plan prevents this.
+                        </div>
+                    </div>
+                </details>
+                
+                <details>
+                    <summary>Key Components of BCDR</summary>
+                    <div class="details-content space-y-4">
+                        <div>
+                            <strong class="font-semibold text-gray-900">Business Impact Analysis (BIA):</strong> Identifies critical business functions and processes, and assesses the potential impact of disruptions on these functions. It helps prioritize recovery efforts.
+                            <div class="ml-4 mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <strong>Example:</strong> A BIA for a hospital might identify emergency room operations and patient record access as critical, with even minutes of downtime having severe consequences, while administrative functions might have a longer acceptable downtime.
+                            </div>
+                        </div>
+                        <div>
+                            <strong class="font-semibold text-gray-900">Risk Assessment:</strong> Identifies potential threats (e.g., cyber-attacks, natural disasters, equipment failure) and vulnerabilities, and evaluates the likelihood and potential impact of these risks.
+                            <div class="ml-4 mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <strong>Example:</strong> A risk assessment for a cloud service provider might identify a major DDoS attack as a high-likelihood, high-impact threat, leading them to invest heavily in DDoS mitigation solutions.
+                            </div>
+                        </div>
+                        <div>
+                            <strong class="font-semibold text-gray-900">BCDR Strategy Development:</strong> Based on BIA and risk assessment, this involves selecting appropriate strategies for prevention, mitigation, response, and recovery (e.g., redundant systems, off-site backups, alternative work sites).
+                            <div class="ml-4 mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <strong>Example:</strong> For a critical manufacturing plant, the BCDR strategy might include having duplicate production lines in a separate facility (prevention/mitigation) and a detailed plan for shifting production if one site is compromised (response/recovery).
+                            </div>
+                        </div>
+                        <div>
+                            <strong class="font-semibold text-gray-900">Plan Development:</strong> Documenting the specific procedures, roles, responsibilities, and resources required to implement the chosen BCDR strategies.
+                            <div class="ml-4 mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <strong>Example:</strong> A detailed plan for an e-commerce site might specify who is responsible for activating the backup data center, the exact steps for DNS failover, and the communication protocol for informing customers.
+                            </div>
+                        </div>
+                        <div>
+                            <strong class="font-semibold text-gray-900">Testing and Maintenance:</strong> Regularly testing the BCDR plan to ensure its effectiveness and updating it to reflect changes in the organization's operations, technology, or risk landscape.
+                            <div class="ml-4 mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <strong>Example:</strong> A software development company conducts an annual "fire drill" where they simulate a major network outage and test their ability to continue development work from remote locations using backup systems.
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </article>
+
+            <!-- 2. COOP -->
+            <article class="mb-6 space-y-4">
+                <h3 class="text-xl font-bold text-blue-700">2. Ensuring Continuity of Operations (COOP) (Approx. 1 hour)</h3>
+                
+                <details>
+                    <summary>Focus on Operational Resilience</summary>
+                    <div class="details-content space-y-4">
+                        <p>COOP emphasizes the ongoing ability of an organization to perform its essential functions, even under adverse conditions. It's less about IT recovery and more about the holistic operational aspect.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> During a severe snowstorm, a city's COOP plan ensures that essential services like emergency dispatch, snow removal coordination, and public utility monitoring continue to operate, even if staff cannot reach their primary offices.
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Redundancy Mechanisms</summary>
+                    <div class="details-content space-y-4">
+                        <p><strong class="font-semibold text-gray-900">Hardware Redundancy:</strong> Duplicating critical hardware components (e.g., power supplies, network cards, servers, storage arrays) to prevent single points of failure.</p>
+                        <p><strong class="font-semibold text-gray-900">Software Redundancy:</strong> Using redundant software instances or applications that can take over if the primary fails.</p>
+                        <p><strong class="font-semibold text-gray-900">Data Redundancy:</strong> Replicating data across multiple locations or storage devices to ensure availability and prevent data loss.</p>
+                        <p><strong class="font-semibold text-gray-900">Network Redundancy:</strong> Implementing multiple network paths, devices, and internet service providers (ISPs) to ensure continuous connectivity.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example (Network):</strong> An office building has two separate fiber optic connections from different ISPs, so if one provider's network goes down, traffic automatically switches to the other.
+                        </div>
+                    </div>
+                </details>
+                
+                <details>
+                    <summary>High Availability (HA) & Failover</summary>
+                    <div class="details-content space-y-4">
+                        <p><strong class="font-semibold text-gray-900">High Availability (HA) Concepts:</strong> Designing systems and architectures to operate continuously without failure for a long time, often involving redundant components and automatic failover.</p>
+                        <p><strong class="font-semibold text-gray-900">Failover Mechanisms:</strong> The process of automatically switching to a redundant or standby system upon the failure or abnormal termination of the previously active system.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example (Failover):</strong> If the primary database server becomes unresponsive, an automated failover system detects this and promotes a standby replica to become the new primary, redirecting all application traffic to it.
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Backup and Restoration Strategies</summary>
+                    <div class="details-content space-y-4">
+                        <p><strong class="font-semibold text-gray-900">Full Backups:</strong> Copying all selected data. Time-consuming but simplest for restoration.</p>
+                        <p><strong class="font-semibold text-gray-900">Incremental Backups:</strong> Copying only data that has changed since the last *any* type of backup. Faster, but restoration requires the full backup plus all subsequent incrementals.</p>
+                        <p><strong class="font-semibold text-gray-900">Differential Backups:</strong> Copying only data that has changed since the *last full* backup. Faster than full, easier restoration than incremental (only full + last differential needed).</p>
+                        
+                        <!-- Backup Diagram -->
+                        <div class="diagram-container my-4">
+                            <div class="backup-diagram w-full">
+                                <div class="backup-type">
+                                    <h4 class="font-bold mb-2">Full</h4>
+                                    <div class="backup-bar-container">
+                                        <div class="backup-bar bar-full" title="Sun (Full)"></div>
+                                        <div class="backup-bar bar-full" title="Mon (Full)"></div>
+                                        <div class="backup-bar bar-full" title="Tue (Full)"></div>
+                                        <div class="backup-bar bar-full" title="Wed (Full)"></div>
+                                    </div>
+                                    <span class="text-xs">Sun, Mon, Tue, Wed</span>
+                                </div>
+                                <div class="backup-type">
+                                    <h4 class="font-bold mb-2">Incremental</h4>
+                                    <div class="backup-bar-container">
+                                        <div class="backup-bar bar-full" title="Sun (Full)"></div>
+                                        <div class="backup-bar bar-inc" title="Mon (Inc)"></div>
+                                        <div class="backup-bar bar-inc-2" title="Tue (Inc)"></div>
+                                        <div class="backup-bar bar-inc-3" title="Wed (Inc)"></div>
+                                    </div>
+                                    <span class="text-xs">Sun (Full) + Mon+Tue+Wed (Inc)</span>
+                                </div>
+                                <div class="backup-type">
+                                    <h4 class="font-bold mb-2">Differential</h4>
+                                    <div class="backup-bar-container">
+                                        <div class="backup-bar bar-full" title="Sun (Full)"></div>
+                                        <div class="backup-bar bar-diff" title="Mon (Diff)"></div>
+                                        <div class="backup-bar bar-diff-2" title="Tue (Diff)"></div>
+                                        <div class="backup-bar bar-diff-3" title="Wed (Diff)"></div>
+                                    </div>
+                                    <span class="text-xs">Sun (Full) + Wed (Diff)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-center text-sm text-gray-600">Comparison of data backed up over 4 days (Sun = Full Backup).</p>
+
+                        <p><strong class="font-semibold text-gray-900">Snapshotting:</strong> Creating a point-in-time copy of a virtual machine or storage volume.</p>
+                        <p><strong class="font-semibold text-gray-900">Off-site Storage:</strong> Storing backup copies in a geographically separate location to protect against site-specific disasters.</p>
+                    </div>
+                </details>
+            </article>
+
+            <!-- 3. Recovery Plan -->
+            <article class="mb-6 space-y-4">
+                <h3 class="text-xl font-bold text-blue-700">3. Developing a Recovery Plan (Approx. 1 hour)</h3>
+
+                <details>
+                    <summary>Structured Approach to DRP Creation</summary>
+                    <div class="details-content space-y-4">
+                        <p>A recovery plan is a documented process or set of procedures to recover and protect a business IT infrastructure in the event of a disaster.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> A detailed plan for a university's student registration system outlines step-by-step procedures for restoring the database, application servers, and web front-end after a major hardware failure.
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Key Metrics for Recovery: RTO & RPO</summary>
+                    <div class="details-content space-y-4">
+                        <p><strong class="font-semibold text-gray-900">Recovery Time Objective (RTO):</strong> The maximum tolerable duration of time that a computer system, network, or application can be down after a disaster. It's about *how quickly* you need to be back up.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> For an online payment processing system, the RTO might be 15 minutes.
+                        </div>
+
+                        <p><strong class="font-semibold text-gray-900">Recovery Point Objective (RPO):</strong> The maximum tolerable period in which data might be lost from an IT service due to a major incident. It's about *how much data* you can afford to lose.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> For a real-time stock trading platform, the RPO might be 0 seconds. For an internal HR system, an RPO of 24 hours might be acceptable.
+                        </div>
+                        
+                        <!-- RTO/RPO Diagram -->
+                        <div class="diagram-container my-4">
+                            <div class="rto-rpo-diagram">
+                                <!-- Timeline -->
+                                <div class="event-point"></div>
+                                <div class="event-label">Disaster</div>
+                                <!-- RPO -->
+                                <div class="rpo-marker"></div>
+                                <div class="rpo-line"></div>
+                                <div class="rpo-label">RPO (Data Loss)</div>
+                                <div class="rpo-marker" style="left: 30%"></div>
+                                <!-- RTO -->
+                                <div class="rto-marker"></div>
+                                <div class="rto-line"></div>
+                                <div class="rto-label">RTO (Downtime)</div>
+                                <div class="rto-marker" style="left: 30%"></div>
+                            </div>
+                        </div>
+                        <p class="text-center text-sm text-gray-600">RPO measures maximum data loss *before* the disaster. RTO measures maximum downtime *after* the disaster.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Roles, Responsibilities, and Communication</summary>
+                    <div class="details-content space-y-4">
+                        <p><strong class="font-semibold text-gray-900">Roles and Responsibilities:</strong> Clearly defining who is responsible for what during a disaster. This includes a recovery team, communication lead, technical leads, etc.</p>
+                        <p><strong class="font-semibold text-gray-900">Communication Plan:</strong> Establishing clear protocols for internal (employees, stakeholders) and external (customers, media, regulators) communication during and after an incident.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Steps in Developing a Recovery Plan</summary>
+                    <div class="details-content space-y-2">
+                        <ul class="list-decimal list-inside pl-4 space-y-2">
+                            <li>Define Scope and Objectives: What systems/data are covered? What are the RTO/RPO targets?</li>
+                            <li>Identify Recovery Team: Who are the key personnel and their roles?</li>
+                            <li>Inventory Assets: Document all critical hardware, software, networks, and data.</li>
+                            <li>Document Procedures: Step-by-step instructions for recovery.</li>
+                            <li>Identify Resources: What equipment, software licenses, and external services are needed?</li>
+                            <li>Establish Communication Protocols: How will teams communicate?</li>
+                            <li>Develop Testing Strategy: How often will the plan be tested?</li>
+                            <li>Review and Approve: Get buy-in from management.</li>
+                            <li>Train Personnel: Ensure all team members understand their roles.</li>
+                        </ul>
+                    </div>
+                </details>
+                
+                <details>
+                    <summary>Testing and Maintenance of the Plan</summary>
+                    <div class="details-content space-y-4">
+                        <p><strong class="font-semibold text-gray-900">Tabletop Exercises:</strong> A discussion-based session where team members walk through the plan, identifying gaps and areas for improvement.</p>
+                        <p><strong class="font-semibold text-gray-900">Simulation/Walkthroughs:</strong> More detailed exercises where specific parts of the plan are physically executed without affecting live systems.</p>
+                        <p><strong class="font-semibold text-gray-900">Full Interruption Tests:</strong> The most rigorous test, involving a complete shutdown of primary systems and activation of recovery procedures.</p>
+                        <p><strong class="font-semibold text-gray-900">Regular Updates:</strong> Plans must be living documents, updated whenever there are changes in infrastructure, personnel, or business processes.</p>
+                    </div>
+                </details>
+            </article>
+        </section>
+
+        <!-- Part 2: Implementation -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-900 border-b-2 border-gray-300 pb-2 mb-6">Part 2: Implementing BCDR with Specific Tools (1 Hour)</h2>
+
+            <!-- 1. Keepalived -->
+            <article class="mb-6 space-y-4">
+                <h3 class="text-xl font-bold text-green-700">1. Implementing Business Continuity with Keepalived</h3>
+                
+                <details>
+                    <summary>Role of Keepalived & VRRP</summary>
+                    <div class="details-content space-y-4">
+                        <p>Keepalived is a routing software suite that provides simple and robust load balancing and high-availability (HA) functionality for Linux systems. It uses the Virtual Router Redundancy Protocol (VRRP) to manage a Virtual IP Address (VIP).</p>
+                        <p><strong class="font-semibold text-gray-900">VRRP:</strong> Allows a group of servers to share a single virtual IP address. One server is the "master" and owns the VIP, while others are "backups." If the master fails, a backup automatically takes over the VIP.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> Two web servers, Web1 and Web2, both run Keepalived. Web1 is the master and holds the VIP 192.168.1.100. All client requests go to this VIP. If Web1 crashes, Web2 detects the failure and automatically takes over 192.168.1.100, ensuring continuous service.
+                        </div>
+                        <p class="mt-4">
+                            <a href="https://www.keepalived.org/" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-semibold hover:underline">Learn more at keepalived.org &rarr;</a>
+                        </p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Keepalived HA Diagram & Example</summary>
+                    <div class="details-content space-y-4">
+                        <!-- Keepalived Diagram -->
+                        <div class="diagram-container my-4">
+                            <div class="ha-diagram">
+                                <div class="ha-box client">Clients</div>
+                                <div class="arrow">↓</div>
+                                <div class="ha-box vip">Virtual IP (VIP)</div>
+                                <div class="ha-row">
+                                    <div class="arrow">↘</div>
+                                    <div class="arrow-dashed" style="transform: rotate(45deg); opacity: 0.5;">- - -</div>
+                                </div>
+                                <div class="ha-row">
+                                    <div class="ha-box master">Server A (Master)</div>
+                                    <div class="ha-box backup">Server B (Backup)</div>
+                                </div>
+                                <p class="text-center text-sm text-gray-600">Clients connect to the VIP. The Master server handles requests. If the Master fails, the Backup server takes over the VIP.</p>
+                            </div>
+                        </div>
+                        <p><strong class="font-semibold text-gray-900">Simple Real-World Example (Web Server Failover):</strong></p>
+                        <ul class="list-disc list-inside pl-4 space-y-1">
+                            <li>You have two identical web servers, server-a (master) and server-b (backup).</li>
+                            <li>They share a virtual IP (VIP) like 192.168.1.50. DNS points to this VIP.</li>
+                            <li>Keepalived monitors the NGINX process on server-a.</li>
+                            <li>If NGINX or server-a crashes, Keepalived on server-b detects this.</li>
+                            <li>Server-b takes ownership of 192.168.1.50.</li>
+                            <li>Clients continue to access the website via the VIP, now routed to server-b, with no noticeable downtime.</li>
+                        </ul>
+                    </div>
+                </details>
+            </article>
+            
+            <!-- 2. HAProxy -->
+            <article class="mb-6 space-y-4">
+                <h3 class="text-xl font-bold text-green-700">2. Developing Recovery Plans with HAProxy</h3>
+                
+                <details>
+                    <summary>Role of HAProxy</summary>
+                    <div class="details-content space-y-4">
+                        <p>HAProxy (High Availability Proxy) is a free, fast, and reliable solution for high availability, load balancing, and proxying for TCP and HTTP-based applications. It distributes workload across multiple servers.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> A popular news website uses HAProxy to distribute incoming web traffic across a farm of 10 web servers, preventing any single server from becoming overloaded.
+                        </div>
+                        <p class="mt-4">
+                            <a href="https://www.haproxy.org/" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-semibold hover:underline">Learn more at haproxy.org &rarr;</a>
+                        </p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>HAProxy Health Checks & Failover</summary>
+                    <div class="details-content space-y-4">
+                        <p>HAProxy continuously monitors the health of backend servers. If a server fails its health check (e.g., stops responding), HAProxy automatically marks it as "down" and stops sending traffic to it. Traffic is redirected to the remaining healthy servers.</p>
+                        
+                        <!-- HAProxy Diagram -->
+                        <div class="diagram-container my-4">
+                            <div class="ha-diagram">
+                                <div class="ha-box client">Clients</div>
+                                <div class="arrow">↓</div>
+                                <div class="ha-box vip">HAProxy Load Balancer</div>
+                                <div class="arrow">↓</div>
+                                <div class="ha-row">
+                                    <div class="ha-box server">App Server 1</div>
+                                    <div class="ha-box server-down">App Server 2 (Down)</div>
+                                    <div class="ha-box server">App Server 3</div>
+                                </div>
+                                <p class="text-center text-sm text-gray-600">HAProxy detects that Server 2 is down and automatically routes all traffic to Servers 1 and 3.</p>
+                            </div>
+                        </div>
+
+                        <p><strong class="font-semibold text-gray-900">Simple Real-World Example (Application Server Failover):</strong></p>
+                        <ul class="list-disc list-inside pl-4 space-y-1">
+                            <li>An API service runs on AppServer1 and AppServer2.</li>
+                            <li>HAProxy is the entry point, performing health checks on `/health`.</li>
+                            <li>AppServer1's `/health` endpoint stops responding.</li>
+                            <li>HAProxy detects this, stops sending requests to AppServer1, and directs all traffic to AppServer2.</li>
+                            <li>The API service remains available. When AppServer1 recovers, HAProxy adds it back to the pool.</li>
+                        </ul>
+                    </div>
+                </details>
+            </article>
+
+            <!-- 3. NGINX -->
+            <article class="mb-6 space-y-4">
+                <h3 class="text-xl font-bold text-green-700">3. NGINX as a Load Balancer + Setup on Debian 12</h3>
+                
+                <details>
+                    <summary>Role of NGINX as a Load Balancer</summary>
+                    <div class="details-content space-y-4">
+                        <p>NGINX is a high-performance web server that also excels as a reverse proxy, HTTP cache, and load balancer. It distributes incoming traffic across multiple backend servers to improve responsiveness and availability.</p>
+                        <div class="ml-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <strong>Example:</strong> A popular blog uses NGINX to distribute millions of daily visitors evenly among three web servers, keeping the blog fast.
+                        </div>
+                        <p class="mt-4">
+                            <a href="https://www.nginx.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-semibold hover:underline">Learn more at nginx.com &rarr;</a>
+                        </p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Load Balancing Algorithms in NGINX</summary>
+                    <div class="details-content space-y-4">
+                        <p><strong class="font-semibold text-gray-900">Round Robin (Default):</strong> Requests are distributed sequentially to each server.</p>
+                        <p><strong class="font-semibold text-gray-900">Least Connected:</strong> New requests are sent to the server with the fewest active connections.</p>
+                        <p><strong class="font-semibold text-gray-900">IP Hash:</strong> Requests from the same client IP always go to the same server (useful for session persistence).</p>
+                        <p><strong class="font-semibold text-gray-900">Generic Hash:</strong> Distributes based on a user-defined key (e.g., URL).</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Basic NGINX Setup on Debian 12</summary>
+                    <div class="details-content space-y-4">
+                        <h4 class="font-semibold text-lg">Installation</h4>
+                        <pre><code><span class="code-comment"># Update package list</span>
+sudo apt update
+<span class="code-comment"># Install NGINX</span>
+sudo apt install nginx
+<span class="code-comment"># Verify installation and enable service</span>
+sudo systemctl status nginx
+sudo systemctl enable nginx</code></pre>
+
+                        <h4 class="font-semibold text-lg mt-4">Configuration File Structure</h4>
+                        <ul class="list-disc list-inside pl-4">
+                            <li>Main config: <code class="text-sm bg-gray-200 p-1 rounded">/etc/nginx/nginx.conf</code></li>
+                            <li>Site configs: <code class="text-sm bg-gray-200 p-1 rounded">/etc/nginx/sites-available/</code></li>
+                            <li>Enabled sites (symlinks): <code class="text-sm bg-gray-200 p-1 rounded">/etc/nginx/sites-enabled/</code></li>
+                        </ul>
+
+                        <h4 class="font-semibold text-lg mt-4">Simple Load Balancing Configuration</h4>
+                        <pre><code><span class="code-comment"># /etc/nginx/sites-available/my_load_balancer.conf</span>
+
+<span class="code-comment"># Define the group of backend servers</span>
+<span class="code-keyword">upstream</span> <span class="code-variable">backend_servers</span> {
+    <span class="code-comment"># 'weight' gives one server more traffic</span>
+    <span class="code-keyword">server</span> <span class="code-string">192.168.1.101:80</span> <span class="code-variable">weight</span>=3;
+    <span class="code-keyword">server</span> <span class="code-string">192.168.1.102:80</span>;
+    <span class="code-keyword">server</span> <span class="code-string">192.168.1.103:80</span>;
+
+    <span class="code-comment"># least_conn;  # Uncomment for least connected</span>
+    <span class="code-comment"># ip_hash;     # Uncomment for IP hash</span>
+}
+
+<span class="code-keyword">server</span> {
+    <span class="code-keyword">listen</span> <span class="code-string">80</span>;
+    <span class="code-keyword">server_name</span> <span class="code-string">your_domain.com www.your_domain.com</span>;
+
+    <span class="code-keyword">location</span> <span class="code-string">/</span> {
+        <span class="code-comment"># Pass requests to the upstream group</span>
+        <span class="code-keyword">proxy_pass</span> <span class="code-string">http://backend_servers</span>;
+        
+        <span class="code-comment"># Pass client info to backend</span>
+        <span class="code-keyword">proxy_set_header</span> <span class="code-variable">Host</span> <span class="code-string">$host</span>;
+        <span class="code-keyword">proxy_set_header</span> <span class="code-variable">X-Real-IP</span> <span class="code-string">$remote_addr</span>;
+        <span class="code-keyword">proxy_set_header</span> <span class="code-variable">X-Forwarded-For</span> <span class="code-string">$proxy_add_x_forwarded_for</span>;
+        <span class="code-keyword">proxy_set_header</span> <span class="code-variable">X-Forwarded-Proto</span> <span class="code-string">$scheme</span>;
+    }
+}</code></pre>
+
+                        <h4 class="font-semibold text-lg mt-4">Test and Reload Configuration</h4>
+                        <pre><code><span class="code-comment"># Test NGINX configuration for syntax errors</span>
+sudo nginx -t
+<span class="code-comment"># Reload NGINX to apply changes</span>
+sudo systemctl reload nginx</code></pre>
+                    </div>
+                </details>
+            </article>
+        </section>
+        
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 p-8 mt-12">
+        <div class="max-w-6xl mx-auto text-center">
+            <p>&copy; 2025 Cybersecurity Attestation Program. This is a non-functional educational page.</p>
+        </div>
+    </footer>
+
+    <!-- 
+      Embedded JavaScript for Interactivity
+      (Allowed by the Content-Security-Policy: script-src 'self')
+    -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const expandAllBtn = document.getElementById('expand-all');
+            const collapseAllBtn = document.getElementById('collapse-all');
+            const allDetails = document.querySelectorAll('details');
+
+            if (expandAllBtn) {
+                expandAllBtn.addEventListener('click', () => {
+                    allDetails.forEach(detail => {
+                        detail.open = true;
+                    });
+                });
+            }
+
+            if (collapseAllBtn) {
+                collapseAllBtn.addEventListener('click', () => {
+                    allDetails.forEach(detail => {
+                        detail.open = false;
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
