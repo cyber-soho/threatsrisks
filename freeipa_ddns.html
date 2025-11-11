@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide: FreeIPA + Kea</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Placeholders -->
+    <!-- Chosen Palette: Warm Neutrals (White, Gray-50, Gray-700/900, Blue-600 accent) -->
+    <!-- Application Structure Plan: Designed a task-oriented SPA. A sticky sidebar navigation allows users to jump to any part of the guide (Intro, Prep, Install, Config, Test, Files). Main content area shows only the active section, hiding others with JS. This non-linear, task-focused structure is superior to a long scroll for a technical guide, allowing users to find specific steps or config files quickly. -->
+    <!-- Visualization & Content Choices: Report is a technical guide. Goal: Make guide easy to navigate and code easy to use. Method: "How it Works" section (text) converted to an HTML/Tailwind flow diagram (divs + Unicode arrows) for quick comprehension. All 'bash' and 'json' code blocks (text) are presented in <pre> blocks with a 'Copy to Clipboard' button (JS interaction). This is the most practical interactive enhancement for this type of content. 'About' section converted to an interactive accordion. No charts (Chart.js/Plotly) needed as there is no quantitative data. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .nav-link {
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active {
+            background-color: #2563EB; /* blue-600 */
+            color: white;
+            font-weight: 600;
+        }
+        .nav-link:not(.active):hover {
+            background-color: #F3F4F6; /* gray-100 */
+            color: #111827; /* gray-900 */
+        }
+        .code-block {
+            position: relative;
+            background-color: #F9FAFB; /* gray-50 */
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #E5E7EB; /* gray-200 */
+        }
+        .code-block pre {
+            padding: 1rem;
+            padding-top: 2.5rem; /* Make space for copy button */
+            overflow-x: auto;
+            color: #1F2937; /* gray-800 */
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .code-block code {
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+        }
+        body code {
+            background-color: #F3F4F6; /* gray-100 */
+            color: #C026D3; /* fuchsia-600 */
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .code-block pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #D1D5DB; /* gray-300 */
+            color: #374151; /* gray-700 */
+            border: none;
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover {
+            background-color: #9CA3AF; /* gray-400 */
+        }
+        .copy-btn.copied {
+            background-color: #10B981; /* green-500 */
+            color: white;
+        }
+        .accordion-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .accordion-content.hidden {
+            max-height: 0;
+        }
+        .accordion-content:not(.hidden) {
+            max-height: 1000px; /* arbitrary large value */
+        }
+        .accordion-icon {
+            transition: transform 0.3s ease-in-out;
+        }
+        .flow-diagram-box {
+            background-color: #EFF6FF; /* blue-50 */
+            border: 1px solid #BFDBFE; /* blue-200 */
+            color: #1E40AF; /* blue-800 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .flow-diagram-arrow {
+            color: #9CA3AF; /* gray-400 */
+            font-size: 2.5rem;
+            font-weight: 200;
+            align-self: center;
+        }
+        
+        .ha-diagram-box {
+            background-color: #F0F9FF; /* sky-50 */
+            border: 1px solid #BAE6FD; /* sky-200 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+        }
+        
+        .ha-diagram-box h4 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #0C4A6E; /* sky-900 */
+            border-bottom: 2px solid #7DD3FC; /* sky-300 */
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .ha-diagram-box ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .ha-diagram-box li {
+            background-color: #fff;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            color: #374151; /* gray-700 */
+            margin-bottom: 0.5rem;
+            border: 1px solid #E5E7EB; /* gray-200 */
+        }
+        
+        .ha-diagram-arrow {
+            font-size: 1.5rem;
+            color: #9CA3AF; /* gray-400 */
+            font-weight: 700;
+            align-self: center;
+            text-align: center;
+        }
+
+        /* Animation Styles */
+        .flow-item, .ha-item {
+            opacity: 1; /* Visible by default */
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Desktop animation classes (added by JS) */
+        @media (min-width: 768px) {
+            .flow-item.animate, .ha-item.animate { opacity: 0; animation-fill-mode: forwards; } /* Hide, set fill mode */
+            .flow-item-1.animate { animation: fadeInRight 0.5s ease-out 0s forwards; }
+            .flow-item-2.animate { animation: fadeInRight 0.5s ease-out 0.3s forwards; }
+            .flow-item-3.animate { animation: fadeInRight 0.5s ease-out 0.6s forwards; }
+            .flow-item-4.animate { animation: fadeInRight 0.5s ease-out 0.9s forwards; }
+            .flow-item-5.animate { animation: fadeInRight 0.5s ease-out 1.2s forwards; }
+            .flow-item-6.animate { animation: fadeInRight 0.5s ease-out 1.5s forwards; }
+            .flow-item-7.animate { animation: fadeInRight 0.5s ease-out 1.8s forwards; }
+            
+            .ha-item-1.animate { animation: fadeInDown 0.5s ease-out 0s forwards; }
+            .ha-item-2.animate { animation: fadeInDown 0.5s ease-out 0.2s forwards; }
+            .ha-item-3.animate { animation: fadeInDown 0.5s ease-out 0.4s forwards; }
+            .ha-item-4.animate { animation: fadeInDown 0.5s ease-out 0.6s forwards; }
+            .ha-item-5.animate { animation: fadeInDown 0.5s ease-out 0.8s forwards; }
+            .ha-item-6.animate { animation: fadeInDown 0.5s ease-out 1.0s forwards; }
+        }
+        
+        /* Mobile animation classes (added by JS) */
+        @media (max-width: 767px) {
+            .flow-item.animate, .ha-item.animate { opacity: 0; animation-fill-mode: forwards; } /* Hide, set fill mode */
+            .flow-item-1.animate { animation: fadeInDown 0.5s ease-out 0s forwards; }
+            .flow-item-2.animate { animation: fadeInDown 0.5s ease-out 0.3s forwards; }
+            .flow-item-3.animate { animation: fadeInDown 0.5s ease-out 0.6s forwards; }
+            .flow-item-4.animate { animation: fadeInDown 0.5s ease-out 0.9s forwards; }
+            .flow-item-5.animate { animation: fadeInDown 0.5s ease-out 1.2s forwards; }
+            .flow-item-6.animate { animation: fadeInDown 0.5s ease-out 1.5s forwards; }
+            .flow-item-7.animate { animation: fadeInDown 0.5s ease-out 1.8s forwards; }
+
+            .ha-item-1.animate { animation: fadeInDown 0.5s ease-out 0s forwards; }
+            .ha-item-2.animate { animation: fadeInDown 0.5s ease-out 0.2s forwards; }
+            .ha-item-3.animate { animation: fadeInDown 0.5s ease-out 0.4s forwards; }
+            .ha-item-4.animate { animation: fadeInDown 0.5s ease-out 0.6s forwards; }
+            .ha-item-5.animate { animation: fadeInDown 0.5s ease-out 0.8s forwards; }
+            .ha-item-6.animate { animation: fadeInDown 0.5s ease-out 1.0s forwards; }
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar Navigation -->
+        <nav class="w-full md:w-64 bg-gray-50 md:min-h-screen p-4 md:sticky md:top-0 md:self-start border-b md:border-b-0 md:border-r border-gray-200">
+            <h1 class="text-xl font-bold text-blue-600 mb-6">FreeIPA + Kea Guide</h1>
+            <ul class="space-y-1">
+                <li><a href="#intro" class="nav-link active" data-target="section-intro">Introduction</a></li>
+                <li><a href="#redundancy" class="nav-link" data-target="section-redundancy">Redundancy & HA</a></li>
+                <li><a href="#prep" class="nav-link" data-target="section-prep">1. Server Prep</a></li>
+                <li><a href="#ipa" class="nav-link" data-target="section-ipa">2. FreeIPA Install</a></li>
+                <li><a href="#kea" class="nav-link" data-target="section-kea">3. Kea Install & Config</a></li>
+                <li><a href="#integrate" class="nav-link" data-target="section-integrate">4. Integration</a></li>
+                <li><a href="#finalize" class="nav-link" data-target="section-finalize">5. Finalization & Test</a></li>
+                <li><a href="#webui" class="nav-link" data-target="section-webui">6. Web Interface</a></li>
+                <li><a href="#files" class="nav-link" data-target="section-files">7. Config File Library</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 md:p-10">
+            
+            <!-- Section: Introduction -->
+            <section id="section-intro" class="content-section space-y-8">
+                <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">Introduction</h2>
+                
+                <!-- Sub-section: About Components -->
+                <article class="space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">About This Guide's Components</h3>
+                    <div class="space-y-3">
+                        <!-- Accordion Item 1 -->
+                        <div class="border border-gray-200 rounded-lg">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-t-lg">
+                                <span class="font-semibold text-lg text-blue-700">FreeIPA server (<code>ipa2.exa.lcl</code>)</span>
+                                <span class="accordion-icon text-blue-700">&#9660;</span>
+                            </button>
+                            <div class="accordion-content p-4 border-t border-gray-200 hidden">
+                                <ul class="space-y-2 list-disc list-inside">
+                                    <li><strong>What it is:</strong> An all-in-one open-source Identity Management (<code>IdM</code>) solution. It bundles services (like <code>Kerberos</code>, <code>LDAP</code>, and <code>BIND DNS</code>) to provide centralized authentication, authorization, and a DNS server.</li>
+                                    <li><strong>Why we chose it:</strong> It's the standard, most powerful, and best-supported IdM system for Linux environments like <code>Rocky 10</code>.</li>
+                                    <li><strong>Other options:</strong> Microsoft <code>Active Directory</code> or manually integrating all services, which is extremely complex.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Accordion Item 2 -->
+                        <div class="border border-gray-200 rounded-lg">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100">
+                                <span class="font-semibold text-lg text-blue-700">Kea DHCP server</span>
+                                <span class="accordion-icon text-blue-700">&#9660;</span>
+                            </button>
+                            <div class="accordion-content p-4 border-t border-gray-200 hidden">
+                                <ul class="space-y-2 list-disc list-inside">
+                                    <li><strong>What it is:</strong> The modern, open-source DHCP server from ISC, replacing the older <code>isc-dhcp-server</code> (<code>dhcpd</code>).</li>
+                                    <li><strong>Why we chose it:</strong> We didn't have a choice! <code>Rocky 10</code> has removed the old <code>dhcp-server</code> package. <code>Kea</code> is the new standard.</li>
+                                    <li><strong>Other options:</strong> The main alternative *was* <code>isc-dhcp-server</code>. <code>dnsmasq</code> is a simpler, lightweight option but not a full server.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Accordion Item 3 -->
+                        <div class="border border-gray-200 rounded-lg">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100">
+                                <span class="font-semibold text-lg text-blue-700">Secure Dynamic DNS (<code>DDNS</code>)</span>
+                                <span class="accordion-icon text-blue-700">&#9660;</span>
+                            </button>
+                            <div class="accordion-content p-4 border-t border-gray-200 hidden">
+                                <ul class="space-y-2 list-disc list-inside">
+                                    <li><strong>What it is:</strong> A system that allows the DHCP server to automatically and securely update the DNS server when an IP is leased.</li>
+                                    <li><strong>Why we chose it:</strong> It's essential for a modern network to avoid manual DNS entries for every new device.</li>
+                                    <li><strong>Other options:</strong> Manual DNS, or <em>insecure</em> DDNS, which is a major security risk.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Accordion Item 4 -->
+                        <div class="border border-gray-200 rounded-lg">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-b-lg">
+                                <span class="font-semibold text-lg text-blue-700"><code>HMAC-TSIG</code> (shared secret)</span>
+                                <span class="accordion-icon text-blue-700">&#9660;</span>
+                            </button>
+                            <div class="accordion-content p-4 border-t border-gray-200 hidden">
+                                <ul class="space-y-2 list-disc list-inside">
+                                    <li><strong>What it is:</strong> A method for securing DDNS updates using a pre-shared secret key (a password) that both servers must know.</li>
+                                    <li><strong>Why we chose it:</strong> We were forced to. Our build of <code>Kea</code> was not compiled with support for the <code>GSS-TSIG</code> (Kerberos) method. <code>HMAC-TSIG</code> is the standard, secure alternative.</li>
+                                    <li><strong>Other options:</strong> The original plan, <strong><code>GSS-TSIG</code> (Kerberos)</strong>, uses Kerberos tickets instead of a static secret, but was not supported by our <code>Kea</code> service.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Sub-section: How it Works -->
+                <article class="space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">How This Setup Works: The Integration Flow</h3>
+                    <p class="text-lg">When a new client (like <code>test</code>) joins the network, here's what happens:</p>
+                    
+                    <!-- Button to trigger animation -->
+                    <div class="flex justify-start mb-4">
+                        <button id="animate-flow-btn" class="animate-btn bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            &#9654; Animate Flow
+                        </button>
+                    </div>
+
+                    <!-- HTML/Tailwind Diagram -->
+                    <div class="grid grid-cols-1 md:grid-cols-7 items-center gap-2 md:gap-4 p-4 bg-gray-50 rounded-lg overflow-hidden">
+                        <div class="flow-diagram-box flow-item flow-item-1">Client<br>(<code>test</code>)</div>
+                        <div class="flow-diagram-arrow text-center transform md:rotate-0 rotate-90 flow-item flow-item-2">&rarr;</div>
+                        <div class="flow-diagram-box flow-item flow-item-3">Kea DHCP<br>(<code>kea-dhcp4</code>)</div>
+                        <div class="flow-diagram-arrow text-center transform md:rotate-0 rotate-90 flow-item flow-item-4">&rarr;</div>
+                        <div class="flow-diagram-box flow-item flow-item-5">Kea DDNS<br>(<code>kea-dhcp-ddns</code>)</div>
+                        <div class="flow-diagram-arrow text-center transform md:rotate-0 rotate-90 flow-item flow-item-6">&rarr;</div>
+                        <div class="flow-diagram-box flow-item flow-item-7">FreeIPA DNS<br>(<code>named</code>)</div>
+                    </div>
+                    
+                    <!-- Numbered List of Steps -->
+                    <ol class="list-decimal list-outside space-y-2 pl-6 text-gray-700">
+                        <li><strong>DHCP Request:</strong> <code>test</code> broadcasts a <code>DHCPDISCOVER</code> packet.</li>
+                        <li><strong>DHCP Lease:</strong> <code>kea-dhcp4</code> hears it, reserves <code>10.0.3.102</code>, and generates the name <code>dyn-10-0-3-102.exa.lcl</code>. It sends the lease to the client.</li>
+                        <li><strong>Internal DDNS Request:</strong> <code>kea-dhcp4</code> sends a message to <code>kea-dhcp-ddns</code> (on <code>127.0.0.1:53001</code>) saying "Please register <code>dyn-10-0-3-102.exa.lcl</code>."</li>
+                        <li><strong>Secure DNS Update:</strong> <code>kea-dhcp-ddns</code> looks at its config, finds the secret key and the DNS server's real IP (<code>10.0.3.10</code>). It sends a DNS UPDATE packet, signed with the <strong><code>HMAC-TSIG</code> secret</strong>, to <code>10.0.3.10</code>.</li>
+                        <li><strong>Authentication:</strong> The FreeIPA DNS server (<code>named</code>) receives the update at its "internal" door (<code>10.0.3.10</code>).</li>
+                        <li><strong>Validation:</strong> The server's <code>update-policy</code> says <code>grant "dhcp-key" ...</code>. It uses its copy of the secret (from LDAP) to validate the packet's signature.</li>
+                        <li><strong>Success:</strong> The signatures match! The DNS server accepts the update, writes the new <code>A</code> and <code>PTR</code> records, and sends a <code>SUCCESS</code> reply back.</li>
+                        <li><strong>Logging:</strong> <code>kea-dhcp-ddns</code> receives the <code>SUCCESS</code> reply and writes <code>DHCP_DDNS_ADD_SUCCESS</code> to its log. The process is complete.</li>
+                    </ol>
+                </article>
+            </section>
+
+            <!-- NEW Section: Redundancy -->
+            <section id="section-redundancy" class="content-section space-y-8 hidden">
+                <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">Redundancy & High Availability (HA)</h2>
+                
+                <article class="space-y-4">
+                    <p class="text-lg">A single server is a <strong>Single Point of Failure (SPOF)</strong>. For a production system, you must have redundancy. The key insight is that you are not creating one single "master/slave" system. Instead, you are creating three separate, redundant systems (FreeIPA, Kea, and the Database) and linking them together.</p>
+                    <p>Each component has its own, different method for achieving High Availability (HA). You don't have a "master" FreeIPA server that controls a "slave" Kea server. Here’s a breakdown of the redundancy model for each part.</p>
+                </article>
+
+                <article class="space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">1. FreeIPA Redundancy: Multi-Master Replication</h3>
+                    <p>FreeIPA does not use a master/slave model. It uses a <strong>multi-master replication</strong> model, which is far more robust.</p>
+                    <ul class="list-disc list-outside space-y-2 pl-6 text-gray-700">
+                        <li><strong>How it works:</strong> You install your first FreeIPA server (e.g., <code>ipa-1.example.com</code>). When you install your second server (<code>ipa-2.example.com</code>), you install it as a <strong>replica</strong> of the first.</li>
+                        <li><strong>The Result:</strong> Both <code>ipa-1</code> and <code>ipa-2</code> are identical, active, read-write "masters."</li>
+                        <li><strong>DNS Integration:</strong> The FreeIPA-integrated DNS (<code>BIND</code>) is part of this multi-master replication. When you make a DNS change on <code>ipa-1</code>, it is automatically replicated to <code>ipa-2</code>, and vice-versa.</li>
+                        <li><strong>Your Role:</strong> You simply set up two or more FreeIPA replicas. The system handles the replication and redundancy for you.</li>
+                    </ul>
+                </article>
+
+                <article class="space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">2. Kea DHCP Redundancy: High Availability (HA) Pair</h3>
+                    <p>Kea *does* use a primary/secondary model, but it's very specific. It's called an <strong>HA (High Availability) pair</strong>. This is a feature you must configure.</p>
+                    <ul class="list-disc list-outside space-y-2 pl-6 text-gray-700">
+                        <li><strong>How it works:</strong> You set up two identical Kea servers (e.g., <code>dhcp-1</code> and <code>dhcp-2</code>).</li>
+                        <li><strong>Shared Database (Crucial!):</strong> For HA to work properly, both Kea servers must point to the <strong>same lease database</strong> (e.g., a <code>MySQL</code> or <code>PostgreSQL</code> database). This is how they share lease information.</li>
+                        <li><strong>HA Configuration:</strong> In your <code>kea-dhcp4.conf</code> file on both servers, you add an <code>ha-servers</code> block. You define one server as <code>primary</code> and the other as <code>secondary</code> (or <code>standby</code>).</li>
+                        <li><strong>Failover:</strong> If <code>dhcp-1</code> (primary) dies, <code>dhcp-2</code> (secondary) detects this, promotes itself to <code>primary</code>, and takes over all DHCP services. Since it has access to the same lease database, it knows exactly which IPs are already in use.</li>
+                    </ul>
+                </article>
+
+                <article class="space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">3. DDNS Redundancy: The "Glue"</h3>
+                    <p>DDNS (Dynamic DNS) is the mechanism that links your redundant Kea pair to your redundant FreeIPA cluster. Its redundancy is inherited from the other two.</p>
+                    <ul class="list-disc list-outside space-y-2 pl-6 text-gray-700">
+                        <li><strong>How it works:</strong> You use the <code>HMAC-TSIG</code> secret we generated (or <code>GSS-TSIG</code> in a Kerberos-enabled build) to securely update the FreeIPA DNS.</li>
+                        <li><strong>Configuration:</strong> You configure <strong>both</strong> <code>dhcp-1</code> and <code>dhcp-2</code> (in their <code>kea-dhcp-ddns.conf</code> files) to use this <strong>same secret key</strong>. You also configure both to be aware of <strong>both</strong> <code>ipa-1</code> and <code>ipa-2</code> as DNS servers.</li>
+                        <li><strong>The Result (Normal):</strong> <code>dhcp-1</code> (primary) issues an IP. It uses the secret key to send a DDNS update to <code>ipa-1</code>. <code>ipa-1</code> accepts it and replicates it to <code>ipa-2</code>.</li>
+                        <li><strong>The Result (Failover):</strong> <code>dhcp-1</code> dies. <code>dhcp-2</code> takes over. A new client requests an IP. <code>dhcp-2</code> issues the lease. It then uses the <strong>exact same secret key</strong> to send a DDNS update to <code>ipa-2</code>. <code>ipa-2</code> accepts it and replicates it to <code>ipa-1</code>.</li>
+                    </ul>
+                </article>
+                
+                <article class="space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">🏛️ Production Deployment Models</h3>
+                    <p>For a robust "production" environment, you want to avoid Single Points of Failure (SPOFs). This means separating services onto different hosts (or virtual machines).</p>
+
+                    <h4 class="text-xl font-semibold text-gray-700">Model A: Fully Decoupled (Recommended)</h4>
+                    <p>This model uses at least 5 VMs to ensure no single failure takes down the whole system.</p>
+                    <div class="flex justify-start mb-4">
+                        <button class="animate-btn bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" data-target="ha-model-a">
+                            &#9654; Animate Diagram
+                        </button>
+                    </div>
+                    <div id="ha-model-a" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div class="ha-diagram-box ha-item ha-item-1">
+                            <h4>Host 1: ipa-1</h4>
+                            <ul>
+                                <li>FreeIPA Replica 1</li>
+                                <li>(LDAP, Kerberos, DNS)</li>
+                            </ul>
+                        </div>
+                        <div class="ha-diagram-box ha-item ha-item-2">
+                            <h4>Host 2: ipa-2</h4>
+                            <ul>
+                                <li>FreeIPA Replica 2</li>
+                                <li>(LDAP, Kerberos, DNS)</li>
+                            </ul>
+                        </div>
+                        <div class="ha-diagram-box ha-item ha-item-3">
+                            <h4>Host 3: dhcp-1</h4>
+                            <ul>
+                                <li>Kea DHCP (HA Primary)</li>
+                                <li>Kea DDNS</li>
+                            </ul>
+                        </div>
+                        <div class="ha-diagram-box ha-item ha-item-4">
+                            <h4>Host 4: dhcp-2</h4>
+                            <ul>
+                                <li>Kea DHCP (HA Secondary)</li>
+                                <li>Kea DDNS</li>
+                            </ul>
+                        </div>
+                        <div class="ha-diagram-box ha-item ha-item-5">
+                            <h4>Host 5: db</h4>
+                            <ul>
+                                <li>PostgreSQL Server</li>
+                                <li class="text-red-600 bg-red-50">New SPOF!</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="mt-4"><strong>CRITICAL:</strong> For true production, Host 5 itself should be a redundant database cluster (e.g., Galera Cluster, or Postgres with streaming replication), not a single server. This is the most common new SPOF.</p>
+
+                    <h4 class="text-xl font-semibold text-gray-700 mt-6">Model B: Minimal Redundancy (Compromise)</h4>
+                    <p>If you have fewer resources, you can co-locate services. This is common but less resilient.</p>
+                    <div class="flex justify-start mb-4">
+                        <button class="animate-btn bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" data-target="ha-model-b">
+                            &#9654; Animate Diagram
+                        </button>
+                    </div>
+                    <div id="ha-model-b" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="ha-diagram-box ha-item ha-item-1">
+                            <h4>Host 1: server-1</h4>
+                            <ul>
+                                <li>FreeIPA Replica 1</li>
+                                <li>Kea DHCP (HA Primary)</li>
+                                <li>Database (Primary)</li>
+                            </ul>
+                        </div>
+                        <div class="ha-diagram-box ha-item ha-item-2">
+                            <h4>Host 2: server-2</h4>
+                            <ul>
+                                <li>FreeIPA Replica 2</li>
+                                <li>Kea DHCP (HA Secondary)</li>
+                                <li>Database (Replica)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="mt-4">The problem with <strong>Model B</strong> is that a failure of <code>server-1</code> takes out your primary IPA, your primary DHCP, and your primary database, putting all the failover load onto <code>server-2</code> at once. <strong>Model A</strong> is "safer" because the failure domains are isolated.</p>
+                </article>
+            </section>
+
+            <!-- Section: Server Prep -->
+            <section id="section-prep" class="content-section space-y-8 hidden">
+                <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">1. Server Pre-configuration</h2>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 1.1: Set Hostname</h3>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>sudo hostnamectl set-hostname ipa2.exa.lcl</code></pre>
+                    </div>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 1.2: Set Static IP (via <code>nmtui</code>)</h3>
+                    <ol class="list-decimal list-outside pl-6 mt-2 space-y-1">
+                        <li>Run <code>sudo nmtui</code>.</li>
+                        <li>Go to <code>Edit a connection</code> &rarr; your adapter (e.g., <code>enp0s3</code>).</li>
+                        <li>Set <code>IPv4 CONFIGURATION</code> to <code>&lt;Manual&gt;</code>.</li>
+                        <li>Set <code>Addresses</code> to <code>10.0.3.10/24</code>.</li>
+                        <li>Set <code>Gateway</code> to <code>10.0.3.1</code>.</li>
+                        <li>Set <code>DNS Servers</code> to <code>10.0.3.1</code> (temporary for installation).</li>
+                        <li>Activate the connection.</li>
+                    </ol>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 1.3: Update <code>/etc/hosts</code></h3>
+                    <p>Ensure this line is in <code>/etc/hosts</code> to prevent installer errors:</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>10.0.3.10   ipa2.exa.lcl ipa2</code></pre>
+                    </div>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 1.4: Verify</h3>
+                    <ol class="list-decimal list-outside pl-6 mt-2 space-y-1">
+                        <li>Log out and log back in.</li>
+                        <li>Run <code>hostname -f</code>. It must return <code>ipa2.exa.lcl</code>.</li>
+                        <li>Run <code>ping -c 3 google.com</code>. It must show 0% packet loss.</li>
+                    </ol>
+                </article>
+            </section>
+
+            <!-- Section: FreeIPA Install -->
+            <section id="section-ipa" class="content-section space-y-8 hidden">
+                <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">2. Install FreeIPA Server</h2>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 2.1: Install Packages</h3>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>sudo dnf install ipa-server ipa-server-dns -y</code></pre>
+                    </div>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 2.2: Run Installer</h3>
+                    <p>This command installs the server, sets up DNS for <code>exa.lcl</code>, and creates the reverse zone <code>3.0.10.in-addr.arpa</code>.</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>sudo ipa-server-install --setup-dns --forwarder=10.0.3.1 --auto-reverse</code></pre>
+                    </div>
+                    <ul class="list-disc list-outside pl-6 mt-2 space-y-1">
+                        <li>Confirm Domain: <code>exa.lcl</code></li>
+                        <li>Confirm Realm: <code>EXA.LCL</code></li>
+                        <li>Set both the <strong>Directory Manager Password</strong> and the <strong>IPA Admin Password</strong>.</li>
+                        <li>Type <code>yes</code> to proceed.</li>
+                    </ul>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 2.3: Verify Installation</h3>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code># Get an admin ticket
+kinit admin
+
+# Test internal and external DNS
+dig ipa2.exa.lcl @10.0.3.10
+dig google.com @10.0.3.10</code></pre>
+                    </div>
+                    <p class="mt-2">Both <code>dig</code> commands should return <code>status: NOERROR</code>.</p>
+                </article>
+            </section>
+
+            <!-- Section: Kea Install & Config -->
+            <section id="section-kea" class="content-section space-y-8 hidden">
+                <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">3. Kea Install & Config</h2>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 3.1: Install Kea</h3>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>sudo dnf install kea -y</code></pre>
+                    </div>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 4.1: Create Log Directory</h3>
+                    <p>The <code>kea</code> service needs this directory to write its logs.</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>sudo mkdir -p /var/log/kea
+sudo chown kea:kea /var/log/kea</code></pre>
+                    </div>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 4.2: Create <code>kea-dhcp-ddns.conf</code></h3>
+                    <p>This file configures the DDNS service.</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>sudo vi /etc/kea/kea-dhcp-ddns.conf</code></pre>
+                    </div>
+                    <p class="mt-2">Delete everything in the file and paste the full content from the <a href="#files" class="text-blue-600 hover:underline nav-link" data-target="section-files">Config File Library</a> section (Appendix B).</p>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 4.3: Create <code>kea-dhcp4.conf</code></h3>
+                    <p>This file configures the DHCP server.</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>sudo vi /etc/kea/kea-dhcp4.conf</code></pre>
+                    </div>
+                    <p class="mt-2">Delete everything in the file and paste the full content from the <a href="#files" class="text-blue-600 hover:underline nav-link" data-target="section-files">Config File Library</a> section (Appendix A).</p>
+                </article>
+            </section>
+
+            <!-- Section: Integration -->
+            <section id="section-integrate" class="content-section space-y-8 hidden">
+                <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">4. Integrate Kea and FreeIPA</h2>
+                <p>This creates the shared secret and tells FreeIPA to accept it.</p>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 5.1: Become Root and Authenticate</h3>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>sudo -i
+kinit admin</code></pre>
+                    </div>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 5.2: Generate and Insert Secret Key</h3>
+                    <p>This creates a random secret, saves it as a variable, and injects it into your Kea config.</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code># Generate and store the secret
+MY_SECRET=$(dd if=/dev/urandom bs=32 count=1 | base64)
+
+# Print the secret (for your records, not required)
+echo "Your secret is: $MY_SECRET"
+
+# Inject the secret into the Kea config file
+sed -i "s|PASTE_YOUR_SECRET_HERE|$MY_SECRET|" /etc/kea/kea-dhcp-ddns.conf</code></pre>
+                    </div>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 5.3: Add the <em>Simple</em> Update Policy to FreeIPA</h3>
+                    <p>This is the fix for the <code>named</code> server. We grant permission to the key <em>without</em> re-defining it, which prevents the <code>failed to parse policy string</code> error.</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code># For the forward zone:
+ipa dnszone-mod exa.lcl. --update-policy='grant "dhcp-key" wildcard * ANY;'
+
+# For the reverse zone:
+ipa dnszone-mod 3.0.10.in-addr.arpa. --update-policy='grant "dhcp-key" wildcard * ANY;'</code></pre>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Section: Finalization & Test -->
+            <section id="section-finalize" class="content-section space-y-8 hidden">
+                <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">5. Finalization & Final Test</h2>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 6.1: Restart All FreeIPA Services (Critical Fix)</h3>
+                    <p>This forces your <code>named</code> (DNS) server to load the new, correct policy.</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code># You are still root
+ipactl restart</code></pre>
+                    </div>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 6.2: Verify <code>named</code> (DNS) is Fixed</h3>
+                    <p>Check the log. It should <strong>not</strong> show any <code>failed to parse</code> errors.</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>cat /var/named/data/named.log | tail</code></pre>
+                    </div>
+                    <p class="mt-2">You should see <code>zone exa.lcl/IN: loaded serial ...</code></p>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 6.3: Verify <code>named</code> is Authoritative</h3>
+                    <p>This is the ultimate test for the DNS server.</p>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>dig exa.lcl SOA @10.0.3.10</code></pre>
+                    </div>
+                    <p class="mt-2">The <code>status</code> must be <code>NOERROR</code> and the <code>AUTHORITY SECTION</code> must show <code>exa.lcl. ... SOA ipa2.exa.lcl.</code></p>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 7.1: Start Kea Services</h3>
+                    <div class="code-block mt-2">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code># You are still root
+systemctl start kea-dhcp-ddns
+systemctl enable kea-dhcp-ddns
+
+systemctl start kea-dhcp4
+systemctl enable kea-dhcp4</code></pre>
+                    </div>
+                </article>
+                <article>
+                    <h3 class="text-xl font-semibold">Step 7.2-7.5: The Final Test</h3>
+                    <ol class="list-decimal list-outside pl-6 mt-2 space-y-2">
+                        <li>
+                            <strong>Start <code>tail -f</code> in your <code>ipa2</code> Terminal.</strong> Leave it running to watch the DDNS log live.
+                            <div class="code-block mt-1">
+                                <button class="copy-btn">&#128203; Copy</button>
+                                <pre><code>sudo tail -f /var/log/kea/kea-dhcp-ddns.log</code></pre>
+                            </div>
+                        </li>
+                        <li><strong>Reboot Your Client VM.</strong> Go to your client VM (e.g., <code>test</code>, <code>10.0.3.102</code>) and reboot it to force it to request a new IP.</li>
+                        <li>
+                            <strong>Watch the Log.</strong> Watch the <code>tail -f</code> output on your <code>ipa2</code> server. You should see a new request with a new DHCID and the success message:
+                            <p class="font-mono p-2 bg-green-100 text-green-800 rounded mt-1"><code>DHCP_DDNS_ADD_SUCCESS</code></p>
+                        </li>
+                        <li>
+                            <strong>Run Final <code>dig</code> Tests.</strong> Once you see the success message, press <code>Ctrl+C</code> to stop <code>tail</code>. Then run the <code>dig</code> commands for your new client.
+                            <div class="code-block mt-1">
+                                <button class="copy-btn">&#128203; Copy</button>
+                                <pre><code># Check the forward DNS record (e.g., for 10.0.3.102)
+dig dyn-10-0-3-102.exa.lcl @10.0.3.10
+
+# Check the reverse DNS record (e.g., for 10.0.3.102)
+dig -x 10.0.3.102 @10.0.3.10</code></pre>
+                            </div>
+                            <p class="mt-2">Both commands should now return <code>status: NOERROR</code> and show the correct <code>A</code> and <code>PTR</code> records.</p>
+                        </li>
+                    </ol>
+                </article>
+            </section>
+            
+            <!-- NEW Section: Web Interface -->
+            <section id="section-webui" class="content-section space-y-8 hidden">
+                <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">6. Using the FreeIPA Web Interface</h2>
+                
+                <article class="space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">Step 8.1: How to Access the Web UI</h3>
+                    <p>You can access the FreeIPA web interface from your host machine's (the computer running VirtualBox) web browser.</p>
+                    <ol class="list-decimal list-outside space-y-2 pl-6 text-gray-700">
+                        <li>Open your web browser (like Chrome or Firefox) on your host computer.</li>
+                        <li>
+                            Go to this URL: <strong><code>https://ipa2.exa.lcl</code></strong>
+                            <p class="text-sm italic text-gray-600">Note: You must use <code>https://</code>.</p>
+                        </li>
+                        <li>You will see a security warning because the server's certificate is self-signed (it wasn't issued by a public authority). This is normal and safe. Click "Advanced" and then "Proceed to ipa2.exa.lcl".</li>
+                        <li>You will see the FreeIPA login screen.</li>
+                        <li>Log in with:
+                            <ul class="list-disc list-inside pl-4">
+                                <li><strong>Username:</strong> <code>admin</code></li>
+                                <li><strong>Password:</strong> The <strong>IPA Admin Password</strong> you created during installation (in Step 2.2).</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </article>
+                
+                <article class="space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">Step 8.2: Basic Operations</h3>
+                    <p>The FreeIPA web UI is organized into several main categories (like <code>Identity</code>, <code>Policy</code>, <code>DNS</code>). Most of your day-to-day work happens in the <code>Identity</code> tab.</p>
+                    
+                    <div class="space-y-3">
+                        <!-- Accordion Item 1: Users -->
+                        <div class="border border-gray-200 rounded-lg">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-t-lg">
+                                <span class="font-semibold text-lg text-blue-700">Managing Users</span>
+                                <span class="accordion-icon text-blue-700">&#9660;</span>
+                            </button>
+                            <div class="accordion-content p-4 border-t border-gray-200 hidden">
+                                <p class="mb-2">Go to <strong>Identity &rarr; Users</strong>.</p>
+                                <ul class="space-y-2 list-disc list-inside">
+                                    <li><strong>To Add a User:</strong> Click the <strong>"+ Add"</strong> button. Fill in the "First name," "Last name," and "User name." The system will generate a temporary password.</li>
+                                    <li><strong>To Find a User:</strong> Use the search bar or just browse the list. Click on a user's name (like <code>admin</code>) to see their details.</li>
+                                    <li><strong>To Edit a User:</strong> Find the user and click their name. Here you can:
+                                        <ul class="list-disc list-inside pl-6">
+                                            <li>Lock their account.</li>
+                                            <li>Add them to groups (under the "Groups" tab).</li>
+                                            <li>Click <strong>"Actions..."</strong> in the top right to reset their password.</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>To Delete a User:</strong> Find the user, check the box next to their name in the list, and click the <strong>"Delete"</strong> button.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Accordion Item 2: Groups -->
+                        <div class="border border-gray-200 rounded-lg">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100">
+                                <span class="font-semibold text-lg text-blue-700">Managing Groups</span>
+                                <span class="accordion-icon text-blue-700">&#9660;</span>
+                            </button>
+                            <div class="accordion-content p-4 border-t border-gray-200 hidden">
+                                <p class="mb-2">Go to <strong>Identity &rarr; Groups</strong>.</p>
+                                <ul class="space-y-2 list-disc list-inside">
+                                    <li><strong>To Add a Group:</strong> Click the <strong>"+ Add"</strong> button. Give it a "Group name."</li>
+                                    <li><strong>To Edit a Group:</strong> Find the group (e.g., <code>admins</code>) and click its name. You can add or remove members directly from this page.</li>
+                                    <li><strong>To Delete a Group:</strong> Check the box next to the group's name and click <strong>"Delete"</strong>.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Accordion Item 3: Hosts -->
+                        <div class="border border-gray-200 rounded-lg">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-b-lg">
+                                <span class="font-semibold text-lg text-blue-700">Managing Hosts / Computers</span>
+                                <span class="accordion-icon text-blue-700">&#9660;</span>
+                            </button>
+                            <div class="accordion-content p-4 border-t border-gray-200 hidden">
+                                <p class="mb-2">Go to <strong>Identity &rarr; Hosts</strong>.</p>
+                                <ul class="space-y-2 list-disc list-inside">
+                                    <li><strong>Automatic Registration:</strong> Because you set up DDNS, your clients (like <code>dyn-10-0-3-102.exa.lcl</code>) will **not** appear in this list automatically. This list is for hosts that are fully *enrolled* in the FreeIPA domain (a more advanced topic).</li>
+                                    <li><strong>Checking DNS Records:</strong> To see the records created by your DHCP server, go to the <strong>DNS &rarr; DNS Zones</strong> tab, and click on <code>exa.lcl</code>. You will see the <code>dyn-10-0-3-102</code> record there, which was created by your Kea service.</li>
+                                    <li><strong>Manual Operations:</strong> You can still "Add," "Delete," or "Edit" host entries here manually, but it's not required for your DHCP/DDNS setup.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Section: Config Files -->
+            <section id="section-files" class="content-section space-y-8 hidden">
+                <h2 class="text-3xl font-bold text-gray-900 border-b pb-2">7. Config File Library</h2>
+                
+                <article>
+                    <h3 class="text-2xl font-semibold text-gray-800">Appendix A: Final <code>kea-dhcp4.conf</code></h3>
+                    <p class="mb-2"><strong>File path:</strong> <code>/etc/kea/kea-dhcp4.conf</code></p>
+                    <div class="code-block">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>{
+"Dhcp4": {
+    "interfaces-config": {
+        "interfaces": [ "enp0s3" ]
+    },
+    "dhcp-ddns": {
+        "enable-updates": true,
+        "server-ip": "127.0.0.1",
+        "server-port": 53001
+    },
+    "ddns-qualifying-suffix": "exa.lcl.",
+    "ddns-generated-prefix": "dyn",
+    "ddns-replace-client-name": "always",
+    "subnet4": [
+        {
+            "id": 1,
+            "subnet": "10.0.3.0/24",
+            "pools": [
+                {
+                    "pool": "10.0.3.100 - 10.0.3.200"
+                }
+            ],
+            "option-data": [
+                {
+                    "name": "domain-name-servers",
+                    "data": "10.0.3.10"
+                },
+                {
+                    "name": "domain-name",
+                    "data": "exa.lcl"
+                },
+                {
+                    "name": "routers",
+                    "data": "10.0.3.1"
+                }
+            ]
+        }
+    ],
+    "loggers": [
+        {
+            "name": "kea-dhcp4",
+            "output_options": [
+                {
+                    "output": "/var/log/kea/kea-dhcp4.log"
+                }
+            ],
+            "severity": "INFO"
+        }
+    ]
+}
+}</code></pre>
+                    </div>
+                </article>
+                
+                <article>
+                    <h3 class="text-2xl font-semibold text-gray-800">Appendix B: Final <code>kea-dhcp-ddns.conf</code></h3>
+                    <p class="mb-2"><strong>File path:</strong> <code>/etc/kea/kea-dhcp-ddns.conf</code></p>
+                    <div class="code-block">
+                        <button class="copy-btn">&#128203; Copy</button>
+                        <pre><code>{
+"DhcpDdns": {
+    "ip-address": "127.0.0.1",
+    "port": 53001,
+
+    "tsig-keys": [
+      {
+        "name": "dhcp-key",
+        "algorithm": "hmac-sha256",
+        "secret": "PASTE_YOUR_SECRET_HERE"
+      }
+    ],
+
+    "forward-ddns" : {
+      "ddns-domains": [
+        {
+          "name": "exa.lcl.",
+          "key-name": "dhcp-key",
+          "dns-servers": [
+            { "ip-address": "10.0.3.10", "port": 53 }
+          ]
+        }
+      ]
+    },
+
+    "reverse-ddns" : {
+      "ddns-domains": [
+        {
+          "name": "3.0.10.in-addr.arpa.",
+          "key-name": "dhcp-key",
+          "dns-servers": [
+            { "ip-address": "10.0.3.10", "port": 53 }
+          ]
+        }
+      ]
+    },
+
+    "loggers": [
+        {
+            "name": "kea-dhcp-ddns",
+            "output_options": [
+                {
+                    "output": "/var/log/kea/kea-dhcp-ddns.log"
+                }
+            ],
+            "severity": "INFO"
+        }
+    ]
+}
+}</code></pre>
+                    </div>
+                </article>
+
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('a.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            // --- Single-Page Navigation ---
+            function updateActiveSection(targetId) {
+                // Update content sections
+                contentSections.forEach(section => {
+                    if (section.id === targetId) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+
+                // Update nav links
+                navLinks.forEach(link => {
+                    if (link.dataset.target === targetId) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.dataset.target;
+                    updateActiveSection(targetId);
+                    // Removed window.history.pushState to prevent SecurityError
+                });
+            });
+
+            // Handle initial page load from hash
+            let initialTargetId = 'section-intro';
+            if (window.location.hash) {
+                const targetHash = `section-${window.location.hash.substring(1)}`;
+                if (document.getElementById(targetHash)) {
+                    initialTargetId = targetHash;
+                }
+            }
+            updateActiveSection(initialTargetId);
+
+
+            // --- Copy to Clipboard ---
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const codeBlock = e.target.closest('.code-block');
+                    const pre = codeBlock.querySelector('pre');
+                    const code = pre.innerText;
+
+                    // Use document.execCommand('copy') as requested
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        e.target.textContent = 'Copied!';
+                        e.target.classList.add('copied');
+                        setTimeout(() => {
+                            e.target.textContent = '📋 Copy';
+                            e.target.classList.remove('copied');
+                        }, 2000);
+                    } catch (err) {
+                        e.target.textContent = 'Failed!';
+                        console.error('Failed to copy text: ', err);
+                    }
+                    document.body.removeChild(textarea);
+                });
+            });
+
+            // --- Accordion ---
+            document.querySelectorAll('.accordion-toggle').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('.accordion-icon');
+                    
+                    if (content.classList.contains('hidden')) {
+                        content.classList.remove('hidden');
+                        icon.style.transform = 'rotate(180deg)';
+                    } else {
+                        content.classList.add('hidden');
+                        icon.style.transform = 'rotate(0deg)';
+                    }
+                });
+            });
+
+            // --- Animation Button ---
+            document.querySelectorAll('.animate-btn').forEach(animateButton => {
+                animateButton.addEventListener('click', () => {
+                    const targetId = animateButton.dataset.target;
+                    const flowItems = document.querySelectorAll(`#${targetId} .ha-item, .flow-item`);
+                    
+                    if (!flowItems.length && animateButton.id !== 'animate-flow-btn') return;
+
+                    const itemsToAnimate = animateButton.id === 'animate-flow-btn' ? document.querySelectorAll('.flow-item') : flowItems;
+
+                    animateButton.disabled = true;
+                    animateButton.textContent = 'Animating...';
+
+                    // 1. Reset animation classes
+                    itemsToAnimate.forEach(item => {
+                        item.classList.remove('animate');
+                    });
+
+                    // 2. Force reflow (essential hack to restart CSS animation)
+                    void itemsToAnimate[0].offsetWidth;
+
+                    // 3. Add classes to play animation
+                    itemsToAnimate.forEach(item => {
+                        item.classList.add('animate');
+                    });
+                    
+                    // 4. Set timeout to re-enable button (total duration is ~2.3s)
+                    setTimeout(() => {
+                        animateButton.disabled = false;
+                        animateButton.textContent = '▶ Replay Animation';
+                    }, 2300); // 2300ms = 2.3s
+                });
+            });
+        });
+    </script>
+</body>
+</html>

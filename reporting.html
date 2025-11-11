@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Risk Communication Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Stone & Slate -->
+    <!-- Application Structure Plan: A tabbed single-page application. The 5 main topics are 5 tabs. Clicking a tab reveals that topic's content and hides the others. This is a classic, intuitive SPA structure that allows the user to explore the content non-linearly. Within each topic page, the sub-sections are organized into interactive accordions. This breaks down the dense text-based information into digestible, on-demand chunks. This structure is superior to a simple long-scrolling document as it reduces cognitive load and centers the user's focus on one concept at a time. -->
+    <!-- Visualization & Content Choices: Topic 1 (Report Elements): Goal=Organize/Inform. Viz=Donut Chart. Interaction=Tooltip. Justification=Visually shows the composition of a comprehensive report. Lib=Chart.js. Topic 2 (Audience Tailoring): Goal=Compare. Viz=Radar Chart. Interaction=Tooltip. Justification=Demonstrates how different communication attributes (e.g., technical detail, business impact) are balanced for different stakeholders. Lib=Chart.js. Topic 4 (Risk vs. Incident): Goal=Compare. Viz=Bar Chart. Interaction=Tooltip. Justification=Clearly contrasts the attributes of proactive risk reports vs. reactive incident reports. Lib=Chart.js. Topic 5 (Metrics): Goal=Change/Inform. Viz=Line Chart. Interaction=Tooltip. Justification=Illustrates the concept of tracking a Key Risk Indicator (KRI) over time to show progress. Lib=Chart.js. All other content: Goal=Inform. Viz=Interactive Accordion (HTML/CSS/JS). Interaction=Click-to-expand/collapse. Justification=Manages information density, making the text-heavy content explorable without overwhelming the user. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        .nav-link {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-bottom: 3px solid transparent;
+            color: #4b5563;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link:hover {
+            color: #1f2937;
+        }
+        .nav-link.active-tab {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            font-weight: 600;
+        }
+        .accordion-content {
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <h1 class="text-3xl font-bold leading-tight text-gray-900 text-center">
+                    The Cybersecurity Risk Communication Lifecycle
+                </h1>
+                <p class="text-center text-gray-600 mt-2">
+                    An interactive guide to reporting, communicating, and managing cybersecurity risks.
+                </p>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div id="nav-container" class="flex flex-col sm:flex-row sm:flex-wrap justify-center border-b border-gray-200">
+                    <button class="nav-link active-tab" data-target="page-1" role="tab" aria-selected="true">1. Reporting & Documentation</button>
+                    <button class="nav-link" data-target="page-2" role="tab" aria-selected="false">2. Communicating Mitigation</button>
+                    <button class="nav-link" data-target="page-3" role="tab" aria-selected="false">3. Stakeholder Engagement</button>
+                    <button class="nav-link" data-target="page-4" role="tab" aria-selected="false">4. Crisis Communication</button>
+                    <button class="nav-link" data-target="page-5" role="tab" aria-selected="false">5. Metrics & Improvement</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content Area -->
+        <main id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+            <!-- Page 1: Reporting and Documenting -->
+            <div id="page-1" class="page-content space-y-6">
+                <p class="text-lg text-gray-700">
+                    This section explores the foundational step of the risk management process: formally identifying, recording, and presenting cybersecurity risks. Effective documentation is the bedrock of a successful security program, ensuring all threats are tracked, understood, and prioritized for action.
+                </p>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-center text-gray-900">Illustrative: Key Elements of a Risk Report</h3>
+                    <div class="chart-container">
+                        <canvas id="topic1Chart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-4 text-center">This chart illustrates the typical components of a comprehensive risk report, with each slice representing a critical piece of information necessary for decision-making.</p>
+                </div>
+                <div class="space-y-4" id="accordion-group-1">
+                    <!-- Accordion 1.1 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>1.1 Purpose of Reporting and Documentation</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                            <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To create a formal record of identified risks and threats, their characteristics, and their potential impact, serving as a foundational element for risk management.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>A security analyst documents a newly discovered vulnerability in the company's e-commerce platform to ensure it's formally recognized and prioritized for patching.</li>
+                                    <li>A cybersecurity team compiles a monthly report detailing all phishing attempts detected and blocked, along with any successful compromises, to inform management about the current threat landscape.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 1.2 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>1.2 Key Elements of a Comprehensive Risk Report</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                            <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To ensure all necessary information is included in the report for clear understanding and decision-making by various audiences.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li><strong>Executive Summary:</strong> A brief overview for senior management, highlighting the top 3 critical risks and their potential business impact (e.g., "Critical vulnerability in customer database could lead to data breach and $5M in fines").</li>
+                                    <li><strong>Risk Description:</strong> Detailed explanation of the threat, vulnerability, and asset at risk (e.g., "Unpatched SQL injection vulnerability in the public-facing web application...").</li>
+                                    <li><strong>Impact and Likelihood Assessment:</strong> Quantifying or qualifying the potential damage and probability (e.g., "High impact: financial loss... Medium likelihood: active scanning observed.").</li>
+                                    <li><strong>Current Controls:</strong> Description of existing measures in place (e.g., "Web Application Firewall (WAF) is in place...").</li>
+                                    <li><strong>Recommended Mitigation Strategies:</strong> Proposed actions to reduce the risk (e.g., "Immediate application of vendor patch...").</li>
+                                    <li><strong>Responsible Parties and Timeline:</strong> Assigning ownership and setting deadlines (e.g., "IT Operations Team, complete by end of Q3.").</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 1.3 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>1.3 Importance of Clear, Concise, and Audience-Appropriate Language</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                            <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To ensure that the report is easily understood by both technical and non-technical stakeholders, avoiding jargon where possible.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li><strong>Instead of:</strong> "The system exhibits a CVE-2023-XXXX exploitability due to an improper input validation flaw..." <strong>Say:</strong> "A critical flaw in the login system could allow an attacker to take full control of user accounts."</li>
+                                    <li>When presenting to the board, focus on business impact (e.g., "This vulnerability could halt our online sales for days...") rather than technical details.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 1.4 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>1.4 Tools and Templates for Documentation</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                            <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To standardize reporting processes and ensure consistency across risk assessments.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>Using a dedicated Governance, Risk, and Compliance (GRC) platform like ServiceNow GRC or Archer.</li>
+                                    <li>Developing internal templates in Microsoft Word or Excel for risk registers and incident reports.</li>
+                                    <li>Utilizing project management tools (e.g., Jira, Trello) to track remediation tasks.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 1.5 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>1.5 Version Control and Archiving of Reports</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                            <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To maintain an auditable history of risk posture, track progress, and comply with regulatory requirements.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>Storing all reports in a secure, centralized document management system (e.g., SharePoint, Confluence).</li>
+                                    <li>Implementing a clear naming convention (e.g., "RiskAssessment_Q2_2025_v1.0").</li>
+                                    <li>Archiving older reports in compliance with data retention policies.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 2: Communicating Mitigation -->
+            <div id="page-2" class="page-content space-y-6 hidden">
+                <p class="text-lg text-gray-700">
+                    Once a risk is documented, the next step is to communicate the plan to fix it. This section focuses on effectively conveying proposed solutions and their rationale to different audiences to gain buy-in, secure resources, and facilitate smooth implementation.
+                </p>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-center text-gray-900">Illustrative: Tailoring the Message to the Audience</h3>
+                    <div class="chart-container">
+                        <canvas id="topic2Chart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-4 text-center">This radar chart shows how the emphasis of a message (e.g., about a new firewall) changes depending on the audience. Executives care most about Business Impact & ROI, while Technical Teams need implementation details.</p>
+                </div>
+                <div class="space-y-4" id="accordion-group-2">
+                    <!-- Accordion 2.1 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>2.1 Identifying Different Audiences for Communication</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To tailor the message and level of detail based on the recipient's role, technical understanding, and decision-making authority.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li><strong>Technical Teams (IT, Developers):</strong> Need detailed specifications, implementation steps, and potential system impacts.</li>
+                                    <li><strong>Senior Management/Executives:</strong> Require high-level summaries, business impact, cost-benefit analysis, and strategic implications.</li>
+                                    <li><strong>Legal/Compliance Teams:</strong> Focus on regulatory adherence, data privacy, and potential legal liabilities.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 2.2 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>2.2 Tailoring the Message for Each Audience</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To present information in a way that resonates with the audience's priorities and concerns.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>To the <strong>finance department</strong>, emphasize cost savings from preventing attacks.</li>
+                                    <li>To <strong>network engineers</strong>, focus on technical capabilities and performance impact.</li>
+                                    <li>To <strong>all employees</strong> for a training program, highlight how it protects their personal data.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 2.3 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>2.3 Methods of Communication</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To choose the most effective channel for delivering the risk mitigation message.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li><strong>Formal Presentations:</strong> For executive briefings or major project kick-offs.</li>
+                                    <li><strong>Written Reports/Proposals:</strong> For detailed technical plans or budget requests.</li>
+                                    <li><strong>Dashboards/Visualizations:</strong> For ongoing monitoring and quick status updates.</li>
+                                    <li><strong>Informal Meetings/Discussions:</strong> For clarifying details and collaboration.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 2.4 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>2.4 Emphasizing Benefits and Return on Investment (ROI) of Mitigation</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To justify the resources (time, money, personnel) required for mitigation by demonstrating tangible value.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li><strong>Direct ROI:</strong> "Implementing this IDS will cost $50,000, but it's projected to prevent attacks that could cost us $500,000."</li>
+                                    <li><strong>Indirect ROI/Brand Value:</strong> "Upgrading our security will enhance customer trust, potentially leading to a 10% increase in customer retention."</li>
+                                    <li><strong>Efficiency Gain:</strong> "Automating patch management will free up 20 hours per week for our IT staff."</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 2.5 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>2.5 Handling Resistance or Skepticism</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To anticipate and address concerns, build consensus, and overcome obstacles to mitigation efforts.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li><strong>Addressing Cost Concerns:</strong> Provide a detailed breakdown of costs vs. potential losses.</li>
+                                    <li><strong>Addressing Operational Impact:</strong> Demonstrate minimal disruption or provide clear transition plans.</li>
+                                    <li><strong>Addressing "It won't happen to us":</strong> Share recent industry breach examples or conduct tabletop exercises.</li>
+                                    <li><strong>Building Trust:</strong> Involve key stakeholders in the risk assessment process from the beginning.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 3: Stakeholder Engagement -->
+            <div id="page-3" class="page-content space-y-6 hidden">
+                <p class="text-lg text-gray-700">
+                    Cybersecurity is not just an IT problem; it's a business-wide responsibility. This section explores the "who" of risk communication: identifying, involving, and building consensus with all the key individuals and groups who have a stake in the organization's security.
+                </p>
+                <div class="space-y-4" id="accordion-group-3">
+                    <!-- Accordion 3.1 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>3.1 Identifying Key Stakeholders in Cybersecurity Risk Management</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To recognize all individuals or groups who have an interest in or are affected by cybersecurity risks and their mitigation.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>Senior Management/Board of Directors</li>
+                                    <li>IT Department (Operations, Development, Network)</li>
+                                    <li>Legal and Compliance</li>
+                                    <li>Finance Department</li>
+                                    <li>Human Resources</li>
+                                    <li>Marketing/Public Relations</li>
+                                    <li>Business Unit Leaders</li>
+                                    <li>Customers/Clients</li>
+                                    <li>Vendors/Third-Party Providers</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 3.2 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>3.2 Importance of Early and Continuous Engagement</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To foster a collaborative environment, gain diverse perspectives, and ensure buy-in throughout the risk management lifecycle.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li><strong>Early Engagement:</strong> Involve department heads in initial risk identification workshops.</li>
+                                    <li><strong>Continuous Engagement:</strong> Hold regular steering committee meetings with cross-functional leaders.</li>
+                                    <li><strong>Building a Security-Aware Culture:</strong> Regularly communicate security updates to all employees.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 3.3 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>3.3 Methods of Stakeholder Engagement</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To select appropriate techniques for interacting with different stakeholders to gather input, disseminate information, and build consensus.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>One-on-One Interviews</li>
+                                    <li>Workshops and Brainstorming Sessions</li>
+                                    <li>Regular Meetings (e.g., Steering Committees)</li>
+                                    <li>Surveys and Questionnaires</li>
+                                    <li>Formal Presentations</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 3.4 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>3.4 Addressing Concerns and Building Consensus</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To listen actively, respond to feedback, and work towards agreement on risk treatment plans.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>If marketing is concerned about user experience, work with them to balance security and usability.</li>
+                                    <li>When a business unit resists a policy, demonstrate how it protects their specific assets.</li>
+                                    <li>Facilitate discussions to find common ground when departments have conflicting priorities.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 3.5 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>3.5 The Role of Communication in Stakeholder Engagement</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To ensure that engagement efforts are supported by clear, consistent, and timely communication.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>Sending out pre-meeting materials (agendas, relevant reports).</li>
+                                    <li>Distributing meeting minutes and action items promptly.</li>
+                                    <li>Creating a dedicated internal communication channel (e.g., a Slack channel, intranet page).</li>
+                                    <li>Providing regular updates on the status of key risks and mitigation projects.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 4: Crisis Communication -->
+            <div id="page-4" class="page-content space-y-6 hidden">
+                <p class="text-lg text-gray-700">
+                    This section covers the critical communication needs that arise *during* and *after* a live cybersecurity incident. Proactive risk reporting is for planning; crisis communication is for real-time response, focusing on timeliness, accuracy, and managing stakeholders under pressure.
+                </p>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-center text-gray-900">Illustrative: Risk Report vs. Incident Report</h3>
+                    <div class="chart-container">
+                        <canvas id="topic4Chart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-4 text-center">This chart contrasts proactive Risk Reports (used for planning) with reactive Incident Reports (used for response). Note the difference in urgency, focus, and audience.</p>
+                </div>
+                <div class="space-y-4" id="accordion-group-4">
+                    <!-- Accordion 4.1 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>4.1 Differentiating Risk Reporting vs. Incident Reporting</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To understand the fundamental differences in purpose, urgency, and content between proactive risk assessment reports and reactive incident reports.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li><strong>Risk Report:</strong> "We have a 40% chance of a database breach due to unpatched software." (Proactive, Probabilistic)</li>
+                                    <li><strong>Incident Report:</strong> "At 2:15 PM, a database breach was confirmed; an estimated 10,000 records are affected." (Reactive, Factual)</li>
+                                    <li>Risk reports are used for planning. Incident reports are used for immediate containment.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 4.2 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>4.2 Establishing an Incident Communication Plan</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To develop a pre-approved plan detailing who to contact, what to say, and through which channels, based on incident severity.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>Creating a communication matrix: "Severity 1 Incident -> Notify CEO and Legal within 15 minutes."</li>
+                                    <li>Pre-drafting communication templates for different scenarios (e.g., customer data breach notification, internal 'all-clear' alert).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 4.3 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>4.3 Communicating with Internal Stakeholders During a Crisis</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To provide clear, calm, and actionable information to leadership and employees to prevent panic and counter misinformation.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>Issuing an "All-Staff" email: "We are experiencing a system outage. IT is investigating. Do not log in. More information will follow in 60 minutes."</li>
+                                    <li>Providing a regular 30-minute status update to the executive "war room," even if the update is "No change."</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 4.4 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>4.4 Managing External and Public Communications</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To manage communication with customers, regulators, and the media in a way that is transparent, empathetic, and legally sound.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>Informing the relevant regulatory body (e.g., for GDPR) within the 72-hour window.</li>
+                                    <li>Drafting a public press release that acknowledges the incident and provides resources for affected customers, without speculating.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 4.5 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>4.5 Post-Incident Reporting and Root Cause Analysis (RCA)</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To formally document the incident's full timeline, impact, and the root cause to prevent recurrence.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>A formal RCA report detailing: "The attacker gained entry via a successful phishing email..."</li>
+                                    <li>Presenting a "lessons learned" report to management, which leads to new mitigation strategies.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 5: Metrics & Improvement -->
+            <div id="page-5" class="page-content space-y-6 hidden">
+                <p class="text-lg text-gray-700">
+                    The risk management lifecycle is a continuous loop, not a linear path. This final section focuses on how to measure the effectiveness of your security program, monitor the evolving threat landscape, and use that data to create a feedback loop for continuous improvement.
+                </p>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-center text-gray-900">Illustrative: Tracking a Key Risk Indicator (KRI)</h3>
+                    <div class="chart-container">
+                        <canvas id="topic5Chart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-4 text-center">This line chart demonstrates how a Key Risk Indicator (KRI), like the employee click-rate on phishing simulations, can be tracked over time to measure the effectiveness (ROI) of a new security awareness training program.</p>
+                </div>
+                <div class="space-y-4" id="accordion-group-5">
+                    <!-- Accordion 5.1 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>5.1 Developing Key Risk Indicators (KRIs)</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To establish quantifiable, forward-looking metrics that provide early warning of potential risk or control failures.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>"A 50% increase in login failures from new geographic locations" as a KRI for account takeover.</li>
+                                    <li>"Average time-to-patch critical vulnerabilities" as a KRI for the vulnerability management program.</li>
+                                    <li>"Number of policy exception requests" as a KRI for policy alignment.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 5.2 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>5.2 Creating Cybersecurity Dashboards for Communication</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To visually represent the organization's current risk posture and control effectiveness in a format tailored to the audience.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li><strong>Executive Dashboard:</strong> High-level "Overall Risk Score" (Red/Yellow/Green) and top 5 risks.</li>
+                                    <li><strong>Technical Dashboard:</strong> Live alerts for the SOC team, number of unpatched systems, and anomalous network traffic.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 5.3 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>5.3 Communicating Progress and Demonstrating ROI</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To use metrics to demonstrate the value of the cybersecurity program, justify ongoing investment, and report on progress.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>"Phishing simulation click-rate decreased from 30% to 5% after the new training," demonstrating ROI.</li>
+                                    <li>"Our program has reduced open critical vulnerabilities by 90% year-over-year."</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accordion 5.4 -->
+                    <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-5 text-left font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                            <span>5.4 Establishing Feedback Loops for Program Iteration</span>
+                            <span class="accordion-icon text-2xl text-blue-500 font-light">+</span>
+                        </button>
+                        <div class="accordion-content hidden">
+                             <div class="p-5 border-t border-gray-200">
+                                <h4 class="text-md font-semibold text-gray-800">Objective</h4>
+                                <p class="mt-1 text-gray-600">To create a formal process for using reports, incident data, and stakeholder feedback to update and improve security policies, controls, and communication plans.</p>
+                                <h4 class="text-md font-semibold text-gray-800 mt-4">Examples</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                                    <li>Using findings from a Post-Incident Report (Topic 4) to update the risk register (Topic 1).</li>
+                                    <li>Conducting annual reviews of the stakeholder engagement plan (Topic 3).</li>
+                                    <li>Using employee feedback from surveys to make security policies less burdensome.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const navContainer = document.getElementById('nav-container');
+            const mainContent = document.getElementById('main-content');
+            const navLinks = navContainer.querySelectorAll('.nav-link');
+            const contentPages = mainContent.querySelectorAll('.page-content');
+
+            const wrapLabel = (label, maxWidth) => {
+                const words = label.split(' ');
+                let lines = [];
+                let currentLine = '';
+                words.forEach(word => {
+                    if ((currentLine + word).length > maxWidth) {
+                        lines.push(currentLine.trim());
+                        currentLine = '';
+                    }
+                    currentLine += word + ' ';
+                });
+                lines.push(currentLine.trim());
+                return lines;
+            };
+            
+            const initCharts = () => {
+                const ctx1 = document.getElementById('topic1Chart').getContext('2d');
+                new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Executive Summary', 'Risk Description', 'Impact Assessment', 'Current Controls', 'Mitigation Strategy', 'Parties & Timeline'],
+                        datasets: [{
+                            label: 'Elements of a Risk Report',
+                            data: [10, 25, 20, 15, 20, 10],
+                            backgroundColor: [
+                                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6b7280'
+                            ],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const ctx2 = document.getElementById('topic2Chart').getContext('2d');
+                new Chart(ctx2, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Technical Detail', 'Business Impact', 'Cost / ROI', 'Operational Impact', 'Legal/Compliance'],
+                        datasets: [
+                            {
+                                label: 'Message to Executives',
+                                data: [2, 9, 9, 7, 6],
+                                fill: true,
+                                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                borderColor: 'rgb(59, 130, 246)',
+                                pointBackgroundColor: 'rgb(59, 130, 246)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgb(59, 130, 246)'
+                            },
+                            {
+                                label: 'Message to Technical Team',
+                                data: [9, 3, 4, 8, 3],
+                                fill: true,
+                                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                                borderColor: 'rgb(16, 185, 129)',
+                                pointBackgroundColor: 'rgb(16, 185, 129)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgb(16, 185, 129)'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 10
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+
+                const ctx4 = document.getElementById('topic4Chart').getContext('2d');
+                new Chart(ctx4, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Urgency', 'Focus', 'Audience', 'Timing'],
+                        datasets: [
+                            {
+                                label: 'Risk Report',
+                                data: [4, 8, 6, 3],
+                                backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                                borderColor: 'rgb(245, 158, 11)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Incident Report',
+                                data: [10, 9, 9, 10],
+                                backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                                borderColor: 'rgb(239, 68, 68)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 10,
+                                ticks: {
+                                    callback: function(value, index, ticks) {
+                                        if (value === 10) return 'High';
+                                        if (value === 0) return 'Low';
+                                        return '';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        let val = context.parsed.y;
+                                        if (val > 8) label += 'Very High';
+                                        else if (val > 5) label += 'High';
+                                        else if (val > 3) label += 'Medium';
+                                        else label += 'Low';
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const ctx5 = document.getElementById('topic5Chart').getContext('2d');
+                new Chart(ctx5, {
+                    type: 'line',
+                    data: {
+                        labels: ['Q1', 'Q2', 'Q3 (Training Starts)', 'Q4', 'Next Q1'],
+                        datasets: [{
+                            label: 'Phishing Simulation Click-Rate',
+                            data: [32, 28, 25, 12, 8],
+                            fill: false,
+                            borderColor: 'rgb(16, 185, 129)',
+                            tension: 0.1,
+                            pointRadius: 5,
+                            pointBackgroundColor: 'rgb(16, 185, 129)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Click-Rate: ' + context.parsed.y + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            const handleNavClick = (e) => {
+                const targetButton = e.target.closest('.nav-link');
+                if (!targetButton) return;
+
+                const targetPageId = targetButton.dataset.target;
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active-tab');
+                    link.setAttribute('aria-selected', 'false');
+                });
+
+                targetButton.classList.add('active-tab');
+                targetButton.setAttribute('aria-selected', 'true');
+
+                contentPages.forEach(page => {
+                    if (page.id === targetPageId) {
+                        page.classList.remove('hidden');
+                    } else {
+                        page.classList.add('hidden');
+                    }
+                });
+            };
+
+            const handleAccordionClick = (e) => {
+                const targetButton = e.target.closest('.accordion-toggle');
+                if (!targetButton) return;
+
+                const content = targetButton.nextElementSibling;
+                const icon = targetButton.querySelector('.accordion-icon');
+
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.textContent = '−';
+                } else {
+                    content.style.maxHeight = '0px';
+                    icon.textContent = '+';
+                    setTimeout(() => {
+                        content.classList.add('hidden');
+                    }, 300);
+                }
+            };
+            
+            navContainer.addEventListener('click', handleNavClick);
+            mainContent.addEventListener('click', handleAccordionClick);
+
+            initCharts();
+        });
+    </script>
+</body>
+</html>

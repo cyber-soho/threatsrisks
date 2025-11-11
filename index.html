@@ -1,4 +1,15 @@
 <!doctype html>
+<!--
+Copyright (c) 2025 Cyber Soho. All Rights Reserved.
+
+This software and associated documentation files (the "Software"), 
+including all original content and documents, 
+are the exclusive intellectual property of Cyber Soho.
+
+Unauthorized use, reproduction, distribution, or modification of this 
+Software or its content, in whole or in part, is strictly prohibited 
+without the express written permission of the copyright holder.
+-->
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -64,7 +75,50 @@
     .btn:hover{ box-shadow:var(--shadow); }
     .btn.primary{ border-color: color-mix(in oklab, var(--accent) 40%, var(--border)); }
     .footer{ margin:2rem 0; color:var(--muted); font-size:.9rem; display:grid; gap:.5rem; }
-    @media print{ header.site, .tools, .sticky-note, .footer .security, .search{ display:none !important; } .card, details.accordion{ box-shadow:none !important; border-color:#bbb !important; } body{ background:#fff; color:#000; } }
+    
+    /* --- New Disclaimer Box Styles --- */
+    .disclaimer-box {
+      padding: 1rem;
+      border-left: 4px solid var(--border);
+      border-radius: .6rem;
+      margin: 1.5rem 0;
+      box-shadow: var(--shadow);
+    }
+    .disclaimer-box h3 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .disclaimer-warn {
+      background: color-mix(in oklab, var(--warn) 15%, var(--bg-2));
+      border-color: var(--warn);
+      color: color-mix(in oklab, var(--warn) 90%, var(--bg));
+    }
+    .disclaimer-danger {
+      background: color-mix(in oklab, var(--danger) 15%, var(--bg-2));
+      border-color: var(--danger);
+      color: color-mix(in oklab, var(--danger) 90%, var(--bg));
+    }
+    .disclaimer-info {
+      background: color-mix(in oklab, var(--accent) 15%, var(--bg-2));
+      border-color: var(--accent);
+      color: color-mix(in oklab, var(--accent) 90%, var(--bg));
+    }
+    [data-theme="light"] .disclaimer-warn {
+      background: color-mix(in oklab, var(--warn) 15%, var(--bg-2));
+      color: color-mix(in oklab, var(--warn) 80%, #000);
+    }
+    [data-theme="light"] .disclaimer-danger {
+      background: color-mix(in oklab, var(--danger) 15%, var(--bg-2));
+      color: color-mix(in oklab, var(--danger) 70%, #000);
+    }
+    [data-theme="light"] .disclaimer-info {
+      background: color-mix(in oklab, var(--accent) 15%, var(--bg-2));
+      color: color-mix(in oklab, var(--accent) 80%, #000);
+    }
+    /* --- End Disclaimer Box Styles --- */
+
+    @media print{ header.site, .tools, .sticky-note, .footer .security, .search, .disclaimer-box{ display:none !important; } .card, details.accordion{ box-shadow:none !important; border-color:#bbb !important; } body{ background:#fff; color:#000; } }
   </style>
 </head>
 <body>
@@ -133,7 +187,7 @@
             <div class="grid cols-3">
               <div><h3>Class 1</h3><ul><li>Introduction to Threats &amp; Risks</li><li>Information assets &amp; permissions</li></ul></div>
               <div><h3><a href="threats-and-risks.html" target="_blank" rel="noopener noreferrer">Class 2</a></h3><ul><li>Asset types (hardware, software, data, services)</li><li>RBAC &amp; permissions</li></ul></div>
-              <div><h3>Class 3 (Labs)</h3><ul><li><a href="glpi_lab.html" target="_blank" rel="noopener noreferrer">GLPI for asset management</a></li><li><a href="freeipa_lab.html" target="_blank" rel="noopener noreferrer">FreeIPA for permissions</a></li><li><strong>LAB #01.01</strong> &amp; <strong>#01.02</strong></li></ul></div>
+              <div><h3>Class 3 (Labs)</h3><ul><li><a href="glpi_lab.html" target="_blank" rel="noopener noreferrer">GLPI for asset management</a></li><li><a href="freeipa_lab.html" target="_blank" rel="noopener noreferrer">FreeIPA for permissions</a></li><li><strong><a href="freeipa_ddns.html" target="_blank" rel="noopener noreferrer">LAB #01.01</a></strong> &amp; <strong>#01.02</strong></li></ul></div>
             </div>
           </div>
         </details>
@@ -182,7 +236,7 @@
             <div class="grid cols-3">
               <div><h3><a href="risks.html" target="_blank" rel="noopener noreferrer">Class 1</a></h3><ul><li>Risk factors: identification &amp; classification</li><li>Assessing probability &amp; severity</li><li>Risk scoring</li></ul></div>
               <div><h3>Class 2</h3><ul><li>Frameworks: NIST, ISO 31000, FAIR</li><li>Mitigation planning</li></ul></div>
-              <div><h3>Class 3 (Labs)</h3><ul>
+              <div><h3><a href="ovas-shellgpt.html" target="_blank" rel="noopener noreferrer">Class 3 (Labs)</a></h3><ul>
                 <li><a href="ovas-intro.html" target="_blank" rel="noopener noreferrer">Risk assessment with <strong>OpenVAS</strong></a></li>
                 <li><a href="tdragon-intro.html" target="_blank" rel="noopener noreferrer">Threat modeling with <strong>Threat Dragon</strong></a></li>
                 <li><a href="ovas-shellgpt.html" target="_blank" rel="noopener noreferrer"><strong>LAB #04.01</strong></a> &amp; <a href="threat_dragon.html" target="_blank" rel="noopener noreferrer"><strong>#04.02</strong></a></li>
@@ -272,7 +326,7 @@
           <summary><div class="summary-row"><span class="chev">▶</span> <span>Week 9 — Nov 4, 6, 8 (online)</span></div><span class="chip">3×2.5h</span></summary>
           <div class="panel">
             <div class="grid cols-3">
-              <div><h3>Class 1</h3><ul><li>Reporting on threats, vulnerable assets</li></ul></div>
+              <div><h3><a href="reporting.html" target="_blank" rel="noopener noreferrer">Class 1</a></h3><ul><li>Reporting on threats, vulnerable assets</li></ul></div>
               <div><h3>Class 2</h3><ul><li>Introduction to the final project</li></ul></div>
               <div><h3>Class 3 (Labs)</h3><ul><li>Threat reporting with <strong>ELK</strong></li><li>Project setup workshop</li><li><strong>LAB #10.01</strong> &amp; <strong>#10.02</strong></li></ul></div>
             </div>
@@ -286,7 +340,7 @@
             <div class="grid cols-3">
               <div><h3>Class 1</h3><ul><li>Final review: Q&amp;A, case analysis</li></ul></div>
               <div><h3>Class 2</h3><ul><li>Final exam review workshop</li></ul></div>
-              <div><h3>Class 3</h3><ul><li><strong>Final Exam</strong></li></ul></div>
+              <div><h3>Class 3</h3><ul><li><strong>Final Exam (2F.20)</strong></li></ul></div>
             </div>
           </div>
         </details>
@@ -294,9 +348,32 @@
       </article>
     </section>
 
+    <!-- --- New Disclaimers Section --- -->
+    <section id="legal-warning" class="disclaimers">
+        <div class="disclaimer-box disclaimer-warn">
+            <h3>⚠️ Cybersecurity Lab Warning</h3>
+            <p>The skills and techniques discussed in this course are for educational and authorized purposes ONLY. All hands-on practice must be conducted in a secure, isolated lab environment (e.g., virtual machines) completely disconnected from any public or private networks. Applying these skills to any system, network, or application without explicit, written permission from the owner is illegal and may result in severe civil and criminal penalties. Practice legally and ethically.</p>
+        </div>
+
+        <div class="disclaimer-box disclaimer-danger">
+            <h3>Legal Disclaimer</h3>
+            <p>The information provided in this course outline and all associated materials is for informational purposes only and does not constitute professional advice. The author, Cyber Soho, makes no warranties regarding the accuracy, completeness, or suitability of this information. Any reliance you place on such information is strictly at your own risk. In no event will the author be liable for any loss or damage including, without limitation, indirect or consequential loss or damage, or any loss or damage whatsoever arising from the use of this course or the information contained within.</p>
+        </div>
+
+        <div class="disclaimer-box disclaimer-info">
+            <h3>Non-Affiliation & Editorial Disclaimer</h3>
+            <p>This course and its content represent the editorial opinion and intellectual property of Cyber Soho. The author's relationship with Dawson College is that of a "non-tenured visiting teacher". The author is not otherwise affiliated with, endorsed by, or partnered with Dawson College, or any other organization or certification body mentioned or unmentioned. All product names, logos, and brands are property of their respective owners.</p>
+        </div>
+    </section>
+    <!-- --- End Disclaimers Section --- -->
+
+
     <section class="footer">
       <div class="security">Hardened single-file page • CSP nonces • No inline handlers • No external resources • Works offline</div>
-      <div>© 2025 — Threats &amp; Risks (420-1C2-DW) — Course Outline</div>
+      <div class="copyright">
+        <p>Copyright &copy; 2025 Cyber Soho. All Rights Reserved.</p>
+        <p>This content is the exclusive intellectual property of the author and may not be reused without permission.</p>
+      </div>
     </section>
   </main>
 
