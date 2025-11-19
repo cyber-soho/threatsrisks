@@ -13,7 +13,7 @@ without the express written permission of the copyright holder.
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale-1" />
   <meta name="referrer" content="no-referrer" />
   <meta name="color-scheme" content="light dark" />
   <title>Threats &amp; Risks (420-1C2-DW) — Course Outline | Fall 2025</title>
@@ -76,6 +76,91 @@ without the express written permission of the copyright holder.
     .btn.primary{ border-color: color-mix(in oklab, var(--accent) 40%, var(--border)); }
     .footer{ margin:2rem 0; color:var(--muted); font-size:.9rem; display:grid; gap:.5rem; }
     
+    /* --- Password Protection Styles --- */
+    .content-protected {
+      filter: blur(10px);
+      pointer-events: none;
+      user-select: none;
+    }
+    #password-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none; /* Hidden by default, shown by JS */
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      color: var(--text);
+    }
+    #password-modal {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    #password-modal p {
+      margin: 0 0 0.5rem;
+      line-height: 1.6;
+      color: var(--muted);
+      white-space: pre-line; /* To respect line breaks in the prompt */
+    }
+    #password-modal .input-group {
+      position: relative;
+      display: flex;
+      gap: 0.5rem;
+    }
+    #password-input {
+      flex-grow: 1;
+      padding-right: 3rem; /* Space for eye icon */
+    }
+    #toggle-password {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.25rem;
+      padding: 0.25rem;
+      color: var(--muted);
+    }
+    #toggle-password:hover {
+      color: var(--text);
+    }
+    #submit-password {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      border-color: var(--accent);
+    }
+    [data-theme="light"] #submit-password {
+      color: var(--bg-2);
+    }
+    #password-error {
+      color: var(--danger);
+      font-size: 0.9rem;
+      height: 1.2em; /* Reserve space */
+      text-align: center;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    /* --- End Password Protection Styles --- */
+
     /* --- New Disclaimer Box Styles --- */
     .disclaimer-box {
       padding: 1rem;
@@ -118,7 +203,7 @@ without the express written permission of the copyright holder.
     }
     /* --- End Disclaimer Box Styles --- */
 
-    @media print{ header.site, .tools, .sticky-note, .footer .security, .search, .disclaimer-box{ display:none !important; } .card, details.accordion{ box-shadow:none !important; border-color:#bbb !important; } body{ background:#fff; color:#000; } }
+    @media print{ header.site, .tools, .sticky-note, .footer .security, .search, .disclaimer-box, #password-overlay { display:none !important; } .card, details.accordion{ box-shadow:none !important; border-color:#bbb !important; } body{ background:#fff; color:#000; } .content-protected { filter: none; } }
   </style>
 </head>
 <body>
@@ -127,9 +212,9 @@ without the express written permission of the copyright holder.
       <nav class="topnav" aria-label="Top navigation">
         <div class="brand" aria-label="Course brand">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" role="img"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M7 13.5l3 3 7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Threats &amp; Risks — 420-1C2-DW</span>
-          <span class="badge" title="Ponderation">3–2–3</span>
-          <span class="badge" title="Credits">2 2/3 cr.</span>
+          <!-- CHANGED: Removed "— 420-1C2-DW" -->
+          <span>Threats &amp; Risks</span>
+          <!-- REMOVED: Badges -->
         </div>
         <div class="tools">
           <div class="search" role="search" aria-label="Search sections">
@@ -148,7 +233,8 @@ without the express written permission of the copyright holder.
   <main id="main" class="container" tabindex="-1">
     <section class="hero">
       <div class="title">Course Outline — <span style="color:var(--accent)">Fall 2025</span></div>
-      <div class="meta">Group 1 • Term 1 • Location: online &amp; <strong>2F.20</strong> (see dates) • <span id="today" class="muted"></span></div>
+      <!-- CHANGED: Removed the date span -->
+      <div class="meta">Group 1 • Term 1 • Location: online &amp; <strong>2F.20</strong> (see dates)</div>
     </section>
 
     <section aria-labelledby="overview-h">
@@ -159,7 +245,8 @@ without the express written permission of the copyright holder.
           <p><strong>Course Hours:</strong> 75 &nbsp;&nbsp; <strong>Ponderation:</strong> 3–2–3 &nbsp;&nbsp; <strong>Credits:</strong> 2 2/3</p>
           <p><strong>Prerequisite:</strong> None &nbsp;&nbsp; <strong>Corequisite:</strong> None</p>
           <p><strong>Group:</strong> 1 &nbsp;&nbsp; <strong>Term:</strong> Fall 2025</p>
-          <p><strong>Teacher:</strong> Asen Grozdanov &nbsp;•&nbsp; <a href="mailto:agrozdanov@dawsoncollege.qc.ca" class="btn" rel="noopener noreferrer">agrozdanov@dawsoncollege.qc.ca</a> <span class="muted">(reply within 24 hours)</span></p>
+          <!-- CHANGED: Removed "Asen Grozdanov" -->
+          <p><strong>Teacher:</strong> &nbsp;•&nbsp; <a href="mailto:agrozdanov@dawsoncollege.qc.ca" class="btn" rel="noopener noreferrer">agrozdanov@dawsoncollege.qc.ca</a> <span class="muted">(reply within 24 hours)</span></p>
           <div class="sticky-note" role="note">
             <p><strong>Course Description.</strong> This introductory course equips students to identify and represent information assets, assess internal and external threats, evaluate risk factors, and propose effective mitigation strategies. By the end of the course, students develop risk mitigation strategies based on assessed severity, likelihood, and impact on information assets.</p>
           </div>
@@ -339,8 +426,8 @@ without the express written permission of the copyright holder.
           <div class="panel">
             <div class="grid cols-3">
               <div><h3>Class 1</h3><ul><li>Final review: Q&amp;A, case analysis</li></ul></div>
-              <div><h3>Class 2</h3><ul><li><a href="https://www.ticfp.qc.ca/main/lp/lp_controller.php?cidReq=LEAD8&id_session=0&gidReq=0&gradebook=0&origin=&action=view&lp_id=40168&isStudentView=true" target="_blank" rel="noopener noreferrer">Final exam review workshop</a></li></ul></div>
-              <div><h3>Class 3</h3><ul><li><strong><a href="https://www.ticfp.qc.ca/main/lp/lp_controller.php?cidReq=LEAD8&id_session=0&gidReq=0&gradebook=0&origin=&action=view&lp_id=44854&isStudentView=true" target="_blank" rel="noopener noreferrer">Final Exam (2F.20)</a></strong></li></ul></div>
+              <div><h3>Class 2</h3><ul><li><a href="httpsia.ticfp.qc.ca/main/lp/lp_controller.php?cidReq=LEAD8&id_session=0&gidReq=0&gradebook=0&origin=&action=view&lp_id=40168&isStudentView=true" target="_blank" rel="noopener noreferrer">Final exam review workshop</a></li></ul></div>
+              <div><h3>Class 3</h3><ul><li><strong><a href="httpsia.ticfp.qc.ca/main/lp/lp_controller.php?cidReq=LEAD8&id_session=0&gidReq=0&gradebook=0&origin=&action=view&lp_id=44854&isStudentView=true" target="_blank" rel="noopener noreferrer">Final Exam (2F.20)</a></strong></li></ul></div>
             </div>
           </div>
         </details>
@@ -369,13 +456,31 @@ without the express written permission of the copyright holder.
 
 
     <section class="footer">
-      <div class="security">Hardened single-file page • CSP nonces • No inline handlers • No external resources • Works offline</div>
+      <!-- REMOVED: Security div -->
       <div class="copyright">
         <p>Copyright &copy; 2025 Cyber Soho. All Rights Reserved.</p>
         <p>This content is the exclusive intellectual property of the author and may not be reused without permission.</p>
       </div>
     </section>
   </main>
+
+  <!-- --- Password Protection Modal --- -->
+  <div id="password-overlay">
+    <div id="password-modal" role="dialog" aria-modal="true" aria-labelledby="password-heading">
+      <h2 id="password-heading" style="margin-top:0;">Password Required</h2>
+      <p>Please enter the password to the Course of Threats & Risks — 420-1C2-DW.
+If you want to Cancel the action, click outside the "Password Required" box.
+You can see the entered password by clicking on the "eye" icon.</p>
+      <div class="input-group">
+        <input type="password" id="password-input" placeholder="Enter password..." aria-label="Password" />
+        <button id="toggle-password" type="button" title="Show/hide password">
+          <span>👁️</span>
+        </button>
+      </div>
+      <button id="submit-password" type="button">Unlock</button>
+      <div id="password-error" role="alert" aria-live="polite"></div>
+    </div>
+  </div>
 
   <script nonce="tr-fixed-2025">
     (function(){
@@ -409,14 +514,140 @@ without the express written permission of the copyright holder.
         const printBtn = $('#print');
         if (printBtn) printBtn.addEventListener('click', () => window.print());
 
-        const todayEl = $('#today');
-        if (todayEl) todayEl.textContent = new Date().toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+        // REMOVED: todayEl logic
+        // const todayEl = $('#today');
+        // if (todayEl) todayEl.textContent = new Date().toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
         const q = $('#q');
         if (q) q.addEventListener('input', () => {
           const kw = (q.value || '').toLowerCase().trim();
           detailsNodes.forEach(sec => { sec.style.display = !kw || sec.textContent.toLowerCase().includes(kw) ? '' : 'none'; });
         });
+        
+        // --- Password Protection Logic ---
+        // This logic MUST run after all other DOM elements are queryable
+        // but before the user interacts.
+        
+        // *** THIS IS THE CORRECTED LINE ***
+        // Stored Base64 encoded password
+        const CORRECT_PASSWORD_B64 = "dGVybTJfMjAyNSE="; 
+        const SESSION_KEY = "tr_authed_2025";
+
+        const mainContent = $('#main');
+        const overlay = $('#password-overlay');
+        const modal = $('#password-modal');
+        const passwordInput = $('#password-input');
+        const submitBtn = $('#submit-password');
+        const errorMsg = $('#password-error');
+        const togglePassword = $('#toggle-password');
+        const toggleIcon = $('#toggle-password span');
+
+        // Function to show the main content
+        function showContent() {
+          if (overlay) overlay.style.display = 'none';
+          if (mainContent) {
+            mainContent.classList.remove('content-protected');
+            mainContent.removeAttribute('aria-hidden');
+            mainContent.removeAttribute('tabindex');
+          }
+        }
+
+        // Function to show the password modal
+        function showModal() {
+          if (overlay) overlay.style.display = 'flex';
+          if (mainContent) {
+            mainContent.classList.add('content-protected');
+            mainContent.setAttribute('aria-hidden', 'true');
+            mainContent.setAttribute('tabindex', '-1');
+          }
+          if (passwordInput) passwordInput.focus();
+        }
+
+        // Function to attempt login
+        function attemptLogin() {
+          if (!passwordInput) return;
+          // Check the Base64 encoded input against the stored Base64 password
+          try {
+            if (btoa(passwordInput.value) === CORRECT_PASSWORD_B64) {
+              try {
+                sessionStorage.setItem(SESSION_KEY, 'true');
+              } catch (e) {
+                console.warn('Session storage is unavailable. Password protection will not persist for this session.');
+              }
+              showContent();
+              if (errorMsg) errorMsg.textContent = '';
+            } else {
+              if (errorMsg) errorMsg.textContent = 'Incorrect password. Please try again.';
+              if (passwordInput) passwordInput.value = '';
+              if (passwordInput) passwordInput.focus();
+            }
+          } catch (e) {
+            // Handle potential btoa errors (e.g., invalid characters)
+            if (errorMsg) errorMsg.textContent = 'Error processing password.';
+            console.error('Password encoding error:', e);
+          }
+        }
+
+        // Check auth status on page load
+        let isAuthed = false;
+        try {
+          isAuthed = (sessionStorage.getItem(SESSION_KEY) === 'true');
+        } catch (e) {
+          console.warn('Session storage is unavailable. Proceeding without session auth.');
+        }
+
+        if (isAuthed) {
+          showContent();
+        } else {
+          showModal();
+
+          // Bind event listeners only if modal is shown
+          if (submitBtn) {
+            submitBtn.addEventListener('click', attemptLogin);
+          }
+
+          if (passwordInput) {
+            passwordInput.addEventListener('keypress', (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent form submission (if any)
+                attemptLogin();
+              }
+            });
+          }
+
+          if (togglePassword) {
+            togglePassword.addEventListener('click', () => {
+              if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                if (toggleIcon) toggleIcon.textContent = '🙈';
+              } else {
+                passwordInput.type = 'password';
+                if (toggleIcon) toggleIcon.textContent = '👁️';
+              }
+              passwordInput.focus();
+            });
+          }
+          
+          // Handle "click outside to cancel"
+          if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                // Check if the click is on the overlay itself, not on the modal
+                if (e.target === overlay) {
+                    // Re-focus the password input to indicate the modal is active
+                    if (passwordInput) passwordInput.focus();
+                    
+                    // Add a slight "shake" animation to the modal
+                    if(modal) {
+                        modal.style.animation = 'shake 0.3s ease-out';
+                        setTimeout(() => {
+                            if (modal) modal.style.animation = '';
+                        }, 300);
+                    }
+                }
+            });
+          }
+        }
+        // --- End Password Protection Logic ---
       }
     })();
   </script>
